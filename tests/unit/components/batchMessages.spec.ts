@@ -122,7 +122,9 @@ describe('Batch message display', () => {
   })
   it('explains how many summary items were kept without a dialog link', () => {
     const wrapper = mountMessage(props(true))
-    expect(wrapper.find('.batch-summary').text()).to.equal('Only the first 20 of 250 items were kept')
+    expect(wrapper.find('.batch-summary').text()).to.equal(
+      'Summary only: first 20 of 250 items, up to the first 32 B each',
+    )
     expect(wrapper.find('.see-more-btn').exists()).to.equal(false)
     wrapper.destroy()
   })
@@ -131,6 +133,7 @@ describe('Batch message display', () => {
     expect(wrapper.findAll('.batch-row')).to.have.length(0)
     expect(wrapper.find('.msg-tag').text()).to.include('BATCH_LIMIT_EXCEEDED')
     expect(wrapper.find('.batch-hex').text()).to.equal('0000ff')
+    expect(wrapper.find('.batch-notice').text()).to.equal('Batch validation failed; a hex preview was saved')
     wrapper.destroy()
   })
   it('labels the hex preview length only when it is truncated', async () => {
@@ -142,6 +145,22 @@ describe('Batch message display', () => {
     meta.payloadBytes = 10
     await wrapper.setProps({ meta: JSON.stringify(meta) })
     expect(wrapper.find('.batch-preview-note').text()).to.equal('Preview: 3 B of 10 B')
+    wrapper.destroy()
+  })
+  it('explains the receive processing skipped for a batch', () => {
+    const wrapper = mountMessage(props())
+    expect(wrapper.find('.batch-notice').text()).to.equal('Batch skipped GZIP decompression, Schema and scripts')
+    wrapper.destroy()
+  })
+  it('explains item conversion falling back to text', () => {
+    const message = props()
+    const wrapper = mountMessage({
+      ...message,
+      meta: JSON.stringify({ ...JSON.parse(message.meta), batchConversionFallback: true }),
+    })
+    expect(wrapper.findAll('.batch-notice').at(1).text()).to.equal(
+      'Some items could not be converted and were saved as text',
+    )
     wrapper.destroy()
   })
   it('rebuilds published Hex items as decoded binary previews', () => {
@@ -160,6 +179,7 @@ describe('Batch message display', () => {
   it('falls back to Plaintext lines for published legacy history', () => {
     const wrapper = mountMessage({ ...props(), payload: 'é\n\nlast\n' }, MsgRightItem)
     expect(wrapper.findAll('.batch-content').wrappers.map((row) => row.text())).to.deep.equal(['é', '', 'last'])
+    expect(wrapper.find('.batch-notice').text()).to.equal('Legacy Batch format was not saved; displayed as Plaintext')
     wrapper.destroy()
   })
   it('hides the pager for one page and navigates longer batches from the footer', async () => {

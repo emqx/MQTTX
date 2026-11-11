@@ -387,6 +387,7 @@
             :min="minBatchMaxItems"
             :max="maxBatchMaxItems"
             @change="handleBatchMaxItemsChange"
+            @change.native.capture="handleBatchLimitInput($event, 'items')"
         /></el-col>
       </el-row>
       <el-divider></el-divider>
@@ -415,6 +416,7 @@
             :min="minBatchMaxBytes"
             :max="maxBatchMaxBytes"
             @change="handleBatchMaxBytesChange"
+            @change.native.capture="handleBatchLimitInput($event, 'bytes')"
         /></el-col>
       </el-row>
       <el-divider></el-divider>
@@ -936,17 +938,47 @@ export default class Settings extends Vue {
     this.actionSetAgentMaxSteps({ agentMaxSteps: value })
   }
 
-  private handleBatchStorageModeChange(value: App['batchStorageMode']) {
+  private async handleBatchStorageModeChange(value: App['batchStorageMode']) {
+    if (value === 'summary' && this.batchStorageMode !== 'summary') {
+      try {
+        await this.$confirm(
+          this.$t('settings.batchSummaryConfirm', { items: BATCH_SUMMARY_ITEMS, bytes: BATCH_SUMMARY_BYTES }) as string,
+          this.$tc('common.warning'),
+          { type: 'warning' },
+        )
+      } catch {
+        return
+      }
+    }
     this.actionBatchStorageMode({ batchStorageMode: value })
   }
 
+  private handleBatchLimitInput(event: Event, kind: 'items' | 'bytes') {
+    const input = event.target as HTMLInputElement
+    if (!input.value.trim()) return
+    const value = Number(input.value)
+    const min = kind === 'items' ? MIN_BATCH_MAX_ITEMS : MIN_BATCH_MAX_BYTES
+    const max = kind === 'items' ? MAX_BATCH_MAX_ITEMS : MAX_BATCH_MAX_BYTES
+    if (Number.isNaN(value)) {
+      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
+    } else if (value < min || value > max) {
+      this.$message.warning(this.$t('settings.batchLimitAdjusted', { value: Math.min(max, Math.max(min, value)) }) as string)
+    }
+  }
+
   private handleBatchMaxItemsChange(value: number) {
-    if (normalizeBatchMaxItems(value) !== value) return
+    if (normalizeBatchMaxItems(value) !== value) {
+      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
+      return
+    }
     this.actionBatchMaxItems({ batchMaxItems: value })
   }
 
   private handleBatchMaxBytesChange(value: number) {
-    if (normalizeBatchMaxBytes(value) !== value) return
+    if (normalizeBatchMaxBytes(value) !== value) {
+      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
+      return
+    }
     this.actionBatchMaxBytes({ batchMaxBytes: value })
   }
 

@@ -10,7 +10,7 @@
       >
     </div>
     <p v-if="summary" class="batch-summary batch-muted">
-      {{ $t('connections.batchSummary', { saved: items.length, total: count }) }}
+      {{ $t('connections.batchSummary', { saved: items.length, total: count, bytes: summaryBytes }) }}
     </p>
     <el-button
       v-else-if="items.length > previewItems.length"
@@ -27,7 +27,13 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { BATCH_PREVIEW_ITEMS, StoredBatchItem, BatchItemDisplay, getBatchItemDisplay } from '@/utils/batchPayload'
+import {
+  BATCH_PREVIEW_ITEMS,
+  BATCH_SUMMARY_BYTES,
+  StoredBatchItem,
+  BatchItemDisplay,
+  getBatchItemDisplay,
+} from '@/utils/batchPayload'
 import { formatBytes } from '@/utils/formatter'
 
 @Component
@@ -46,6 +52,7 @@ export default class BatchItems extends Vue {
   }
 
   private formatBytes = formatBytes
+  private summaryBytes = BATCH_SUMMARY_BYTES
 }
 </script>
 

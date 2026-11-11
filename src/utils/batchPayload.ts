@@ -212,6 +212,7 @@ export const storeBatchItems = (
   mode: BatchStorageMode,
   type: PayloadType,
   convert: (item: Buffer) => string,
+  onFallback?: () => void,
 ): StoredBatchItem[] =>
   (mode === 'summary' ? items.slice(0, BATCH_SUMMARY_ITEMS) : items).map((item) => {
     const utf8 = type !== 'Hex' && type !== 'Base64' && isValidUtf8(item)
@@ -226,6 +227,7 @@ export const storeBatchItems = (
     try {
       text = convert(prefix)
     } catch (error) {
+      onFallback?.()
       text = prefix.toString()
     }
     return text + (mode === 'summary' && item.length > prefix.length ? '…' : '')

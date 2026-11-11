@@ -36,6 +36,14 @@
       color: var(--color-text-right_info);
     }
   }
+  .batch-notice {
+    margin-top: 8px;
+    color: var(--color-text-tips);
+    font-size: 12px;
+  }
+  .right-payload .batch-notice {
+    color: var(--color-text-right_info);
+  }
   .el-tag.batch-tag,
   .el-tag.gzip-tag {
     margin-left: 12px;

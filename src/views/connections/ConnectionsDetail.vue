@@ -341,6 +341,7 @@
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
           :mqtt-version="record.mqttVersion"
+          :batch-processing-active="batchProcessingActive"
           :maximum-packet-size="brokerMaximumPacketSize"
           @batchChange="batchPublishing = $event"
           ref="msgPublish"
@@ -500,6 +501,14 @@ export default class ConnectionsDetail extends Vue {
   @Getter('batchStorageMode') private batchStorageMode!: BatchStorageMode
 
   private batchPublishing = false
+
+  get batchProcessingActive(): boolean {
+    return Boolean(
+      this.scriptOption &&
+        ['all', 'publish'].includes(this.scriptOption.apply) &&
+        (this.scriptOption.function || this.scriptOption.schema),
+    )
+  }
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -1273,6 +1282,13 @@ export default class ConnectionsDetail extends Vue {
         conBack.properties?.userProperties,
       ),
     })
+    if (
+      mqttVersion === '5.0' &&
+      client.options?.properties?.userProperties?.['batch-publish'] !== undefined &&
+      !validateBatchSelection(client.options?.properties?.userProperties, conBack.properties?.userProperties)
+    ) {
+      this.$message.warning(this.$t('connections.batchNegotiationRejected') as string)
+    }
     this.$notify({
       title: this.$tc('connections.connected'),
       message: '',
@@ -1477,9 +1493,16 @@ export default class ConnectionsDetail extends Vue {
     if (batch) {
       const { items, ...metadata } = batch
       const summary = this.batchStorageMode === 'summary' && !batch.error
+      let conversionFallback = false
       const stored = items
-        ? storeBatchItems(items, summary ? 'summary' : 'full', this.receivedMsgType, (item) =>
-            String(this.convertPayloadByType(item, this.receivedMsgType, 'received') ?? ''),
+        ? storeBatchItems(
+            items,
+            summary ? 'summary' : 'full',
+            this.receivedMsgType,
+            (item) => String(this.convertPayloadByType(item, this.receivedMsgType, 'received') ?? ''),
+            () => {
+              conversionFallback = true
+            },
           )
         : undefined
       const receivedMessage: MessageModel = {
@@ -1491,6 +1514,7 @@ export default class ConnectionsDetail extends Vue {
         retain,
         properties,
         payload: stored ? JSON.stringify(stored) : batchHexPreview(payload, this.maxPayloadDisplaySize),
+        ...(conversionFallback ? { meta: JSON.stringify({ batchConversionFallback: true }) } : {}),
       }
       this.updateMetaBatch(receivedMessage, { ...metadata, ...(summary ? { summary: true } : {}) }, payload.length)
       this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
@@ -1922,7 +1946,7 @@ export default class ConnectionsDetail extends Vue {
             String(this.$t(key, values)),
           ),
         )
-        this.handleErrorOnPublish(error)
+        this.handleErrorOnPublish(error, true)
         onResult?.(error)
         return false
       }
@@ -1962,7 +1986,7 @@ export default class ConnectionsDetail extends Vue {
       { qos, retain, properties: props as IClientPublishOptions['properties'] },
       async (error: Error) => {
         if (error) {
-          this.handleErrorOnPublish(error)
+          this.handleErrorOnPublish(error, Boolean(message.batch))
           onResult?.(error)
           return
         }
@@ -1998,7 +2022,8 @@ export default class ConnectionsDetail extends Vue {
   /**
    * Handles errors that occur during the message publish process.
    */
-  private handleErrorOnPublish(error: Error) {
+  private handleErrorOnPublish(error: Error, batch = false) {
+    if (batch && this.sendTimeId != null) this.$message.warning(this.$t('connections.batchTimedStopped') as string)
     const errorMsg = error.toString()
     this.notifyMsgWithAgent(errorMsg)
     this.stopTimedSend()

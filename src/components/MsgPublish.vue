@@ -85,13 +85,24 @@
     </div>
     <div class="publish-header">
       <div class="publish-metadata">
-        <el-select class="payload-select" size="mini" :value="msgRecord.payloadType" @change="handleTypeChange">
+        <el-select
+          class="payload-select"
+          size="mini"
+          :value="msgRecord.payloadType"
+          :title="msgRecord.batch ? $t('connections.batchPayloadType') : ''"
+          @change="handleTypeChange"
+        >
           <el-option-group :label="$t('connections.publishPayloadEncodedBy')">
             <el-option v-for="(type, index) in availablePayloadOptions" :key="index" :label="type" :value="type">
             </el-option>
           </el-option-group>
         </el-select>
-        <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
+        <el-select
+          class="qos-select"
+          size="mini"
+          v-model="msgRecord.qos"
+          :title="msgRecord.batch ? $t('connections.batchUnsupportedQos') : ''"
+        >
           <el-option v-for="qos in batchQosOptions" :key="qos" :label="`QoS ${qos}`" :value="qos">
             <span style="float: left">{{ qos }}</span>
             <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
@@ -101,6 +112,7 @@
           class="retain-checkbox"
           v-model="msgRecord.retain"
           :disabled="batchRetainDisabled"
+          :title="batchRetainDisabled ? $t('connections.batchRetainDisabled') : ''"
           label="Retain"
           border
           size="mini"
@@ -109,6 +121,7 @@
           class="batch-checkbox"
           :value="msgRecord.batch"
           :disabled="isMqtt31"
+          :title="isMqtt31 ? $t('connections.batchMqttVersion') : ''"
           label="Batch"
           border
           size="mini"
@@ -139,7 +152,11 @@
           <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini" icon="el-icon-caret-top">
           </el-button>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
-            <el-dropdown-item command="clearRetainedMessage" :disabled="!clientConnected || batchClearRetainedDisabled">
+            <el-dropdown-item
+              command="clearRetainedMessage"
+              :disabled="!clientConnected || batchClearRetainedDisabled"
+              :title="batchClearRetainedDisabled ? $t('connections.batchClearRetainedDisabled') : ''"
+            >
               <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
             </el-dropdown-item>
             <el-dropdown-item command="timedMessage" :disabled="!clientConnected || sendTimeId !== null">
@@ -253,12 +270,7 @@
         <i class="iconfont icon-send"></i>
       </a>
     </div>
-    <div
-      v-if="msgRecord.batch"
-      class="batch-status"
-      :class="{ invalid: batchState.error }"
-      :title="batchState.error ? batchError : $t('connections.batchProcessingDisabled')"
-    >
+    <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
       {{
         $t('connections.batchStatus', {
           count: batchState.count,
@@ -327,6 +339,7 @@ export default class MsgPublish extends Vue {
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
   @Prop({ default: '5.0' }) public mqttVersion!: string
+  @Prop({ default: false }) public batchProcessingActive!: boolean
   @Prop() public maximumPacketSize?: number
   @Prop({ default: false }) public clientConnected!: boolean
   @Prop({ default: null }) public sendTimeId!: number | null
@@ -366,6 +379,15 @@ export default class MsgPublish extends Vue {
     return formatBatchPublishError(this.batchState, this.batchLimits, this.maximumPacketSize, (key, values) =>
       String(this.$t(key, values)),
     )
+  }
+
+  get batchStatusTitle(): string {
+    if (this.batchState.error) return this.batchError
+    return [
+      this.$t('connections.batchInputRules'),
+      this.$t('connections.batchCarrierNotice'),
+      this.$t('connections.batchProcessingDisabled'),
+    ].join(' · ')
   }
 
   get batchQosOptions(): QoS[] {
@@ -412,6 +434,7 @@ export default class MsgPublish extends Vue {
     const clearPfi =
       this.MQTT5PropsForm.payloadFormatIndicator === true || this.MQTT5PropsSend.payloadFormatIndicator === true
     if (clearPfi) changes.push(this.$t('connections.batchPfiChange') as string)
+    if (this.batchProcessingActive) changes.push(this.$t('connections.batchProcessingChange') as string)
     if (changes.length) {
       try {
         await this.$confirm(
@@ -419,7 +442,11 @@ export default class MsgPublish extends Vue {
             changes: changes.join(this.$t('connections.batchSettingsSeparator') as string),
           }) as string,
           this.$tc('common.warning'),
-          { type: 'warning' },
+          {
+            type: 'warning',
+            confirmButtonText: this.$t('connections.batchSettingsApply') as string,
+            cancelButtonText: this.$t('common.cancel') as string,
+          },
         )
       } catch {
         return
@@ -439,8 +466,22 @@ export default class MsgPublish extends Vue {
   @Watch('msgRecord.retain')
   private handleBatchChange() {
     this.$nextTick(this.handleLayout)
-    if (this.isMqtt31) this.$set(this.msgRecord, 'batch', false)
+    if (this.isMqtt31 && this.msgRecord.batch) {
+      this.$set(this.msgRecord, 'batch', false)
+      this.$message.warning(this.$t('connections.batchDisabledMqtt31') as string)
+    }
     this.$emit('batchChange', Boolean(this.msgRecord.batch))
+  }
+
+  @Watch('batchProcessingActive')
+  private handleBatchProcessingChanged(active: boolean) {
+    if (active && this.msgRecord.batch) this.$message.info(this.$t('connections.batchProcessingDisabled') as string)
+  }
+
+  private notifyBatchRestore(key: string) {
+    const notices = [this.$t(key)]
+    if (this.msgRecord.batch && this.batchProcessingActive) notices.push(this.$t('connections.batchProcessingDisabled'))
+    this.$message.info(notices.join(' · '))
   }
 
   private MQTT5PropsForm: PushPropertiesModel = {}
@@ -509,6 +550,7 @@ export default class MsgPublish extends Vue {
     const { payload, payloadType } = this.msgRecord
     if (this.msgRecord.batch) {
       this.msgRecord.payloadType = type
+      if (type !== payloadType) this.$message.info(this.$t('connections.batchFormatKept', { format: type }) as string)
       return
     }
     try {
@@ -527,8 +569,10 @@ export default class MsgPublish extends Vue {
   private selectHistory(index: number) {
     const item = this.payloadsHistory[index]
     if (item) {
+      const changed = this.msgRecord.payload !== item.payload || this.msgRecord.payloadType !== item.payloadType
       this.historyIndex = index
       Object.assign(this.msgRecord, getMsgPayload(item))
+      if (this.msgRecord.batch && changed) this.notifyBatchRestore('connections.batchHistoryRestored')
     }
   }
 
@@ -578,8 +622,10 @@ export default class MsgPublish extends Vue {
 
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
     if (val) {
+      const changed = (this.msgRecord.batch || val.batch) && !_.isEqual(getMsgHeader(this.msgRecord), getMsgHeader(val))
       Object.assign(this.msgRecord, getMsgHeader(val))
       this.handleBatchChange()
+      if (changed) this.notifyBatchRestore('connections.batchHistoryRestored')
     }
   }
 
@@ -705,6 +751,7 @@ export default class MsgPublish extends Vue {
       this.loadHistoryData(),
     ])
     if (connectionId !== this.connectionId) return
+    const previous = { ...this.msgRecord }
     const header = _.last(this.headersHistory)
     const payload = _.last(this.payloadsHistory)
     this.msgRecord = saved
@@ -717,6 +764,9 @@ export default class MsgPublish extends Vue {
     this.savedMsgRecord = { ...this.msgRecord }
     this.historyIndex = saved || !payload ? -1 : this.payloadsHistory.length - 1
     this.headerValue = getMsgHeader(this.msgRecord)
+    if ((previous.batch || this.msgRecord.batch) && !_.isEqual(previous, this.msgRecord)) {
+      this.notifyBatchRestore(saved ? 'connections.batchSavedRestored' : 'connections.batchHistoryRestored')
+    }
   }
 
   private async loadHistoryData(selectLatest?: boolean) {
@@ -740,6 +790,9 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadProperties() {
+    const previous = [this.MQTT5PropsForm, this.MQTT5PropsSend]
+    const cleared = previous.some((properties) => Object.keys(properties).length > 0)
+    let restored = false
     this.MQTT5PropsForm = {}
     this.MQTT5PropsSend = {}
     this.hasMqtt5Prop = false
@@ -747,16 +800,27 @@ export default class MsgPublish extends Vue {
       const { connectionService } = useServices()
       const pushProps = await connectionService.getPushProp(this.$route.params.id)
       if (pushProps) {
+        restored = !_.isEqual([this.MQTT5PropsForm, this.MQTT5PropsSend], [pushProps, pushProps])
         this.MQTT5PropsForm = pushProps
         this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
         this.handleBatchChange()
       }
     }
+    if (
+      this.msgRecord.batch &&
+      (cleared || restored) &&
+      !_.isEqual(previous, [this.MQTT5PropsForm, this.MQTT5PropsSend])
+    ) {
+      this.$message.info(this.$t('connections.batchMetaReloaded') as string)
+    }
   }
 
   private formatJsonValue() {
-    if (this.msgRecord.batch) return
+    if (this.msgRecord.batch) {
+      this.$message.info(this.$t('connections.batchBeautifySkipped') as string)
+      return
+    }
     try {
       let jsonValue: string | undefined = validFormatJson(this.msgRecord.payload)
       if (jsonValue) {
@@ -793,8 +857,14 @@ export default class MsgPublish extends Vue {
 
   private onClearRetainedMsgPublish() {
     if (this.batchClearRetainedDisabled) return
+    const batchMarkers = this.MQTT5PropsSend.userProperties || {}
+    const clearsBatch =
+      this.msgRecord.batch ||
+      ['batch-format', 'batch-size'].some((key) => Object.prototype.hasOwnProperty.call(batchMarkers, key))
     this.$confirm(
-      `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.msgRecord.topic}"`,
+      `${this.$tc(
+        clearsBatch ? 'connections.batchClearRetainedConfirm' : 'connections.clearRetainedMessageConfirm',
+      )} "${this.msgRecord.topic}"`,
       this.$tc('common.warning'),
       {
         type: 'warning',

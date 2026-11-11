@@ -30,6 +30,7 @@
       />
       <pre v-else-if="!searchParams.payload">{{ highlightedPayload }}</pre>
       <pre v-else v-html="highlightedPayload"></pre>
+      <p v-if="batch && !batch.payloadType" class="batch-notice">{{ $t('connections.batchLegacyPlaintext') }}</p>
     </div>
     <p class="right-time time">{{ createAt }}</p>
     <FullMsgDialog

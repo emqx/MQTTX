@@ -49,6 +49,7 @@
       <MqttProperties class="meta" :properties="properties" direction="left" />
       <template v-if="batch">
         <div v-if="batch.error" class="batch-error-preview">
+          <p class="batch-notice">{{ $t('connections.batchRejectedPreview') }}</p>
           <pre class="batch-hex">{{ payload }}</pre>
           <p v-if="payload.length / 2 < payloadBytes" class="batch-preview-note">
             {{
@@ -67,6 +68,8 @@
           direction="left"
           @view-all="handleShowFullMsg"
         />
+        <p v-if="!batch.error" class="batch-notice">{{ $t('connections.batchReceiveProcessingSkipped') }}</p>
+        <p v-if="conversionFallback" class="batch-notice">{{ $t('connections.batchConversionFallback') }}</p>
       </template>
       <template v-else-if="isLargeMsg">
         <div class="large-message">
@@ -149,6 +152,10 @@ export default class MsgLeftItem extends Vue {
 
   get payloadBytes() {
     return this.meta ? JSON.parse(this.meta).payloadBytes : 0
+  }
+
+  get conversionFallback(): boolean {
+    return Boolean(this.meta && JSON.parse(this.meta).batchConversionFallback)
   }
 
   get batchItems(): StoredBatchItem[] {

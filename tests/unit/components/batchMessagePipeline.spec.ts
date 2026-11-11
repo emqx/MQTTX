@@ -101,6 +101,14 @@ describe('Desktop batch message pipeline', () => {
     expect(JSON.parse(message.meta).batch.error).to.equal('BATCH_LIMIT_EXCEEDED')
     expect(message.payload).to.equal('000566')
   })
+  it('records conversion fallback for the received batch notice', () => {
+    const context = receiveContext()
+    context.receivedMsgType = 'JSON'
+    const incoming = packet([Buffer.from('not JSON')])
+    const message = context.processReceivedMessage(incoming.topic, incoming.payload, incoming)
+    expect(JSON.parse(message.payload)).to.deep.equal(['not JSON'])
+    expect(JSON.parse(message.meta).batchConversionFallback).to.equal(true)
+  })
 
   it('buffers one row per PUBLISH and preserves ignoreQoS0Message', async () => {
     const context = receiveContext()
@@ -268,6 +276,7 @@ describe('Desktop batch message pipeline', () => {
     let stops = 0
     let sends = 0
     const errors: string[] = []
+    const warnings: string[] = []
     const context: any = {
       ...methods,
       record: { id: 'c1', mqttVersion: '5.0' },
@@ -281,6 +290,7 @@ describe('Desktop batch message pipeline', () => {
       },
       notifyMsgWithAgent: (message: string) => errors.push(message),
       $t: (key: string) => key,
+      $message: { warning: (message: string) => warnings.push(message) },
       $log: { error: () => undefined },
       client: { publish: () => sends++ },
     }
@@ -304,6 +314,7 @@ describe('Desktop batch message pipeline', () => {
       expect(sends).to.equal(1)
       expect(stops).to.equal(2)
       expect(errors[0]).to.include('connections.batchPacketTooLarge')
+      expect(warnings).to.deep.equal(['connections.batchTimedStopped'])
     } finally {
       window.setInterval = originalInterval
     }
@@ -311,10 +322,13 @@ describe('Desktop batch message pipeline', () => {
 
   it('shows negotiation and the broker limit from each successful CONNACK', () => {
     let saved: any
+    const warnings: string[] = []
     const context: any = {
       changeActiveConnection: (value: any) => (saved = value),
       $notify: () => undefined,
       $tc: (key: string) => key,
+      $t: (key: string) => key,
+      $message: { warning: (message: string) => warnings.push(message) },
       setShowClientInfo: () => undefined,
       $emit: () => undefined,
       $log: { info: () => undefined },
@@ -343,6 +357,7 @@ describe('Desktop batch message pipeline', () => {
     methods.onConnect.call(context, {}, { id: 'c1', mqttVersion: '3.1.1', client: { options: {} } })
     expect(saved).to.include({ batchRequested: false, batchSelected: false, maximumPacketSize: undefined })
     expect(getBatchNegotiationStatus('3.1.1', saved.batchRequested, saved.batchSelected)).to.equal('batchNotApplicable')
+    expect(warnings).to.deep.equal(['connections.batchNegotiationRejected', 'connections.batchNegotiationRejected'])
   })
 
   it('logs count, bytes and error without batch item content', () => {
