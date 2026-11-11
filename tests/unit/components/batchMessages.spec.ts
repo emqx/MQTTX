@@ -46,16 +46,18 @@ const mountMessage = (propsData: any, component: any = MsgLeftItem) =>
     store: new Vuex.Store({ getters: { jsonHighlight: () => false, currentTheme: () => 'light' } }),
     mocks: { $t: translate },
   })
-const mountDialog = (propsData: any) => {
+const mountDialog = async (propsData: any) => {
   const vue = createLocalVue()
   vue.use(Button)
-  return mount(FullMsgDialog, {
+  const wrapper = mount(FullMsgDialog, {
     localVue: vue,
     sync: false,
     propsData: { visible: true, msgId: 'batch', msgType: 'Plaintext', ...propsData },
     stubs: { 'el-dialog': { template: '<div><slot/><slot name="footer"/></div>' } },
     mocks: { $t: translate },
   })
+  await Vue.nextTick()
+  return wrapper
 }
 
 describe('Batch message display', () => {
@@ -183,10 +185,10 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('hides the pager for one page and navigates longer batches from the footer', async () => {
-    const wrapper = mountDialog({ batchPayload: JSON.stringify(['one', 'two', 'three', 'four', 'five']) })
+    const wrapper = await mountDialog({ batchPayload: JSON.stringify(['one', 'two', 'three', 'four', 'five']) })
     expect(wrapper.find('.batch-pager').exists()).to.equal(false)
     await wrapper.setProps({ batchPayload: props().payload })
-    const list = wrapper.find('.batch-page').element as HTMLElement
+    const list = wrapper.find('.el-table__body-wrapper').element as HTMLElement
     list.scrollTop = 120
     expect(wrapper.find('.batch-pager .history-btn-left').attributes('disabled')).to.equal('disabled')
     await wrapper.find('.batch-pager .history-btn-right').trigger('click')
@@ -196,7 +198,7 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('paginates saved arrays at 100 items through the last page', async () => {
-    const wrapper = mountDialog({ batchPayload: props().payload })
+    const wrapper = await mountDialog({ batchPayload: props().payload })
     const vm = wrapper.vm as any
     expect(wrapper.findAll('tbody tr')).to.have.length(100)
     vm.batchPage = 3
@@ -206,15 +208,15 @@ describe('Batch message display', () => {
     expect(wrapper.findAll('tbody .batch-content').at(49).text()).to.equal('item 250')
     wrapper.destroy()
   })
-  it('shows UTF-8 and binary byte sizes in the compact table', () => {
-    const wrapper = mountDialog({ batchPayload: JSON.stringify(['é', { b64: '/w==' }]) })
+  it('shows UTF-8 and binary byte sizes in the compact table', async () => {
+    const wrapper = await mountDialog({ batchPayload: JSON.stringify(['é', { b64: '/w==' }]) })
     expect(wrapper.findAll('tbody .batch-size').wrappers.map((row) => row.text())).to.deep.equal(['2 B', '1 B'])
     expect(wrapper.find('tbody .batch-muted').text()).to.equal('(binary)')
     wrapper.destroy()
   })
-  it('keeps the complete saved payload for export', () => {
+  it('keeps the complete saved payload for export', async () => {
     const payload = props().payload
-    const wrapper = mountDialog({ batchPayload: payload })
+    const wrapper = await mountDialog({ batchPayload: payload })
     const originalSend = ipcRenderer.send
     let exported: any[] = []
     ipcRenderer.send = (...args: any[]) => {

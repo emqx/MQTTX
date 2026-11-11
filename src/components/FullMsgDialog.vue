@@ -37,31 +37,34 @@
           {{ $t('common.msgType') }}: <strong>{{ msgType }}</strong>
         </span>
       </div>
-      <template v-if="batchPayload !== undefined">
-        <div ref="batchPageRef" class="batch-page">
-          <table>
-            <thead>
-              <tr>
-                <th class="batch-index">#</th>
-                <th>{{ $t('connections.batchItemContent') }}</th>
-                <th class="batch-size">{{ $t('connections.batchItemSize') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in batchPageItems" :key="index">
-                <td class="batch-index">{{ (batchPage - 1) * batchPageSize + index + 1 }}</td>
-                <td>
-                  <span class="batch-content" :title="item.title"
-                    >{{ item.text
-                    }}<span v-if="item.binary" class="batch-muted"> ({{ $t('connections.batchBinary') }})</span></span
-                  >
-                </td>
-                <td class="batch-size">{{ formatBytes(item.bytes) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </template>
+      <el-table
+        v-if="batchPayload !== undefined"
+        ref="batchTableRef"
+        class="batch-table"
+        :data="batchPageItems"
+        :max-height="400"
+        size="mini"
+      >
+        <el-table-column
+          type="index"
+          label="#"
+          width="56"
+          align="center"
+          class-name="batch-index"
+          :index="batchItemIndex"
+        />
+        <el-table-column :label="$t('connections.batchItemContent')" show-overflow-tooltip>
+          <template slot-scope="{ row }">
+            <span class="batch-content" :title="row.title"
+              >{{ row.text
+              }}<span v-if="row.binary" class="batch-muted"> ({{ $t('connections.batchBinary') }})</span></span
+            >
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('connections.batchItemSize')" width="80" align="right" class-name="batch-size">
+          <template slot-scope="{ row }">{{ formatBytes(row.bytes) }}</template>
+        </el-table-column>
+      </el-table>
       <div v-else class="editor-container full-msg-editor">
         <Editor
           :key="msgId"
@@ -80,6 +83,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Table, TableColumn } from 'element-ui'
 import useServices from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
 import Editor from './Editor.vue'
@@ -92,6 +96,8 @@ import { calculateTextSize } from '@/utils/data'
   components: {
     MyDialog,
     Editor,
+    ElTable: Table,
+    ElTableColumn: TableColumn,
   },
 })
 export default class FullMsgDialog extends Vue {
@@ -126,10 +132,15 @@ export default class FullMsgDialog extends Vue {
     return Math.ceil(this.batchItems.length / this.batchPageSize)
   }
 
+  private batchItemIndex(index: number): number {
+    return (this.batchPage - 1) * this.batchPageSize + index + 1
+  }
+
   @Watch('batchPage')
   private onBatchPageChanged() {
-    const page = this.$refs.batchPageRef as HTMLElement | undefined
-    if (page) page.scrollTop = 0
+    const table = this.$refs.batchTableRef as Table | undefined
+    const body = table?.$el.querySelector<HTMLElement>('.el-table__body-wrapper')
+    if (body) body.scrollTop = 0
   }
 
   private showDialog: boolean = this.visible
@@ -208,6 +219,7 @@ export default class FullMsgDialog extends Vue {
       display: flex;
       flex-direction: column;
       min-height: 0;
+      padding-top: 12px;
       overflow: hidden;
     }
   }
@@ -231,55 +243,37 @@ export default class FullMsgDialog extends Vue {
     padding: 10px 1px 1px 1px;
     border-radius: 8px;
   }
-  .batch-page {
+  .batch-table {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
     min-height: 0;
-    max-height: 400px;
-    overflow: auto;
     color: var(--color-text-default);
-    font-size: 13px;
-    line-height: 1.6;
-    table {
-      width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
+    background-color: var(--color-bg-normal);
+    .el-table__header-wrapper {
+      flex-shrink: 0;
+    }
+    .el-table__body-wrapper {
+      min-height: 0;
+      overflow: auto;
+    }
+    th,
+    tr {
+      background-color: var(--color-bg-normal);
     }
     th,
     td {
-      height: 32px;
-      padding: 0 8px;
-      border-bottom: 1px solid var(--color-border-default);
-      text-align: left;
+      border-bottom-color: var(--color-border-default);
     }
-    th {
-      position: sticky;
-      top: 0;
-      color: var(--color-text-tips);
-      background: var(--color-bg-normal);
-      font-size: 12px;
-      font-weight: 500;
+    &::before {
+      background-color: var(--color-border-default);
     }
-    .batch-index {
-      width: 56px;
-      white-space: nowrap;
-      color: var(--color-text-tips);
-      text-align: right;
-      font-size: 12px;
+    .el-table__body tr:hover > td {
+      background-color: var(--color-bg-select_lang);
     }
-    .batch-size {
-      width: 72px;
-      text-align: right;
-      white-space: nowrap;
-    }
-    .batch-content {
-      display: block;
-      font-family: monospace;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    th,
     .batch-muted {
       color: var(--color-text-tips);
-      font-size: 12px;
     }
   }
   .batch-pager {
