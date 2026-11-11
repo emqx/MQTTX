@@ -155,16 +155,12 @@ declare global {
     | 'format'
     | 'debug'
     | 'message'
-    | 'batch'
     | 'batchMaxItems'
     | 'batchMaxBytes'
-    | 'batchNegotiate'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
-    batch?: boolean
     batchItems?: number
-    batchNegotiate?: boolean
     message: string | Buffer
     count: number
     interval: number
@@ -172,7 +168,6 @@ declare global {
     maxInflight?: number
     limit: number
     verbose: boolean
-    split?: boolean | string
   }
 
   type OmitSubscribeOptions = Omit<
@@ -185,13 +180,11 @@ declare global {
     | 'fileWrite'
     | 'fileSave'
     | 'delimiter'
-    | 'batch'
     | 'batchMaxItems'
     | 'batchMaxBytes'
   >
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
-    batch?: boolean
     count: number
     interval: number
   }
