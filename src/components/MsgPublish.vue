@@ -371,12 +371,11 @@ export default class MsgPublish extends Vue {
   }
 
   get batchState() {
-    const properties = setPublishMQTT5Properties(this.MQTT5PropsSend)
     return prepareBatchPublish(
       this.msgRecord,
       this.msgRecord.payloadType,
       getBatchProtocolVersion(this.mqttVersion),
-      this.mqtt5PropsEnable ? properties : undefined,
+      this.mqtt5PropsEnable ? setPublishMQTT5Properties(this.MQTT5PropsSend) : undefined,
       this.batchLimits,
       this.maximumPacketSize,
       this.batchInput,
@@ -421,6 +420,7 @@ export default class MsgPublish extends Vue {
     return Boolean(this.msgRecord.batch && this.mqttVersion !== '5.0')
   }
 
+  // Element UI needs a writable value to reset its native checkbox when confirmation is canceled.
   private batchChecked = false
 
   private async handleBatchToggle(batch: boolean) {
@@ -475,8 +475,6 @@ export default class MsgPublish extends Vue {
   @Watch('batchPublishEnabled')
   @Watch('msgRecord.batch')
   @Watch('mqttVersion')
-  @Watch('msgRecord.qos')
-  @Watch('msgRecord.retain')
   private handleBatchChange() {
     if (!this.batchPublishEnabled && this.msgRecord.batch) this.$set(this.msgRecord, 'batch', false)
     this.batchChecked = Boolean(this.msgRecord.batch)

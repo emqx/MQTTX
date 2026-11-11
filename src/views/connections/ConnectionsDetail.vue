@@ -320,7 +320,7 @@
           @showContextMenu="handleContextMenu"
           @loadMoreMsg="loadMoreMessages"
           @hideNewMsgsTip="hideNewMsgsTip"
-          @scroll.native.passive="handleMessageScroll"
+          @scroll.native.passive="isScrollBottom"
         />
         <MsgTip :count="newMsgsCount" @loadNewMsg="loadNewMsg" />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
@@ -1272,22 +1272,20 @@ export default class ConnectionsDetail extends Vue {
   ) {
     this.connectLoading = false
 
+    const batchRequested = client.options?.properties?.userProperties?.['batch-publish'] !== undefined
+    const batchSelected = validateBatchSelection(
+      client.options?.properties?.userProperties,
+      conBack.properties?.userProperties,
+    )
     this.changeActiveConnection({
       id,
       client,
       responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
       maximumPacketSize: mqttVersion === '5.0' ? conBack.properties?.maximumPacketSize : undefined,
-      batchRequested: client.options?.properties?.userProperties?.['batch-publish'] !== undefined,
-      batchSelected: validateBatchSelection(
-        client.options?.properties?.userProperties,
-        conBack.properties?.userProperties,
-      ),
+      batchRequested,
+      batchSelected,
     })
-    if (
-      mqttVersion === '5.0' &&
-      client.options?.properties?.userProperties?.['batch-publish'] !== undefined &&
-      !validateBatchSelection(client.options?.properties?.userProperties, conBack.properties?.userProperties)
-    ) {
+    if (mqttVersion === '5.0' && batchRequested && !batchSelected) {
       this.$message.warning(this.$t('connections.batchNegotiationRejected') as string)
     }
     this.$notify({
@@ -1451,10 +1449,6 @@ export default class ConnectionsDetail extends Vue {
 
   private messageScroll?: ReturnType<typeof createMessageScroll>
   private followingBottom = true
-
-  private handleMessageScroll() {
-    if (!document.hidden && !this.messageScroll?.pending) this.isScrollBottom()
-  }
 
   private scrollToBottom() {
     this.$nextTick(() => this.messageScroll?.request())

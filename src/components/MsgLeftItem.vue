@@ -145,16 +145,20 @@ export default class MsgLeftItem extends Vue {
   private showFullMsg = false
   private formatBytes = formatBytes
 
+  get parsedMeta() {
+    return this.meta ? JSON.parse(this.meta) : undefined
+  }
+
   get batch() {
-    return this.meta ? JSON.parse(this.meta).batch : undefined
+    return this.meta ? this.parsedMeta.batch : undefined
   }
 
   get payloadBytes() {
-    return this.meta ? JSON.parse(this.meta).payloadBytes : 0
+    return this.meta ? this.parsedMeta.payloadBytes : 0
   }
 
   get conversionFallback(): boolean {
-    return Boolean(this.meta && JSON.parse(this.meta).batchConversionFallback)
+    return Boolean(this.meta && this.parsedMeta.batchConversionFallback)
   }
 
   get batchItems(): StoredBatchItem[] {
@@ -318,7 +322,6 @@ export default class MsgLeftItem extends Vue {
     animation: leftMsg 0.3s ease-in-out;
   }
   .input-prop {
-    textarea,
     .property-cell {
       color: var(--color-text-left_info) !important;
       border: 1px solid var(--color-border-left_metainfo) !important;

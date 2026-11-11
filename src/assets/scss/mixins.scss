@@ -235,7 +235,8 @@
     background-color: transparent;
     min-width: unset;
 
-    &.history-btn-left {
+    &.history-btn-left,
+    &.history-btn-right {
       width: 18px;
       font-size: 13px;
     }
@@ -248,11 +249,6 @@
       &:hover {
         background-color: var(--color-bg-hover);
       }
-    }
-
-    &.history-btn-right {
-      width: 18px;
-      font-size: 13px;
     }
 
     &:hover:not(.is-disabled) {

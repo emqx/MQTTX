@@ -220,10 +220,11 @@ export default class MessageService {
     return { list, moreMsg }
   }
 
-  private async saveMessages(
-    messages: MessageModel[],
+  public async pushMsgsToConnection(
+    message: MessageModel | MessageModel[],
     connectionId: string,
   ): Promise<MessageModel | MessageModel[] | undefined> {
+    const messages = Array.isArray(message) ? message : [message]
     const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
     if (!entities.length) return entities
     const { metadata, manager, target } = this.messageRepository
@@ -245,16 +246,6 @@ export default class MessageService {
     const queryRunner = manager.queryRunner || manager.connection.createQueryRunner()
     if (queryRunner.isTransactionActive) return insert(queryRunner.manager)
     return manager.transaction(insert)
-  }
-
-  public async pushMsgsToConnection(
-    message: MessageModel | MessageModel[],
-    connectionId: string,
-  ): Promise<MessageModel | MessageModel[] | undefined> {
-    if (!Array.isArray(message)) {
-      return await this.saveMessages([message], connectionId)
-    }
-    return await this.saveMessages(message, connectionId)
   }
 
   /**

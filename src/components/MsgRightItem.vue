@@ -130,7 +130,6 @@ export default class MsgRightItem extends Vue {
     animation: rightMsg 0.3s ease-in-out;
   }
   .input-prop {
-    textarea,
     .property-cell {
       color: var(--color-text-active) !important;
       border: 1px solid var(--color-border-right_metainfo) !important;

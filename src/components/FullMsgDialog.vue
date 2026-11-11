@@ -106,7 +106,6 @@ export default class FullMsgDialog extends Vue {
   @Prop() public payloadBytes?: number
   @Prop() public batchPayloadType?: PayloadType
 
-  private batchPageSize = BATCH_PAGE_SIZE
   private batchPage = 1
   private formatBytes = formatBytes
 
@@ -127,11 +126,11 @@ export default class FullMsgDialog extends Vue {
   }
 
   get batchPages(): number {
-    return Math.ceil(this.batchItems.length / this.batchPageSize)
+    return Math.ceil(this.batchItems.length / BATCH_PAGE_SIZE)
   }
 
   private batchItemIndex(index: number): number {
-    return (this.batchPage - 1) * this.batchPageSize + index + 1
+    return (this.batchPage - 1) * BATCH_PAGE_SIZE + index + 1
   }
 
   @Watch('batchPage')
