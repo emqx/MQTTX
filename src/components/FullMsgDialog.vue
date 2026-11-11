@@ -106,7 +106,7 @@ export default class FullMsgDialog extends Vue {
   private formatBytes = formatBytes
 
   get formattedPayloadSize(): string {
-    if (this.payloadBytes === undefined) return this.calculateAndFormatTextSize(this.fullMsg)
+    if (this.payloadBytes === undefined) return calculateTextSize(this.fullMsg)
     return formatBytes(this.payloadBytes)
   }
 
@@ -138,20 +138,13 @@ export default class FullMsgDialog extends Vue {
     this.showDialog = val
   }
 
-  private getFormatOrLang(type: string) {
-    if (this.batchPayloadType !== undefined) return type === 'lang' ? 'plaintext' : 'txt'
-    if (this.batchPayload !== undefined || ['JSON', 'CBOR'].includes(this.msgType)) {
-      return type === 'lang' ? 'json' : 'json'
-    }
-    return type === 'lang' ? 'plaintext' : 'txt'
-  }
-
   get lang() {
-    return this.getFormatOrLang('lang')
+    return this.format === 'json' ? 'json' : 'plaintext'
   }
 
   get format() {
-    return this.getFormatOrLang('format')
+    if (this.batchPayloadType !== undefined) return 'txt'
+    return this.batchPayload !== undefined || ['JSON', 'CBOR'].includes(this.msgType) ? 'json' : 'txt'
   }
 
   private fullMsg = ''
@@ -184,10 +177,6 @@ export default class FullMsgDialog extends Vue {
     this.fullMsg = ''
     this.showDialog = false
     this.$emit('update:visible', false)
-  }
-
-  private calculateAndFormatTextSize(text: string, decimals = 2) {
-    return calculateTextSize(text)
   }
 
   private mounted() {

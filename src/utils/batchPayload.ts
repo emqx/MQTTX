@@ -6,6 +6,7 @@ import {
   calculatePublishSize,
   buildTopicCarrier,
   encodeBatchPayload,
+  hasMarker,
   validLogicalTopic,
 } from './batchPublishing'
 import { BatchStorageMode } from './data'
@@ -129,11 +130,7 @@ export const prepareBatchPublish = (
   if (message.qos === 2) return fail('UNSUPPORTED_BATCH_QOS')
   if (message.topic === '$batch' || message.topic.startsWith('$batch/')) return fail('BATCH_LOGICAL_TOPIC')
   if (!validLogicalTopic(message.topic)) return fail('INVALID_BATCH_TOPIC')
-  if (
-    properties?.userProperties &&
-    ['batch-format', 'batch-size'].some((key) => Object.prototype.hasOwnProperty.call(properties.userProperties, key))
-  )
-    return fail('INVALID_BATCH_MARKERS')
+  if (hasMarker(properties?.userProperties)) return fail('INVALID_BATCH_MARKERS')
   if (properties?.payloadFormatIndicator || (version === 4 && message.retain)) return fail('INVALID_BATCH_METADATA')
   if (!batchPayloadTypeOptions.includes(type)) return fail('BATCH_PAYLOAD_TYPE')
   if (input.error) return fail('BATCH_LINE_ERROR')

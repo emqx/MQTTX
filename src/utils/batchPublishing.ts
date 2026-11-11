@@ -81,7 +81,8 @@ const values = (properties: PushPropertiesModel['userProperties'], key: string):
   return value
 }
 
-const hasMarker = (properties?: PushPropertiesModel['userProperties']) =>
+/** Identify either exact batch marker, including markers with invalid values. */
+export const hasMarker = (properties?: PushPropertiesModel['userProperties']): boolean =>
   properties != null &&
   (Object.prototype.hasOwnProperty.call(properties, 'batch-format') ||
     Object.prototype.hasOwnProperty.call(properties, 'batch-size'))

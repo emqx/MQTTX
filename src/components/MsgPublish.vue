@@ -291,7 +291,7 @@ import ClickOutside from 'vue-click-outside'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import convertPayload from '@/utils/convertPayload'
-import { payloadTypeOptions, payloadTypeToEditorLang } from '@/utils/payloadEncoder'
+import { batchPayloadTypeOptions, payloadTypeOptions, payloadTypeToEditorLang } from '@/utils/payloadEncoder'
 import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
@@ -306,7 +306,7 @@ import {
   getBatchLimits,
 } from '@/utils/batchPayload'
 import { setPublishMQTT5Properties } from '@/utils/mqtt5Properties'
-import { batchPayloadTypeOptions } from '@/utils/payloadEncoder'
+import { hasMarker } from '@/utils/batchPublishing'
 
 const getDefaultMsgRecord = (): PushMessageModel => ({
   topic: '',
@@ -795,8 +795,6 @@ export default class MsgPublish extends Vue {
 
   private async loadProperties() {
     const previous = [this.MQTT5PropsForm, this.MQTT5PropsSend]
-    const cleared = previous.some((properties) => Object.keys(properties).length > 0)
-    let restored = false
     this.MQTT5PropsForm = {}
     this.MQTT5PropsSend = {}
     this.hasMqtt5Prop = false
@@ -804,18 +802,13 @@ export default class MsgPublish extends Vue {
       const { connectionService } = useServices()
       const pushProps = await connectionService.getPushProp(this.$route.params.id)
       if (pushProps) {
-        restored = !_.isEqual([this.MQTT5PropsForm, this.MQTT5PropsSend], [pushProps, pushProps])
         this.MQTT5PropsForm = pushProps
         this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
         this.handleBatchChange()
       }
     }
-    if (
-      this.msgRecord.batch &&
-      (cleared || restored) &&
-      !_.isEqual(previous, [this.MQTT5PropsForm, this.MQTT5PropsSend])
-    ) {
+    if (this.msgRecord.batch && !_.isEqual(previous, [this.MQTT5PropsForm, this.MQTT5PropsSend])) {
       this.$message.info(this.$t('connections.batchMetaReloaded') as string)
     }
   }
@@ -861,10 +854,7 @@ export default class MsgPublish extends Vue {
 
   private onClearRetainedMsgPublish() {
     if (this.batchClearRetainedDisabled) return
-    const batchMarkers = this.MQTT5PropsSend.userProperties || {}
-    const clearsBatch =
-      this.msgRecord.batch ||
-      ['batch-format', 'batch-size'].some((key) => Object.prototype.hasOwnProperty.call(batchMarkers, key))
+    const clearsBatch = this.msgRecord.batch || hasMarker(this.MQTT5PropsSend.userProperties)
     this.$confirm(
       `${this.$tc(
         clearsBatch ? 'connections.batchClearRetainedConfirm' : 'connections.clearRetainedMessageConfirm',
