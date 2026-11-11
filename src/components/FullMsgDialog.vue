@@ -26,6 +26,8 @@
           </li>
         </ol>
         <el-pagination
+          class="batch-pagination"
+          small
           :current-page.sync="batchPage"
           :page-size="batchPageSize"
           :total="batchItems.length"
@@ -176,11 +178,43 @@ export default class FullMsgDialog extends Vue {
     height: 400px;
     overflow: auto;
     color: var(--color-text-default);
-    padding-left: 42px;
+    margin: 0;
+    padding-left: 36px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    li {
+      padding: 6px 0;
+      & + li {
+        border-top: 1px solid var(--color-border-default);
+      }
+      &::marker {
+        color: var(--color-text-tips);
+        font-size: 12px;
+      }
+    }
+    pre {
+      min-height: 1.6em;
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   }
-  .batch-page pre {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+  .batch-pagination {
+    margin-top: 12px;
+    padding: 0;
+    text-align: right;
+    button,
+    .el-pager li {
+      background: transparent;
+    }
+    button:not(:hover):not(:disabled),
+    .el-pager {
+      color: var(--color-text-default);
+    }
+    .el-pagination__total {
+      color: var(--color-text-tips);
+    }
   }
 }
 </style>

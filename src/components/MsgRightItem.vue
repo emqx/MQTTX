@@ -114,9 +114,5 @@ export default class MsgRightItem extends Vue {
     border-radius: 2px;
     font-weight: bold;
   }
-  .el-tag.batch-tag {
-    margin-left: 12px;
-    vertical-align: middle;
-  }
 }
 </style>

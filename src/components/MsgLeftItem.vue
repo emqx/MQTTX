@@ -46,8 +46,10 @@
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
       <div v-if="batch" class="batch-message">
-        <p v-if="batch.carrier === 'topic'">{{ $t('connections.batchLogicalTopicLabel') }}: {{ batch.logicalTopic }}</p>
         <p class="batch-details">
+          <span v-if="batch.carrier === 'topic'"
+            >{{ $t('connections.batchLogicalTopicLabel') }}: {{ batch.logicalTopic }} ·
+          </span>
           {{ $t('connections.payloadSize') }}: {{ formattedPayloadBytes
           }}<span v-if="!batch.error && !batch.summary">
             ·
@@ -59,29 +61,31 @@
             }}</span
           >
         </p>
-        <template v-if="batch.error">
+        <div v-if="batch.error" class="batch-error-preview">
           <pre class="batch-hex">{{ payload }}</pre>
           <p class="batch-details">
             {{ $t('connections.batchHexPreview', { saved: payload.length / 2, total: payloadBytes }) }}
           </p>
-        </template>
+        </div>
         <template v-else>
-          <p v-if="batch.summary">
-            {{
-              $t('connections.batchSummary', { saved: batchItems.length, total: batch.count, bytes: batchSummaryBytes })
-            }}
-          </p>
           <ol class="batch-items">
             <li v-for="(item, index) in visibleBatchItems" :key="index">
               <pre>{{ displayBatchItem(item) }}</pre>
             </li>
           </ol>
-          <el-button type="text" size="mini" @click="batchExpanded = !batchExpanded">{{
-            $t(batchExpanded ? 'connections.batchCollapse' : 'connections.batchExpand')
-          }}</el-button>
-          <el-button v-if="!batch.summary" type="text" size="mini" @click="handleShowFullMsg()">{{
-            $t('connections.batchViewAll')
-          }}</el-button>
+          <p v-if="batch.summary" class="batch-details">
+            {{
+              $t('connections.batchSummary', { saved: batchItems.length, total: batch.count, bytes: batchSummaryBytes })
+            }}
+          </p>
+          <div class="batch-actions">
+            <el-button type="text" size="mini" @click="batchExpanded = !batchExpanded">{{
+              $t(batchExpanded ? 'connections.batchCollapse' : 'connections.batchExpand')
+            }}</el-button>
+            <el-button v-if="!batch.summary" type="text" size="mini" @click="handleShowFullMsg()">{{
+              $t('connections.batchViewAll')
+            }}</el-button>
+          </div>
         </template>
       </div>
       <template v-else-if="isLargeMsg">
@@ -318,11 +322,6 @@ export default class MsgLeftItem extends Vue {
   .msg-tag:nth-child(2) {
     margin-top: 2px;
   }
-  .el-tag.gzip-tag {
-    margin-left: 12px;
-    color: var(--color-text-default);
-    vertical-align: middle;
-  }
   .topic-color {
     height: calc(100% - 62px);
     display: inline-block;
@@ -362,30 +361,59 @@ export default class MsgLeftItem extends Vue {
       }
     }
   }
-  .el-tag.batch-tag {
-    margin-left: 12px;
-    vertical-align: middle;
-  }
   .batch-message {
+    margin-top: 8px;
+    > * + * {
+      margin-top: 8px;
+    }
     .batch-details {
       color: var(--color-text-tips);
       font-size: 12px;
     }
     .batch-items {
-      padding-left: 28px;
+      margin-bottom: 0;
+      padding-left: 24px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.6;
     }
     .batch-items li {
-      padding-left: 4px;
+      & + li {
+        margin-top: 2px;
+      }
+      &::marker {
+        color: var(--color-text-tips);
+        font-size: 12px;
+      }
     }
     .batch-items pre {
+      min-height: 1.6em;
+      margin: 0;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
     .batch-hex {
       max-height: 80px;
+      margin: 0;
+      color: var(--color-text-tips);
+      font-size: 12px;
       overflow: auto;
       word-break: break-all;
       white-space: pre-wrap;
+    }
+    .batch-error-preview .batch-details {
+      margin-top: 8px;
+    }
+    .batch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+      .el-button {
+        margin: 0;
+        padding: 0;
+        font-size: 12px;
+      }
     }
   }
 }

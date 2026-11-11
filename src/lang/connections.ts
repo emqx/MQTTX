@@ -1352,12 +1352,12 @@ export default {
     ko: 'MQTT 3.1에서는 Batch를 지원하지 않습니다',
   },
   batchStatus: {
-    zh: '每行一条 · {count} 条 · payload {bytes} B / {max} B',
-    en: 'One item per line · {count} items · payload {bytes} B / {max} B',
-    tr: 'Satır başına bir öğe · {count} öğe · payload {bytes} B / {max} B',
-    ja: '1行1件 · {count} 件 · payload {bytes} B / {max} B',
-    hu: 'Soronként egy elem · {count} elem · payload {bytes} B / {max} B',
-    ko: '한 줄에 한 항목 · {count}개 · payload {bytes} B / {max} B',
+    zh: '每行一条 · {count} 条 · {bytes} B / {max} B',
+    en: 'One item per line · {count} items · {bytes} B / {max} B',
+    tr: 'Satır başına bir öğe · {count} öğe · {bytes} B / {max} B',
+    ja: '1行1件 · {count} 件 · {bytes} B / {max} B',
+    hu: 'Soronként egy elem · {count} elem · {bytes} B / {max} B',
+    ko: '한 줄에 한 항목 · {count}개 · {bytes} B / {max} B',
   },
   batchLogicalTopic: {
     zh: '填写逻辑 topic，前缀会自动添加',

@@ -947,6 +947,9 @@ export default class MsgPublish extends Vue {
         padding-left: 8px;
       }
     }
+    .el-checkbox.is-bordered + .el-checkbox.is-bordered {
+      margin-left: 0;
+    }
     .dropdown-btn {
       margin-right: 4px;
       border-radius: 4px;

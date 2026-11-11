@@ -30,6 +30,17 @@
   }
   .right-info {
     color: var(--color-text-right_info);
+    .el-tag.batch-tag {
+      background: transparent;
+      border-color: var(--color-border-right_metainfo);
+      color: var(--color-text-right_info);
+    }
+  }
+  .el-tag.batch-tag,
+  .el-tag.gzip-tag {
+    margin-left: 12px;
+    color: var(--color-text-default);
+    vertical-align: middle;
   }
   .topic {
     margin-right: 20px;
@@ -70,43 +81,8 @@
     }
   }
   .user-properties {
-    margin-top: 12px;
-    padding: 10px 0;
-    .key-value-editor.msg-item-props {
-      .editor-header {
-        margin-bottom: 12px;
-        .editor-title {
-          font-weight: 600;
-          font-size: 13px;
-        }
-      }
-      .el-input.is-disabled .el-input__inner {
-        background-color: var(--color-bg-msg-input);
-      }
-    }
-    &.left {
-      .key-value-editor.msg-item-props {
-        .editor-title {
-          color: var(--color-text-title);
-        }
-        .el-input.is-disabled .el-input__inner {
-          color: var(--color-text-default);
-          border: 1px solid var(--color-border-default);
-          background-color: var(--color-bg-msg-input);
-        }
-      }
-    }
-    &.right {
-      .key-value-editor.msg-item-props {
-        .editor-title {
-          color: var(--color-text-right_info);
-        }
-        .el-input.is-disabled .el-input__inner {
-          color: var(--color-text-right_info);
-          border: 1px solid var(--color-border-right_metainfo);
-        }
-      }
-    }
+    margin-top: 8px;
+    padding: 0;
   }
 }
 

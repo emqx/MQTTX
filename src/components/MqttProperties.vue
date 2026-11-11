@@ -61,30 +61,31 @@ export default class MqttProperties extends Vue {
 .mqtt-properties {
   .user-properties-title {
     display: block;
-    margin-bottom: 12px;
-    font-size: 13px;
-    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-text-tips);
+    font-size: 12px;
+    font-weight: 500;
   }
   .user-property {
-    display: block;
-    padding: 4px 15px;
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 6px 6px 0;
+    padding: 1px 8px;
     border: 1px solid var(--color-border-default);
     border-radius: 4px;
-    background: var(--color-bg-msg-input);
+    background: transparent;
     font-size: 12px;
+    line-height: 1.6;
+    vertical-align: top;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     user-select: text;
-    &:not(:last-child) {
-      margin-bottom: 10px;
-    }
   }
-  .user-properties.left .user-properties-title {
-    color: var(--color-text-title);
+  .user-properties.right .user-properties-title {
+    color: var(--color-text-right_info);
   }
   .user-properties.right .user-property {
     border-color: var(--color-border-right_metainfo);
-    background: transparent;
   }
 }
 </style>
