@@ -66,6 +66,8 @@ Batch sends ordered items on one logical topic in a single MQTT PUBLISH. It supp
 
 The status line shows the item count and encoded payload size. A batch over the configured limits cannot be sent; shorten it or raise the limits within the route's allowance. Desktop sends one batch per click and does not split it automatically.
 
+![Batch publishing and received message](./assets/batch-publish.png)
+
 Empty lines are empty items; one final newline does not add an item. Batch supports **Plaintext, JSON, Hex, and Base64**. Each JSON item must be valid JSON on one line. For Hex, use byte pairs such as `01` and `FF`; for Base64, use encoded text such as `QQ==`. Invalid input shows the failing line and a correction hint, and disables sending.
 
 Batch skips per-item Schema and scripts, and requires Payload Format Indicator to be off. MQTTX asks for confirmation before changing incompatible publish settings. Turning off the global setting exits Batch publishing mode; it does not hide received batches. Publish history retains the Batch choice, but cannot re-enable it while the global setting is off.
@@ -84,6 +86,8 @@ If an MQTT 5.0 route requires negotiation, add `batch-publish` with value `v1` t
 ### Receive and inspect
 
 Desktop recognizes incoming batch markers automatically, even when Batch publishing is disabled. Subscribe to the appropriate topic above; no receive-side checkbox is needed. A batch appears as one message bubble with a **Batch N** badge and the first five items. **See More** opens the item table, showing content and byte size with 100 items per page. Pagination changes the view, not the stored item count. **Save to Local** exports the saved payload.
+
+![Batch item table](./assets/batch-items.png)
 
 Batch reception bypasses whole-payload GZIP decompression, Schema, and scripts. Invalid or oversized batches show an error and a bounded hex preview instead of partially decoded items. In Plaintext mode, non-UTF-8 items are preserved as binary and shown with a binary indicator.
 

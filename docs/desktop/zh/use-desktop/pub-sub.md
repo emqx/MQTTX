@@ -66,6 +66,8 @@ Batch 将同一逻辑主题下的多条有序消息打包到一个 MQTT PUBLISH 
 
 状态栏显示条数和编码后的 Payload 大小。超过配置上限时会阻止发送，请减少条目或在路由允许范围内调高上限。Desktop 每次发送一个批次，不会自动拆包。
 
+![Batch 逐行发布与接收预览](./assets/batch-publish.png)
+
 空行表示空条目，末尾的一个换行不会新增条目。Batch 支持 **Plaintext、JSON、Hex 和 Base64**。JSON 每行必须是完整有效的 JSON；Hex 使用 `01`、`FF` 这样的字符对，Base64 使用 `QQ==` 这样的编码文本。输入无效时，会显示出错行和修改提示，并禁用发送。
 
 Batch 不执行逐条 Schema 和脚本处理，Payload Format Indicator 必须关闭。修改不兼容的发布设置前，MQTTX 会先请求确认。关闭全局开关会退出 Batch 发布模式，但不影响收到的 Batch 消息。发布历史保存 Batch 选项；全局开关关闭时，恢复历史也不会重新启用 Batch。
@@ -84,6 +86,8 @@ MQTT 5.0 自动添加 `batch-format=v1` 和 `batch-size=N` User Properties。MQT
 ### 接收与查看
 
 Desktop 自动识别收到的 Batch 标记，无论是否开启 Batch 发布。订阅上表对应的主题即可，不需要额外开启接收选项。一个批次显示为一个消息气泡，带 **Batch N** 标记并预览前 5 条；点击 **See More** 打开条目表格，查看内容和字节数，每页 100 条。分页只影响显示，不减少已保存条数。**Save to Local** 导出已保存的 Payload。
+
+![Batch 完整条目表格](./assets/batch-items.png)
 
 Batch 接收跳过整包 GZIP 解压、Schema 和脚本处理。格式错误或超限时显示错误及有限长度的 Hex 预览，不会交付部分解析结果。Plaintext 模式下，非 UTF-8 条目按二进制保留，并显示二进制标记。
 
