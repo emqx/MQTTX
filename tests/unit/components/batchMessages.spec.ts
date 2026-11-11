@@ -9,7 +9,7 @@ import { ipcRenderer } from 'electron'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import FullMsgDialog from '@/components/FullMsgDialog.vue'
-import connections from '@/lang/connections'
+import messages from '@/lang'
 import app from '@/store/modules/app'
 
 const localVue = createLocalVue()
@@ -17,9 +17,7 @@ localVue.use(Vuex)
 localVue.use(VueI18n)
 const i18n = new VueI18n({
   locale: 'en',
-  messages: {
-    en: { connections: Object.fromEntries(Object.entries(connections).map(([key, values]) => [key, values.en])) },
-  },
+  messages: messages,
 })
 const translate = (key: string, values = {}) => (key.startsWith('connections.') ? i18n.t(key, values) : key)
 const props = (summary = false, error?: string) => ({
@@ -108,7 +106,8 @@ describe('Batch message display', () => {
     const wrapper = mountMessage(props())
     expect(wrapper.find('.see-more-btn').text()).to.equal('common.seeMore')
     await wrapper.find('.see-more-btn').trigger('click')
-    expect(wrapper.find(FullMsgDialog).props('batchPayload')).to.equal(props().payload)
+    expect(wrapper.find(FullMsgDialog).props('batchItems')).to.deep.equal(JSON.parse(props().payload))
+    expect(wrapper.find(FullMsgDialog).props('exportText')).to.equal(props().payload)
     wrapper.destroy()
   })
   it('renders binary items as a hex prefix with their decoded byte size', () => {
@@ -193,9 +192,13 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('hides the pager for one page and navigates longer batches from the footer', async () => {
-    const wrapper = await mountDialog({ batchPayload: JSON.stringify(['one', 'two', 'three', 'four', 'five']) })
+    const wrapper = await mountDialog({ batchItems: ['one', 'two', 'three', 'four', 'five'], exportText: '' })
     expect(wrapper.find('.batch-pager').exists()).to.equal(false)
-    await wrapper.setProps({ batchPayload: props().payload })
+    await wrapper.setProps({
+      batchItems: JSON.parse(props().payload),
+      exportText: props().payload,
+      exportFormat: 'json',
+    })
     const list = wrapper.find('.el-table__body-wrapper').element as HTMLElement
     list.scrollTop = 120
     expect(wrapper.find('.batch-pager .history-btn-left').attributes('disabled')).to.equal('disabled')
@@ -206,7 +209,11 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('paginates saved arrays at 100 items through the last page', async () => {
-    const wrapper = await mountDialog({ batchPayload: props().payload })
+    const wrapper = await mountDialog({
+      batchItems: JSON.parse(props().payload),
+      exportText: props().payload,
+      exportFormat: 'json',
+    })
     const vm = wrapper.vm as any
     expect(wrapper.findAll('tbody tr')).to.have.length(100)
     vm.batchPage = 3
@@ -217,14 +224,14 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('shows UTF-8 and binary byte sizes in the compact table', async () => {
-    const wrapper = await mountDialog({ batchPayload: JSON.stringify(['é', { b64: '/w==' }]) })
+    const wrapper = await mountDialog({ batchItems: ['é', { b64: '/w==' }], exportText: '' })
     expect(wrapper.findAll('tbody .batch-size').wrappers.map((row) => row.text())).to.deep.equal(['2 B', '1 B'])
     expect(wrapper.find('tbody .batch-muted').text()).to.equal('(binary)')
     wrapper.destroy()
   })
   it('keeps the complete saved payload for export', async () => {
     const payload = props().payload
-    const wrapper = await mountDialog({ batchPayload: payload })
+    const wrapper = await mountDialog({ batchItems: JSON.parse(payload), exportText: payload, exportFormat: 'json' })
     const originalSend = ipcRenderer.send
     let exported: any[] = []
     ipcRenderer.send = (...args: any[]) => {
@@ -233,6 +240,10 @@ describe('Batch message display', () => {
     try {
       ;(wrapper.vm as any).saveDataToLocal()
       expect(exported).to.deep.equal(['exportTextData', 'payload', payload, 'json'])
+      await wrapper.setProps({ exportFormat: 'txt', exportText: 'first\n\nlast\n' })
+      await (wrapper.vm as any).loadMsg()
+      ;(wrapper.vm as any).saveDataToLocal()
+      expect(exported).to.deep.equal(['exportTextData', 'payload', 'first\n\nlast\n', 'txt'])
     } finally {
       ipcRenderer.send = originalSend
       wrapper.destroy()

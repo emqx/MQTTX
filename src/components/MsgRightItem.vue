@@ -35,10 +35,9 @@
     <FullMsgDialog
       v-if="showFullMsg"
       :visible.sync="showFullMsg"
-      :msgId="msgId"
-      :msgType="batch.payloadType || 'Plaintext'"
-      :batch-payload="payload"
-      :batch-payload-type="batch.payloadType || 'Plaintext'"
+      :batch-items="batchItems"
+      :export-text="payload"
+      export-format="txt"
     />
   </div>
 </template>
@@ -63,7 +62,6 @@ export default class MsgRightItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
-  @Prop({ required: true }) public msgId!: string
   @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) public searchParams!: {
@@ -95,8 +93,12 @@ export default class MsgRightItem extends Vue {
     this.$emit('showmenu', this.payload, event)
   }
 
+  get parsedMeta() {
+    return this.meta ? JSON.parse(this.meta) : undefined
+  }
+
   get batch() {
-    return this.meta ? JSON.parse(this.meta).batch : undefined
+    return this.meta ? this.parsedMeta.batch : undefined
   }
 
   get functionName() {
@@ -128,12 +130,7 @@ export default class MsgRightItem extends Vue {
     left: 0px;
     animation: rightMsg 0.3s ease-in-out;
   }
-  .input-prop {
-    .property-cell {
-      color: var(--color-text-active) !important;
-      border: 1px solid var(--color-border-right_metainfo) !important;
-    }
-  }
+
   .search-highlight {
     background-color: #ffeb3b !important;
     color: #000 !important;

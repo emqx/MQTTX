@@ -1,6 +1,8 @@
 import '../mocks/browserStorage'
 import { expect } from 'chai'
-import settings from '@/lang/settings'
+import VueI18n from 'vue-i18n'
+import { createLocalVue } from '@vue/test-utils'
+import messages from '@/lang'
 import app from '@/store/modules/app'
 
 if (typeof document.queryCommandSupported !== 'function') (document as any).queryCommandSupported = () => false
@@ -9,10 +11,9 @@ const Settings = require('@/views/settings/index.vue').default
 const App = require('@/App.vue?vue&type=script&lang=ts').default
 const Store = require('electron-store')
 const methods = Settings.options.methods
-const translate = (key: string, values: Record<string, string> = {}) => {
-  const message = settings[key.replace('settings.', '') as keyof typeof settings]?.en || key
-  return message.replace(/\{(\w+)\}/g, (_, name) => String(values[name]))
-}
+createLocalVue().use(VueI18n)
+const i18n = new VueI18n({ locale: 'en', messages: messages })
+const translate = (key: string, values = {}) => String(i18n.t(key, values))
 const context = () => {
   const saved: any[] = []
   const prompts: string[] = []
@@ -90,8 +91,8 @@ describe('Batch settings notices', () => {
 
   it('reports rejected fractional or missing limits instead of silently discarding them', () => {
     const { ctx, warnings, saved } = context()
-    methods.handleBatchMaxItemsChange.call(ctx, 1.5)
-    methods.handleBatchMaxBytesChange.call(ctx, undefined)
+    methods.handleBatchLimitChange.call(ctx, 1.5, 'items')
+    methods.handleBatchLimitChange.call(ctx, undefined, 'bytes')
     expect(warnings).to.deep.equal(['Invalid Batch setting; not saved', 'Invalid Batch setting; not saved'])
     expect(saved).to.deep.equal([])
   })

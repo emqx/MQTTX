@@ -75,16 +75,6 @@
     margin-bottom: 5px;
     font-size: 12px;
   }
-  .properties {
-    margin-top: 12px;
-    padding-top: 10px;
-    &.left {
-      color: var(--color-text-default);
-    }
-    &.right {
-      color: var(--color-text-right_info);
-    }
-  }
   .el-button.see-more-btn {
     margin-top: 6px;
     background: transparent;
@@ -101,10 +91,6 @@
     &:hover {
       color: var(--color-text-active);
     }
-  }
-  .user-properties {
-    margin-top: 12px;
-    padding: 10px 0;
   }
 }
 

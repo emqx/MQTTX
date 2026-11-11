@@ -3,7 +3,7 @@
     :title="$t('common.viewData')"
     :visible.sync="showDialog"
     class="full-msg-dialog"
-    :class="{ 'batch-dialog': batchPayload !== undefined }"
+    :class="{ 'batch-dialog': batchItems !== undefined }"
     width="600px"
     :confirmBtnText="$t('common.saveToLocal')"
     @confirm="saveDataToLocal"
@@ -28,7 +28,7 @@
     </div>
     <el-skeleton class="loading-full-msg" v-if="loadingMsg" :rows="6" animated />
     <template v-else>
-      <div v-if="batchPayload === undefined" class="full-msg-size">
+      <div v-if="batchItems === undefined" class="full-msg-size">
         <span>
           {{ $t('connections.payloadSize') }}:
           <strong>{{ formattedPayloadSize }}</strong>
@@ -38,7 +38,7 @@
         </span>
       </div>
       <el-table
-        v-if="batchPayload !== undefined"
+        v-if="batchItems !== undefined"
         ref="batchTableRef"
         class="batch-table"
         :data="batchPageItems"
@@ -89,7 +89,7 @@ import MyDialog from './MyDialog.vue'
 import Editor from './Editor.vue'
 import { ipcRenderer } from 'electron'
 import { formatBytes } from '@/utils/formatter'
-import { BATCH_PAGE_SIZE, StoredBatchItem, getBatchItemDisplay, getPublishedBatchItems } from '@/utils/batchPayload'
+import { BATCH_PAGE_SIZE, StoredBatchItem, getBatchItemDisplay } from '@/utils/batchPayload'
 import { calculateTextSize } from '@/utils/data'
 
 @Component({
@@ -100,33 +100,27 @@ import { calculateTextSize } from '@/utils/data'
 })
 export default class FullMsgDialog extends Vue {
   @Prop({ default: false }) public visible!: boolean
-  @Prop({ required: true }) public msgId!: string
+  @Prop() public msgId?: string
   @Prop({ default: '' }) public msgType!: string
-  @Prop() public batchPayload?: string
-  @Prop() public payloadBytes?: number
-  @Prop() public batchPayloadType?: PayloadType
+  @Prop() public batchItems?: StoredBatchItem[]
+  @Prop() public exportText?: string
+  @Prop() public exportFormat?: string
 
   private batchPage = 1
   private formatBytes = formatBytes
 
   get formattedPayloadSize(): string {
-    if (this.payloadBytes === undefined) return calculateTextSize(this.fullMsg)
-    return formatBytes(this.payloadBytes)
+    return calculateTextSize(this.fullMsg)
   }
 
-  get batchItems(): StoredBatchItem[] {
-    if (this.batchPayload === undefined) return []
-    if (this.batchPayloadType !== undefined) return getPublishedBatchItems(this.batchPayload, this.batchPayloadType)
-    return JSON.parse(this.batchPayload)
-  }
   get batchPageItems() {
-    return this.batchItems
+    return (this.batchItems || [])
       .slice((this.batchPage - 1) * BATCH_PAGE_SIZE, this.batchPage * BATCH_PAGE_SIZE)
       .map(getBatchItemDisplay)
   }
 
   get batchPages(): number {
-    return Math.ceil(this.batchItems.length / BATCH_PAGE_SIZE)
+    return Math.ceil((this.batchItems?.length || 0) / BATCH_PAGE_SIZE)
   }
 
   private batchItemIndex(index: number): number {
@@ -152,8 +146,7 @@ export default class FullMsgDialog extends Vue {
   }
 
   get format() {
-    if (this.batchPayloadType !== undefined) return 'txt'
-    return this.batchPayload !== undefined || ['JSON', 'CBOR'].includes(this.msgType) ? 'json' : 'txt'
+    return this.exportFormat ?? (['JSON', 'CBOR'].includes(this.msgType) ? 'json' : 'txt')
   }
 
   private fullMsg = ''
@@ -162,13 +155,13 @@ export default class FullMsgDialog extends Vue {
 
   private async loadMsg() {
     this.loadingMsg = true
-    if (this.batchPayload !== undefined) {
-      this.fullMsg = this.batchPayload
+    if (this.exportText !== undefined) {
+      this.fullMsg = this.exportText
       this.loadingMsg = false
       return
     }
     const { messageService } = useServices()
-    const message = await messageService.getOne(this.msgId)
+    const message = await messageService.getOne(this.msgId!)
     this.fullMsg = message?.payload || ''
     this.loadingMsg = false
   }

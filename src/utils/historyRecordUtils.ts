@@ -1,4 +1,11 @@
 import useServices from '@/database/useServices'
+import _ from 'lodash'
+
+/** Compare only the settings restored by selecting a publish header. */
+export const getMsgHeader = (item: HistoryMessageHeaderModel): HistoryMessageHeaderModel => ({
+  ..._.pick(item, ['qos', 'retain', 'topic']),
+  batch: Boolean(item.batch),
+})
 
 export const hasMessagePayloadID = async (data: HistoryMessagePayloadModel): Promise<string | null> => {
   const { historyMessagePayloadService } = useServices()
@@ -17,12 +24,7 @@ export const hasMessageHeaderID = async (data: HistoryMessageHeaderModel): Promi
   const headers = await historyMessageHeaderService.getAll(data.connectionId!)
   if (headers) {
     const res = headers.find((el: HistoryMessageHeaderModel) => {
-      return (
-        data.qos === el.qos &&
-        data.topic === el.topic &&
-        data.retain === el.retain &&
-        Boolean(data.batch) === Boolean(el.batch)
-      )
+      return _.isEqual(getMsgHeader(data), getMsgHeader(el))
     })
     return res?.id ?? null
   }

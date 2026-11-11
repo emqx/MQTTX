@@ -8,8 +8,13 @@ import {
   splitBatchLines,
   storeBatchItems,
 } from '@/utils/batchPayload'
-import { DEFAULT_BATCH_LIMITS, decodeBatch, calculatePublishSize } from '@/utils/batchPublishing'
-import connections from '@/lang/connections'
+import { DEFAULT_BATCH_LIMITS, decodeBatch, calculatePublishSize, encodeBatchPayload } from '@/utils/batchPublishing'
+import VueI18n from 'vue-i18n'
+import { createLocalVue } from '@vue/test-utils'
+import messages from '@/lang'
+
+createLocalVue().use(VueI18n)
+const i18n = new VueI18n({ locale: 'zh', messages: messages })
 
 const text = (item: Buffer) => item.toString()
 const message = { topic: 'demo/topic', qos: 1, retain: false, payload: 'Msg1\nLongerMsg2' }
@@ -52,7 +57,9 @@ describe('Desktop batch input', () => {
       const prepared = prepareBatchPublish(message, 'Plaintext', version, undefined, DEFAULT_BATCH_LIMITS)
       expect(prepared.error).to.equal(undefined)
       expect(prepared.bytes).to.equal(18)
-      expect(decodeBatch(prepared.packet!, version)?.items?.map(text)).to.deep.equal(['Msg1', 'LongerMsg2'])
+      expect(
+        decodeBatch({ ...prepared.packet!, payload: encodeBatchPayload(prepared.items!) }, version)?.items?.map(text),
+      ).to.deep.equal(['Msg1', 'LongerMsg2'])
       expect(prepared.packet?.topic).to.equal(version === 5 ? 'demo/topic' : '$batch/2/demo/topic')
       expect(message.payload).to.equal('Msg1\nLongerMsg2')
     }
@@ -83,7 +90,7 @@ describe('Desktop batch input', () => {
       { userProperties: { x: 'y'.repeat(128) } },
       DEFAULT_BATCH_LIMITS,
     )
-    const size = calculatePublishSize(prepared.packet!, 5)
+    const size = calculatePublishSize(prepared.packet!, 5, prepared.bytes)
     expect(
       prepareBatchPublish(
         message,
@@ -110,30 +117,26 @@ describe('Desktop batch input', () => {
 describe('Desktop batch storage bounds', () => {
   it('keeps invalid UTF-8 in a lossless b64 object only for Plaintext', () => {
     const item = Buffer.from([0xff, 0x00, 0xc0, 0x80])
-    expect(storeBatchItems([item], 'full', 'Plaintext', text)).to.deep.equal([{ b64: item.toString('base64') }])
-    expect(storeBatchItems([Buffer.from('�')], 'full', 'Plaintext', text)).to.deep.equal(['�'])
-    expect(storeBatchItems([item], 'full', 'Hex', (b) => b.toString('hex'))).to.deep.equal(['ff00c080'])
+    expect(storeBatchItems([item], 'full', 'Plaintext').items).to.deep.equal([{ b64: item.toString('base64') }])
+    expect(storeBatchItems([Buffer.from('�')], 'full', 'Plaintext').items).to.deep.equal(['�'])
+    expect(storeBatchItems([item], 'full', 'Hex').items).to.deep.equal(['ff00 c080 '])
   })
   it('keeps at most 20 items and truncates UTF-8 on a complete character within 32 raw bytes', () => {
     const items = Array.from({ length: 25 }, () => Buffer.from('a'.repeat(31) + '中tail'))
-    const saved = storeBatchItems(items, 'summary', 'Plaintext', text)
+    const saved = storeBatchItems(items, 'summary', 'Plaintext').items
     expect(saved).to.have.length(20)
     expect(saved[0]).to.equal('a'.repeat(31) + '…')
-    expect(storeBatchItems([Buffer.from('é'.repeat(16))], 'summary', 'Plaintext', text)).to.deep.equal(['é'.repeat(16)])
+    expect(storeBatchItems([Buffer.from('é'.repeat(16))], 'summary', 'Plaintext').items).to.deep.equal(['é'.repeat(16)])
     const binary = Buffer.alloc(40, 255)
-    expect(storeBatchItems([binary], 'summary', 'Plaintext', text)).to.deep.equal([
+    expect(storeBatchItems([binary], 'summary', 'Plaintext').items).to.deep.equal([
       { b64: Buffer.alloc(32, 255).toString('base64') },
     ])
-    expect(storeBatchItems([binary], 'summary', 'Hex', (b) => b.toString('hex'))).to.deep.equal(['ff'.repeat(32) + '…'])
+    expect(storeBatchItems([binary], 'summary', 'Hex').items).to.deep.equal(['ffff '.repeat(16) + '…'])
   })
   it('only converts the saved prefix and does not expose the tail in summary mode', () => {
-    const converted: Buffer[] = []
-    const saved = storeBatchItems([Buffer.from('{"message":"' + 'x'.repeat(60) + '"}')], 'summary', 'JSON', (item) => {
-      converted.push(item)
-      return JSON.stringify(JSON.parse(item.toString()))
-    })
-    expect(converted[0].length).to.equal(32)
-    expect(saved[0]).to.equal('{"message":"' + 'x'.repeat(20) + '…')
+    const saved = storeBatchItems([Buffer.from('{"message":"' + 'x'.repeat(60) + '"}')], 'summary', 'JSON')
+    expect(saved.conversionFallback).to.equal(true)
+    expect(saved.items[0]).to.equal('{"message":"' + 'x'.repeat(20) + '…')
   })
   it('cuts the raw Buffer before making a bounded hex preview', () => {
     expect(batchHexPreview(Buffer.alloc(1000000, 255), 7)).to.equal('ffffff')
@@ -158,12 +161,10 @@ describe('Desktop batch storage bounds', () => {
 })
 
 describe('Localized batch publish diagnostics', () => {
-  const translate =
-    (lang: Language) =>
-    (key: string, values: Record<string, string | number | undefined> = {}) => {
-      const text = connections[key.replace('connections.', '') as keyof typeof connections][lang]
-      return text.replace(/\{(\w+)\}/g, (_, name) => String(values[name]))
-    }
+  const translate = (lang: Language) => (key: string, values?: Record<string, string | number | undefined>) => {
+    i18n.locale = lang
+    return String(i18n.t(key, values))
+  }
   it('identifies count, framed payload bytes and the per-item byte ceiling', () => {
     const cases = [
       [{ ...message, payload: '\n'.repeat(120) }, { maxItems: 100, maxBytes: 65536 }, '超出上限：120 条 > 100'],

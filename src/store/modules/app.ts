@@ -1,12 +1,5 @@
 import Vue from 'vue'
-import {
-  DEFAULT_BATCH_STORAGE_MODE,
-  DEFAULT_BATCH_MAX_ITEMS,
-  DEFAULT_BATCH_MAX_BYTES,
-  normalizeBatchStorageMode,
-  normalizeBatchMaxItems,
-  normalizeBatchMaxBytes,
-} from '@/utils/data'
+import { normalizeBatchStorageMode, normalizeBatchMaxItems, normalizeBatchMaxBytes } from '@/utils/data'
 import log4js from 'log4js'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
@@ -109,11 +102,9 @@ const app = {
     agentMaxSteps: normalizeAgentMaxSteps(electronStore.get('settings.agentMaxSteps', DEFAULT_AGENT_MAX_STEPS)),
     agentReasoning: normalizeAgentReasoning(electronStore.get('settings.agentReasoning', DEFAULT_AGENT_REASONING)),
     batchPublishEnabled: electronStore.get('settings.batchPublishEnabled', false) === true,
-    batchStorageMode: normalizeBatchStorageMode(
-      electronStore.get('settings.batchStorageMode', DEFAULT_BATCH_STORAGE_MODE),
-    ),
-    batchMaxItems: normalizeBatchMaxItems(electronStore.get('settings.batchMaxItems', DEFAULT_BATCH_MAX_ITEMS)),
-    batchMaxBytes: normalizeBatchMaxBytes(electronStore.get('settings.batchMaxBytes', DEFAULT_BATCH_MAX_BYTES)),
+    batchStorageMode: normalizeBatchStorageMode(electronStore.get('settings.batchStorageMode')),
+    batchMaxItems: normalizeBatchMaxItems(electronStore.get('settings.batchMaxItems')),
+    batchMaxBytes: normalizeBatchMaxBytes(electronStore.get('settings.batchMaxBytes')),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {

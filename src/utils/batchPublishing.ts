@@ -123,10 +123,13 @@ const validateBatchMetadata = (packet: BatchPacket, carrier: BatchCarrier): Batc
   return { carrier, logicalTopic, count: parseBatchCount(countText) }
 }
 
-/** Encode length-prefixed items after checking all limits. */
-export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits = DEFAULT_BATCH_LIMITS): Buffer => {
+/** Validate item lengths and count their framed bytes without allocating a payload. */
+export const calculateBatchPayloadSize = (
+  items: readonly Buffer[],
+  limits: BatchLimits = DEFAULT_BATCH_LIMITS,
+  bytes = items.reduce((total, item) => total + 2 + item.length, 0),
+): number => {
   parseBatchCount(String(items.length))
-  const bytes = items.reduce((total, item) => total + 2 + item.length, 0)
   if (
     items.length > (limits.maxItems ?? 65535) ||
     bytes > (limits.maxBytes ?? 268435455) ||
@@ -134,6 +137,12 @@ export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits
   ) {
     return reject('BATCH_LIMIT_EXCEEDED')
   }
+  return bytes
+}
+
+/** Encode length-prefixed items after checking all limits. */
+export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits = DEFAULT_BATCH_LIMITS): Buffer => {
+  const bytes = calculateBatchPayloadSize(items, limits)
   const payload = Buffer.allocUnsafe(bytes)
   let offset = 0
   items.forEach((item) => {
@@ -144,7 +153,7 @@ export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits
   return payload
 }
 
-const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits = DEFAULT_BATCH_LIMITS): Buffer[] => {
+const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits, retainedItems: number): Buffer[] => {
   if (count > (limits.maxItems ?? 65535) || payload.length > (limits.maxBytes ?? 268435455)) {
     return reject('BATCH_LIMIT_EXCEEDED')
   }
@@ -159,7 +168,7 @@ const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits 
     offset += 2
     if (length > payload.length - offset) return reject('TRUNCATED_ITEM')
     if (length > (limits.maxItemBytes ?? 65535)) return reject('BATCH_LIMIT_EXCEEDED')
-    items.push(payload.subarray(offset, offset + length))
+    if (index < retainedItems) items.push(payload.subarray(offset, offset + length))
     offset += length
   }
   if (offset !== payload.length) return reject('BATCH_COUNT_MISMATCH')
@@ -171,13 +180,14 @@ export const decodeBatch = (
   packet: BatchPacket,
   mqttVersion: number,
   limits: BatchLimits = DEFAULT_BATCH_LIMITS,
+  retainedItems = Infinity,
 ): BatchResult | undefined => {
   const carrier = classifyBatch(packet, mqttVersion)
   if (!carrier) return undefined
   let metadata: BatchMetadata | undefined
   try {
     metadata = validateBatchMetadata(packet, carrier)
-    return { ...metadata, items: decodeBatchPayload(packet.payload, metadata.count, limits) }
+    return { ...metadata, items: decodeBatchPayload(packet.payload, metadata.count, limits, retainedItems) }
   } catch (error) {
     return {
       carrier,
@@ -200,8 +210,12 @@ const vbiBytes = (value: number): number => {
 const stringBytes = (value: string | Buffer) => 2 + Buffer.byteLength(value)
 
 /** Calculate the complete PUBLISH size, including headers and properties. */
-export const calculatePublishSize = (packet: BatchPacket, mqttVersion: number): number => {
-  let remaining = stringBytes(packet.topic) + (packet.qos ? 2 : 0) + packet.payload.length
+export const calculatePublishSize = (
+  packet: Omit<BatchPacket, 'payload'> & { payload?: Buffer },
+  mqttVersion: number,
+  payloadBytes = packet.payload!.length,
+): number => {
+  let remaining = stringBytes(packet.topic) + (packet.qos ? 2 : 0) + payloadBytes
   if (mqttVersion === 5) {
     const p = packet.properties ?? {}
     let bytes = 0

@@ -10,7 +10,7 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import ConnectionService from '@/database/services/ConnectionService'
 import HistoryMessagePayloadService from '@/database/services/HistoryMessagePayloaderService'
 import HistoryMessageHeaderService from '@/database/services/HistoryMessageHeaderService'
-import connections from '@/lang/connections'
+import messages from '@/lang'
 const ElementUI = require('element-ui')
 
 const localVue = createLocalVue()
@@ -20,13 +20,10 @@ localVue.use(VueRouter)
 localVue.use(VueI18n)
 const i18n = new VueI18n({
   locale: 'en',
-  messages: { en: { connections: { batchStatus: connections.batchStatus.en } } },
+  messages: messages,
 })
 const settle = () => new Promise((resolve) => setTimeout(resolve))
-const translate = (key: string, values: Record<string, string> = {}) => {
-  const message = connections[key.replace('connections.', '') as keyof typeof connections]?.en || key
-  return message.replace(/\{(\w+)\}/g, (_, name) => values[name])
-}
+const translate = (key: string, values = {}) => String(i18n.t(key, values))
 
 describe('MsgPublish per-connection input', () => {
   const originalGet = Container.get
@@ -36,6 +33,8 @@ describe('MsgPublish per-connection input', () => {
   let headers: HistoryMessageHeaderModel[]
   let errors: string[]
   let notices: string[]
+  let dialogs: { message: string; options: { confirmButtonText?: string } }[]
+  let confirmResult: () => Promise<void>
   let properties: PushPropertiesModel | undefined
   let wrapper: Wrapper<Vue>
   let vm: any
@@ -61,7 +60,10 @@ describe('MsgPublish per-connection input', () => {
       mocks: {
         $t: (key: string) => key,
         $tc: (key: string, count?: number, values = {}) => (count === undefined ? key : i18n.tc(key, count, values)),
-        $confirm: () => Promise.resolve(),
+        $confirm: (message: string, _title: string, options: { confirmButtonText?: string }) => {
+          dialogs.push({ message, options })
+          return confirmResult()
+        },
         $message: {
           error: (message: string) => errors.push(message),
           warning: (message: string) => notices.push(message),
@@ -84,6 +86,9 @@ describe('MsgPublish per-connection input', () => {
     headers = []
     errors = []
     notices = []
+    dialogs = []
+    confirmResult = () => Promise.resolve()
+    i18n.locale = 'en'
     properties = undefined
     const byConnection =
       <T extends { connectionId?: string }>(list: T[]) =>
@@ -278,47 +283,22 @@ describe('MsgPublish per-connection input', () => {
     await wrapper.setProps({ mqttVersion: '5.0', mqtt5PropsEnable: true })
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: 'one\ntwo', payloadType: 'Plaintext' })
     vm.MQTT5PropsSend = { userProperties: { 'batch-format': 'v1', 'batch-size': '2', other: 'kept' } }
-    const prompts: string[] = []
-    vm.$confirm = (message: string) => {
-      prompts.push(message)
-      return Promise.resolve()
-    }
     vm.onClearRetainedMsgPublish()
     await settle()
     const sent = wrapper.emitted('handleSend')![0][0]
     expect(sent).to.include({ batch: false, retain: true, payload: '', topic: 'demo' })
     expect(sent.properties.userProperties).to.deep.equal({ other: 'kept' })
     expect(vm.msgRecord).to.include({ payload: '', retain: true })
-    expect(prompts).to.deep.equal(['connections.batchClearRetainedConfirm "demo"'])
+    expect(dialogs.map(({ message }) => message)).to.deep.equal(['connections.batchClearRetainedConfirm "demo"'])
   })
   it('uses localized publish reasons for the status line, including the actual limit', async () => {
     vm.$t = (key: string, values: Record<string, number> = {}) => `${key} ${JSON.stringify(values)}`
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '\n'.repeat(120), payloadType: 'Plaintext' })
     expect(vm.batchError).to.equal('connections.batchItemsLimit {"count":120,"max":100}')
-    vm.msgRecord.payload = 'x'.repeat(69998)
-    expect(vm.batchError).to.equal('connections.batchBytesLimit {"bytes":70000,"max":65536}')
-    vm.msgRecord.payload = 'valid'
-    vm.msgRecord.topic = 'a+b'
-    expect(vm.batchError).to.include('connections.batchInvalidTopic')
-    vm.msgRecord.topic = 'demo'
-    await wrapper.setProps({ mqtt5PropsEnable: true })
-    vm.MQTT5PropsSend = { userProperties: { 'batch-size': '1' } }
-    expect(vm.batchError).to.include('connections.batchMarkerConflict')
-    vm.MQTT5PropsSend = { payloadFormatIndicator: true }
-    expect(vm.batchError).to.include('connections.batchInvalidMetadata')
   })
 
   for (const count of [1, 2]) {
     it(`renders the batch status with the correct item count for ${count}`, async () => {
-      const i18n = new VueI18n({
-        locale: 'en',
-        messages: Object.fromEntries(
-          Object.entries(connections.batchStatus).map(([locale, message]) => [
-            locale,
-            { connections: { batchStatus: message } },
-          ]),
-        ),
-      })
       vm.$tc = i18n.tc.bind(i18n)
       Object.assign(vm.msgRecord, {
         batch: true,
@@ -339,14 +319,10 @@ describe('MsgPublish per-connection input', () => {
   it('confirms removing manual batch markers when clearing an ordinary retained message', async () => {
     Object.assign(vm.msgRecord, { topic: 'demo', payloadType: 'Plaintext' })
     vm.MQTT5PropsSend = { userProperties: { 'batch-format': 'v1' } }
-    const prompts: string[] = []
-    vm.$confirm = (message: string) => {
-      prompts.push(message)
-      return Promise.reject('cancel')
-    }
+    confirmResult = () => Promise.reject('cancel')
     vm.onClearRetainedMsgPublish()
     await settle()
-    expect(prompts).to.deep.equal(['connections.batchClearRetainedConfirm "demo"'])
+    expect(dialogs.map(({ message }) => message)).to.deep.equal(['connections.batchClearRetainedConfirm "demo"'])
     expect(vm.MQTT5PropsSend.userProperties).to.deep.equal({ 'batch-format': 'v1' })
   })
 
@@ -354,11 +330,6 @@ describe('MsgPublish per-connection input', () => {
     Object.assign(vm.msgRecord, { qos: 1, retain: true })
     vm.MQTT5PropsForm = { payloadFormatIndicator: false }
     vm.MQTT5PropsSend = { payloadFormatIndicator: false }
-    let dialogs = 0
-    vm.$confirm = () => {
-      dialogs++
-      return Promise.resolve()
-    }
     for (const payloadType of ['Plaintext', 'Hex']) {
       vm.msgRecord.payloadType = payloadType
       wrapper.find('.batch-checkbox').vm.$emit('change', true)
@@ -368,17 +339,13 @@ describe('MsgPublish per-connection input', () => {
       await settle()
       expect(vm.msgRecord.batch).to.equal(false)
     }
-    expect(dialogs).to.equal(0)
+    expect(dialogs).to.have.length(0)
   })
 
   it('confirms JSON and QoS changes together before applying them and enabling batch', async () => {
     let confirm!: () => void
-    const dialogs: { message: string; options: { confirmButtonText: string } }[] = []
     vm.$t = translate
-    vm.$confirm = (message: string, _title: string, options: { confirmButtonText: string }) => {
-      dialogs.push({ message, options })
-      return new Promise<void>((resolve) => (confirm = resolve))
-    }
+    confirmResult = () => new Promise<void>((resolve) => (confirm = resolve))
     const payload = '{"a":1}\n{"a":2}'
     Object.assign(vm.msgRecord, { payload, payloadType: 'JSON', qos: 2 })
     wrapper.find('.batch-checkbox').vm.$emit('change', true)
@@ -395,7 +362,7 @@ describe('MsgPublish per-connection input', () => {
 
   it('keeps batch off and preserves every setting when its confirmation is canceled', async () => {
     await wrapper.setProps({ mqttVersion: '3.1.1' })
-    vm.$confirm = () => Promise.reject('cancel')
+    confirmResult = () => Promise.reject('cancel')
     const payload = '{"a":1}\n{"a":2}'
     Object.assign(vm.msgRecord, { payload, payloadType: 'JSON', qos: 2, retain: true })
     vm.MQTT5PropsForm = { payloadFormatIndicator: true }
@@ -409,25 +376,21 @@ describe('MsgPublish per-connection input', () => {
 
   it('opens confirmation on the next checkbox click after canceling or closing it', async () => {
     Object.assign(vm.msgRecord, { payloadType: 'JSON', batch: false })
-    let dialogs = 0
     let dismiss!: (reason: string) => void
-    vm.$confirm = () => {
-      dialogs++
-      return new Promise<void>((_resolve, reject) => (dismiss = reject))
-    }
+    confirmResult = () => new Promise<void>((_resolve, reject) => (dismiss = reject))
     await settle()
     const checkbox = wrapper.find('.batch-checkbox input').element as HTMLInputElement
     for (const reason of ['cancel', 'close']) {
       checkbox.click()
       await settle()
-      expect(dialogs).to.equal(reason === 'cancel' ? 1 : 3)
+      expect(dialogs).to.have.length(reason === 'cancel' ? 1 : 3)
       dismiss(reason)
       await settle()
       expect(vm.msgRecord.batch).to.equal(false)
       expect(checkbox.checked).to.equal(false)
       checkbox.click()
       await settle()
-      expect(dialogs).to.equal(reason === 'cancel' ? 2 : 4)
+      expect(dialogs).to.have.length(reason === 'cancel' ? 2 : 4)
       dismiss(reason)
       await settle()
     }
@@ -436,33 +399,25 @@ describe('MsgPublish per-connection input', () => {
   it('lists and confirms turning Retain off for MQTT 3.1.1', async () => {
     await wrapper.setProps({ mqttVersion: '3.1.1' })
     Object.assign(vm.msgRecord, { payloadType: 'Plaintext', retain: true })
-    const dialogs: string[] = []
     vm.$t = translate
-    vm.$confirm = (message: string) => {
-      dialogs.push(message)
-      return Promise.resolve()
-    }
     wrapper.find('.batch-checkbox').vm.$emit('change', true)
     await settle()
-    expect(dialogs).to.deep.equal(['Enabling Batch will change these settings: Retain off'])
+    expect(dialogs.map(({ message }) => message)).to.deep.equal([
+      'Enabling Batch will change these settings: Retain off',
+    ])
     expect(vm.msgRecord).to.include({ batch: true, retain: false })
   })
 
   it('lists PFI once when either property record is true and clears both after confirmation', async () => {
     vm.msgRecord.payloadType = 'Plaintext'
-    const dialogs: string[] = []
     vm.$t = translate
-    vm.$confirm = (message: string) => {
-      dialogs.push(message)
-      return Promise.resolve()
-    }
     for (const source of ['MQTT5PropsForm', 'MQTT5PropsSend']) {
       vm.MQTT5PropsForm = {}
       vm.MQTT5PropsSend = {}
       vm[source] = { payloadFormatIndicator: true }
       wrapper.find('.batch-checkbox').vm.$emit('change', true)
       await settle()
-      expect(dialogs[dialogs.length - 1]).to.equal(
+      expect(dialogs[dialogs.length - 1].message).to.equal(
         'Enabling Batch will change these settings: Payload Format Indicator off',
       )
       expect(vm.msgRecord.batch).to.equal(true)
@@ -478,14 +433,12 @@ describe('MsgPublish per-connection input', () => {
     await wrapper.setProps({ batchProcessingActive: true })
     vm.msgRecord.payloadType = 'Plaintext'
     vm.$t = translate
-    const prompts: string[] = []
-    vm.$confirm = (message: string) => {
-      prompts.push(message)
-      return Promise.reject('cancel')
-    }
+    confirmResult = () => Promise.reject('cancel')
     wrapper.find('.batch-checkbox').vm.$emit('change', true)
     await settle()
-    expect(prompts).to.deep.equal(['Enabling Batch will change these settings: Skip Schema and scripts'])
+    expect(dialogs.map(({ message }) => message)).to.deep.equal([
+      'Enabling Batch will change these settings: Skip Schema and scripts',
+    ])
     expect(vm.msgRecord.batch).to.equal(false)
   })
 

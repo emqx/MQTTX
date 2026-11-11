@@ -32,5 +32,23 @@ export const setWillMQTT5Properties = (option: WillPropertiesModel) => {
 }
 
 /** Drop unset publish properties before validation or serialization. */
-export const setPublishMQTT5Properties = (option: PushPropertiesModel): PushPropertiesModel =>
-  Object.fromEntries(Object.entries(option).filter(([_, value]) => value !== null && value !== undefined))
+export const setPublishMQTT5Properties = (option: PushPropertiesModel): PushPropertiesModel => {
+  const properties: PushPropertiesModel = Object.fromEntries(
+    Object.entries(option).filter(([_, value]) => value !== null && value !== undefined),
+  )
+  if (properties.correlationData && typeof properties.correlationData === 'string') {
+    properties.correlationData = Buffer.from(properties.correlationData)
+  }
+  if (properties.userProperties) {
+    properties.userProperties = { ...properties.userProperties } // Convert Vue object to JS object
+  }
+  return properties
+}
+
+/** Expand repeated User Properties in entry and value order. */
+export const userPropertiesToPairs = (
+  properties: PushPropertiesModel['userProperties'],
+): { key: string; value: string }[] =>
+  Object.entries(properties || {}).flatMap(([key, value]) =>
+    (typeof value === 'string' ? [value] : value).map((item) => ({ key, value: item })),
+  )

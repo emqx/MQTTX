@@ -1,5 +1,5 @@
 <template>
-  <div :class="['batch-items', direction]" :style="{ '--batch-index-width': indexWidth }">
+  <div :class="['batch-items', direction]">
     <div v-for="(item, index) in previewItems" :key="index" class="batch-row">
       <span class="batch-index">{{ index + 1 }}</span>
       <span class="batch-content" :title="item.title"
@@ -47,10 +47,6 @@ export default class BatchItems extends Vue {
     return this.items.slice(0, BATCH_PREVIEW_ITEMS).map(getBatchItemDisplay)
   }
 
-  get indexWidth(): string {
-    return `${String(this.previewItems.length).length}ch`
-  }
-
   private formatBytes = formatBytes
   private summaryBytes = BATCH_SUMMARY_BYTES
 }
@@ -68,7 +64,7 @@ export default class BatchItems extends Vue {
     gap: 10px;
   }
   .batch-index {
-    flex: 0 0 var(--batch-index-width);
+    flex: 0 0 1ch;
     color: var(--color-text-tips);
     text-align: right;
     font-size: 12px;

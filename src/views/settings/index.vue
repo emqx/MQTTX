@@ -409,7 +409,7 @@
             :value="batchMaxItems"
             :min="minBatchMaxItems"
             :max="maxBatchMaxItems"
-            @change="handleBatchMaxItemsChange"
+            @change="handleBatchLimitChange($event, 'items')"
             @change.native.capture="handleBatchLimitInput($event, 'items')"
         /></el-col>
       </el-row>
@@ -438,7 +438,7 @@
             :value="batchMaxBytes"
             :min="minBatchMaxBytes"
             :max="maxBatchMaxBytes"
-            @change="handleBatchMaxBytesChange"
+            @change="handleBatchLimitChange($event, 'bytes')"
             @change.native.capture="handleBatchLimitInput($event, 'bytes')"
         /></el-col>
       </el-row>
@@ -995,20 +995,17 @@ export default class Settings extends Vue {
     }
   }
 
-  private handleBatchMaxItemsChange(value: number) {
-    if (normalizeBatchMaxItems(value) !== value) {
+  private handleBatchLimitChange(value: number, kind: 'items' | 'bytes') {
+    const normalize = kind === 'items' ? normalizeBatchMaxItems : normalizeBatchMaxBytes
+    if (normalize(value) !== value) {
       this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
       return
     }
-    this.actionBatchMaxItems({ batchMaxItems: value })
-  }
-
-  private handleBatchMaxBytesChange(value: number) {
-    if (normalizeBatchMaxBytes(value) !== value) {
-      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
-      return
+    if (kind === 'items') {
+      this.actionBatchMaxItems({ batchMaxItems: value })
+    } else {
+      this.actionBatchMaxBytes({ batchMaxBytes: value })
     }
-    this.actionBatchMaxBytes({ batchMaxBytes: value })
   }
 
   private levelLabel(level: AgentReasoning): string {

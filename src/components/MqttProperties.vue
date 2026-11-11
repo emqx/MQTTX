@@ -36,6 +36,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { userPropertiesToPairs } from '@/utils/mqtt5Properties'
 
 interface PropertyField {
   key: keyof PushPropertiesModel
@@ -48,9 +49,7 @@ export default class MqttProperties extends Vue {
   @Prop({ default: true }) public showColon!: boolean
 
   get userProperties(): { key: string; value: string }[] {
-    return Object.entries(this.properties.userProperties || {}).flatMap(([key, value]) =>
-      (Array.isArray(value) ? value : [value]).map((item) => ({ key, value: item })),
-    )
+    return userPropertiesToPairs(this.properties.userProperties)
   }
 
   private propertyFields: PropertyField[] = [
@@ -68,6 +67,28 @@ export default class MqttProperties extends Vue {
 
 <style lang="scss" scoped>
 .mqtt-properties {
+  .properties.left,
+  .properties.right {
+    margin-top: 12px;
+    padding-top: 10px;
+    &.user-properties {
+      padding: 10px 0;
+    }
+  }
+  .properties.left {
+    color: var(--color-text-default);
+    .property-cell {
+      color: var(--color-text-left_info);
+      border-color: var(--color-border-left_metainfo);
+    }
+  }
+  .properties.right {
+    color: var(--color-text-right_info);
+    .property-cell {
+      color: var(--color-text-active);
+      border-color: var(--color-border-right_metainfo);
+    }
+  }
   .properties-header {
     display: flex;
     justify-content: space-between;
@@ -116,9 +137,6 @@ export default class MqttProperties extends Vue {
   }
   .user-properties.right .properties-title {
     color: var(--color-text-right_info);
-  }
-  .user-properties.right .property-cell {
-    border-color: var(--color-border-right_metainfo);
   }
 }
 </style>

@@ -18,7 +18,6 @@
         <MsgRightItem
           v-else
           :key="item.id"
-          :msgId="item.id"
           :searchParams="searchParams"
           v-bind="item"
           @showmenu="handleShowContextMenu(arguments, item)"

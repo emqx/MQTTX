@@ -97,8 +97,9 @@
       :visible.sync="showFullMsg"
       :msgId="msgId"
       :msgType="msgType"
-      :batch-payload="batch && !batch.error && !batch.summary ? payload : undefined"
-      :payload-bytes="batch ? payloadBytes : undefined"
+      :batch-items="batch && !batch.error && !batch.summary ? batchItems : undefined"
+      :export-text="batch && !batch.error && !batch.summary ? payload : undefined"
+      :export-format="batch ? 'json' : undefined"
     />
   </div>
 </template>
@@ -321,12 +322,7 @@ export default class MsgLeftItem extends Vue {
     right: 0px;
     animation: leftMsg 0.3s ease-in-out;
   }
-  .input-prop {
-    .property-cell {
-      color: var(--color-text-left_info) !important;
-      border: 1px solid var(--color-border-left_metainfo) !important;
-    }
-  }
+
   .batch-error-preview {
     margin-top: 10px;
     color: var(--color-text-tips);

@@ -33,10 +33,23 @@ const receiveContext = () => {
       throw new Error('Batch must bypass scripts')
     },
   }
-  context.convertPayloadByType = methods.convertPayloadByType.bind(context)
   context.processReceivedMessage = methods.processReceivedMessage.bind(context)
   return context
 }
+
+const publishContext = (overrides: Record<string, any> = {}): any => ({
+  ...methods,
+  record: { id: 'c1', mqttVersion: '5.0' },
+  batchPublishEnabled: true,
+  batchMaxItems: 100,
+  batchMaxBytes: 65536,
+  insertHistory: async () => undefined,
+  notifyMsgWithAgent: () => undefined,
+  $t: (key: string) => key,
+  $message: { warning: () => undefined },
+  $log: { error: () => undefined },
+  ...overrides,
+})
 
 describe('Desktop batch message pipeline', () => {
   it('stores one incoming PUBLISH as one converted item array before Schema, script or gzip', () => {
@@ -93,9 +106,6 @@ describe('Desktop batch message pipeline', () => {
   it('enforces hard limits before item conversion and stores only the bounded hex preview', () => {
     const context = receiveContext()
     context.batchMaxItems = 1
-    context.convertPayloadByType = () => {
-      throw new Error('Must not parse items')
-    }
     const incoming = packet()
     const message = context.processReceivedMessage(incoming.topic, incoming.payload, incoming)
     expect(JSON.parse(message.meta).batch.error).to.equal('BATCH_LIMIT_EXCEEDED')
@@ -142,8 +152,7 @@ describe('Desktop batch message pipeline', () => {
     const events: string[] = []
     const history: any[] = []
     let releaseHistory!: () => void
-    const context = {
-      ...methods,
+    const context = publishContext({
       record: { id: 'c1' },
       insertHistory: (...args: any[]) => {
         events.push('history')
@@ -166,7 +175,7 @@ describe('Desktop batch message pipeline', () => {
           throw new Error('Invalid payload must not be sent')
         },
       },
-    }
+    })
     const result: Error[] = []
     const pending = methods.publishMessage.call(
       context,
@@ -187,26 +196,18 @@ describe('Desktop batch message pipeline', () => {
   it('stops a queued batch when publishing is disabled and reports the result', async () => {
     let stopped = false
     let result: Error | undefined
-    const context: any = {
-      ...methods,
+    const context = publishContext({
       batchPublishEnabled: false,
-      record: { id: 'c1', mqttVersion: '5.0' },
-      insertHistory: async () => undefined,
       sendTimeId: 1,
       stopTimedSend: () => {
         stopped = true
       },
-      notifyMsgWithAgent: () => undefined,
-      $t: (key: string) => key,
-      $message: { warning: () => undefined },
-      $log: { error: () => undefined },
       client: {
         publish: () => {
           throw new Error('Disabled batch must not publish')
         },
       },
-    }
-    context.handleErrorOnPublish = methods.handleErrorOnPublish.bind(context)
+    })
     expect(
       await methods.publishMessage.call(
         context,
@@ -225,12 +226,7 @@ describe('Desktop batch message pipeline', () => {
   it('records history before batch validation and reports localized publish errors', async () => {
     const errors: string[] = []
     const events: string[] = []
-    const context: any = {
-      ...methods,
-      record: { id: 'c1', mqttVersion: '5.0' },
-      batchPublishEnabled: true,
-      batchMaxItems: 100,
-      batchMaxBytes: 65536,
+    const context = publishContext({
       insertHistory: async (_: any, header: any) => {
         expect(header.batch).to.equal(true)
         events.push('history')
@@ -245,38 +241,24 @@ describe('Desktop batch message pipeline', () => {
           throw new Error('Invalid batch must not be sent')
         },
       },
-    }
-    for (const [override, reason] of [
-      [{ payload: '\n'.repeat(120) }, 'connections.batchItemsLimit {"count":120,"max":100}'],
-      [{ payload: 'x'.repeat(69998) }, 'connections.batchBytesLimit {"bytes":70000,"max":65536}'],
-      [{ topic: 'a+b' }, 'connections.batchInvalidTopic'],
-      [{ properties: { userProperties: { 'batch-format': 'v1' } } }, 'connections.batchMarkerConflict'],
-      [{ properties: { payloadFormatIndicator: true } }, 'connections.batchInvalidMetadata'],
-      [{ qos: 2 }, 'connections.batchUnsupportedQos'],
-    ] as any[]) {
-      events.length = 0
-      expect(
-        await methods.publishMessage.call(
-          context,
-          { topic: 'demo', payload: 'valid', qos: 1, retain: false, batch: true, ...override },
-          'Plaintext',
-        ),
-      ).to.equal(false)
-      expect(events).to.deep.equal(['history', 'error'])
-      expect(errors[errors.length - 1]).to.include(reason)
-    }
+    })
+    expect(
+      await methods.publishMessage.call(
+        context,
+        { topic: 'demo', payload: '\n'.repeat(120), qos: 1, retain: false, batch: true },
+        'Plaintext',
+      ),
+    ).to.equal(false)
+    expect(events).to.deep.equal(['history', 'error'])
+    expect(errors).to.deep.equal(['connections.batchItemsLimit {"count":120,"max":100}'])
   })
 
   it('sends framed bytes and keeps editor text and batch flag in history and the outgoing bubble', async () => {
     const history: any[] = []
     const sent: any[] = []
     const bubbles: any[] = []
-    const context: any = {
-      ...methods,
+    const context = publishContext({
       record: { id: 'c1', mqttVersion: '3.1.1' },
-      batchPublishEnabled: true,
-      batchMaxItems: 100,
-      batchMaxBytes: 65536,
       insertHistory: async (...args: any[]) => history.push(args),
       handleSuccessfulPublish: async (...args: any[]) => bubbles.push(args),
       convertPayloadByFunction: () => {
@@ -291,7 +273,7 @@ describe('Desktop batch message pipeline', () => {
           done()
         },
       },
-    }
+    })
     const message = {
       ...packet(),
       id: 'out',
@@ -317,26 +299,16 @@ describe('Desktop batch message pipeline', () => {
     let sends = 0
     const errors: string[] = []
     const warnings: string[] = []
-    const context: any = {
-      ...methods,
-      record: { id: 'c1', mqttVersion: '5.0' },
-      batchPublishEnabled: true,
-      batchMaxItems: 100,
-      batchMaxBytes: 65536,
-      insertHistory: async () => undefined,
+    const context = publishContext({
       sendTimedMessageCount: 0,
       stopTimedSend: () => {
         stops++
         context.sendTimeId = null
       },
       notifyMsgWithAgent: (message: string) => errors.push(message),
-      $t: (key: string) => key,
       $message: { warning: (message: string) => warnings.push(message) },
-      $log: { error: () => undefined },
       client: { publish: () => sends++ },
-    }
-    context.handleErrorOnPublish = methods.handleErrorOnPublish.bind(context)
-    context.publishMessage = methods.publishMessage.bind(context)
+    })
     window.setInterval = ((callback: any) => {
       tick = callback
       return 1

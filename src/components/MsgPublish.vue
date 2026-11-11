@@ -331,14 +331,10 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
-import {
-  prepareBatchPublish,
-  formatBatchPublishError,
-  inspectBatchLines,
-  getBatchProtocolVersion,
-  getBatchLimits,
-} from '@/utils/batchPayload'
+import { prepareBatchPublish, formatBatchPublishError, inspectBatchLines } from '@/utils/batchPayload'
 import { setPublishMQTT5Properties } from '@/utils/mqtt5Properties'
+import { getMsgHeader } from '@/utils/historyRecordUtils'
+import { mqttVersionDict } from '@/utils/constant'
 import { hasMarker } from '@/utils/batchPublishing'
 
 const getDefaultMsgRecord = (): PushMessageModel => ({
@@ -348,10 +344,6 @@ const getDefaultMsgRecord = (): PushMessageModel => ({
   batch: false,
   payload: JSON.stringify({ msg: 'hello' }, null, 2),
   payloadType: 'JSON',
-})
-const getMsgHeader = (item: HistoryMessageHeaderModel): HistoryMessageHeaderModel => ({
-  ..._.pick(item, ['qos', 'retain', 'topic']),
-  batch: Boolean(item.batch),
 })
 const getMsgPayload = ({ payload, payloadType }: HistoryMessagePayloadModel) => ({
   payload,
@@ -389,7 +381,7 @@ export default class MsgPublish extends Vue {
   }
 
   get batchLimits() {
-    return getBatchLimits(this.batchMaxItems, this.batchMaxBytes)
+    return { maxItems: this.batchMaxItems, maxBytes: this.batchMaxBytes }
   }
 
   get batchInput() {
@@ -400,7 +392,7 @@ export default class MsgPublish extends Vue {
     return prepareBatchPublish(
       this.msgRecord,
       this.msgRecord.payloadType,
-      getBatchProtocolVersion(this.mqttVersion),
+      mqttVersionDict[this.mqttVersion] ?? 4,
       this.mqtt5PropsEnable ? setPublishMQTT5Properties(this.MQTT5PropsSend) : undefined,
       this.batchLimits,
       this.maximumPacketSize,
@@ -654,7 +646,6 @@ export default class MsgPublish extends Vue {
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
     if (val) {
       Object.assign(this.msgRecord, getMsgHeader(val))
-      this.handleBatchChange()
     }
   }
 
@@ -693,24 +684,18 @@ export default class MsgPublish extends Vue {
     return await connectionService.addPushProp(props, this.$route.params.id)
   }
 
-  private async send({ clearRetained = false } = {}) {
-    if (!clearRetained && this.msgRecord.batch && this.batchState.error) return
-    const { payloadType, ...record } = this.msgRecord
+  private async send(
+    snapshot = { ...this.msgRecord, properties: this.mqtt5PropsEnable ? this.MQTT5PropsSend : undefined },
+  ) {
+    if (snapshot.batch && this.batchState.error) return
+    const { payloadType, properties, ...record } = snapshot
     const message: MessageModel = {
       ...record,
       id: getMessageId(),
       createAt: time.getNowDate(),
       out: true,
-      batch: clearRetained ? false : Boolean(record.batch),
-      properties: this.mqtt5PropsEnable ? _.cloneDeep(this.MQTT5PropsSend) : undefined,
-    }
-    if (clearRetained) {
-      message.payload = ''
-      message.retain = true
-      if (message.properties?.userProperties) {
-        delete message.properties.userProperties['batch-format']
-        delete message.properties.userProperties['batch-size']
-      }
+      batch: Boolean(record.batch),
+      properties: _.cloneDeep(properties),
     }
     if (!this.clientConnected) {
       this.$notify({
@@ -744,7 +729,14 @@ export default class MsgPublish extends Vue {
       return
     }
     // The sent payload becomes the latest history entry.
-    this.$emit('handleSend', message, payloadType, () => this.loadHistoryData(true))
+    this.$emit(
+      'handleSend',
+      message,
+      payloadType,
+      () => this.loadHistoryData(true),
+      undefined,
+      message.batch ? this.batchInput : undefined,
+    )
   }
 
   private handleInputFocus() {
@@ -884,7 +876,12 @@ export default class MsgPublish extends Vue {
       .then(() => {
         this.msgRecord.payload = ''
         this.msgRecord.retain = true
-        this.send({ clearRetained: true })
+        const properties = this.mqtt5PropsEnable ? _.cloneDeep(this.MQTT5PropsSend) : undefined
+        if (properties?.userProperties) {
+          delete properties.userProperties['batch-format']
+          delete properties.userProperties['batch-size']
+        }
+        this.send({ ...this.msgRecord, batch: false, properties })
       })
       .catch(() => {
         // The user canceled the action
