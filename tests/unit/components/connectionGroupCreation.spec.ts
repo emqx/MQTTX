@@ -40,7 +40,9 @@ describe('Creating Desktop connections in the selected group', () => {
   let originalGet: typeof Container.get
   let router: VueRouter
 
-  beforeEach(async () => {
+  beforeEach(async function () {
+    // This spec opens the run's first SQLite connection, which loads the native driver and can exceed 2 s on CI.
+    this.timeout(10000)
     database = await createConnection({
       name: 'group-creation-regression',
       type: 'sqlite',

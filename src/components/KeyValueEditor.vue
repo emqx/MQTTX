@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts">
+import { userPropertiesToPairs } from '@/utils/mqtt5Properties'
 import { Component, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import _ from 'lodash'
 
@@ -96,16 +97,7 @@ export default class KeyValueEditor extends Vue {
       this.dataList = [{ key: '', value: '' }]
       return
     }
-    this.dataList = []
-    Object.entries(this.value as { [key: string]: string | string[] }).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        this.dataList.push({ key, value })
-      } else {
-        value.forEach((item) => {
-          this.dataList.push({ key, value: item })
-        })
-      }
-    })
+    this.dataList = userPropertiesToPairs(this.value)
   }
 
   private resizeInput() {

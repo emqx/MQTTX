@@ -224,6 +224,10 @@ Click **Connect** in the upper right corner to create the connection and connect
 
    So far, the testing of an `MQTT` message is completed.
 
+### Batch messages
+
+From v1.14.0, MQTTX can send several messages on one topic as a single MQTT packet; this requires MQTT broker support. Turn on **Enable Batch publishing** in **Settings > Advanced**, then check **Batch** in the publish bar and enter one message per line. See [Batch messages](./desktop/en/use-desktop/pub-sub.md#batch-messages) for details.
+
 ### MQTT 5
 
 1. User Properties
@@ -269,7 +273,7 @@ Click the settings button at the bottom of the left menu bar, or use the shortcu
 - **General**: language, auto check update, auto resubscribe, multi topics subscribe, max reconnect times, and max payload display size.
 - **Appearance**: sync with OS theme, theme (Light, Dark, or Night), and JSON highlighting.
 - **Extensions**: one-click installation of MQTTX CLI.
-- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, GZIP message decompression, topic whitespace detection, and GPU acceleration.
+- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, GZIP message decompression, topic whitespace detection, GPU acceleration, and Batch settings.
 - **MQTTX Agent**: enable the agent, configure the model provider, reasoning strength, default permission mode, maximum steps per reply, and MCP servers. See [MQTTX Agent](./desktop/en/use-desktop/agent.md).
 
 ![mqttx-theme](../assets/mqttx-theme.png)

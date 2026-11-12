@@ -45,3 +45,67 @@ Use the arrows in the publish area to browse previously published payloads. Righ
 Each connection saves its own publish area (`Topic`, `QoS`, `Retain`, `Payload`, and format) and publish history. A connection with no saved publish area opens with its most recent sent message. Upgrading copies the previously shared history to each connection. In the topic history drop-down, use an entry's delete icon to remove only that entry.
 
 So far, the testing of an `MQTT` message is completed.
+
+## Batch Messages
+
+From v1.14.0, MQTTX can send several messages on one topic as a single MQTT packet, called a batch. Batches work with MQTT 5.0 and MQTT 3.1.1 at QoS 0 or 1.
+
+> **Note:** Batch messages require MQTT broker support. Before using them, make sure your broker and subscribers support batch messages.
+
+### Send a batch
+
+1. Open **Settings > Advanced** and turn on **Enable Batch publishing**.
+2. Connect, enter a topic such as `demo/batch`, select `Plaintext` and **QoS 1**, then check **Batch**.
+3. Enter one message per line and click Send:
+
+   ```text
+   hello
+   {"temperature":23.5}
+   world
+   ```
+
+The line below the editor shows the message count and size. A batch over the limits cannot be sent; MQTTX does not split it.
+
+![Batch publishing and received message](./assets/batch-publish.png)
+
+`Plaintext`, `JSON`, `Hex` and `Base64` are supported, and each line is encoded in the selected format: one complete JSON value per line, Hex as bytes such as `01 FF`, Base64 as encoded text such as `QQ==`. An empty line is an empty message; the final newline does not add one. If a line is invalid, MQTTX shows which line and does not send.
+
+> **Note:** If the current settings conflict with Batch, such as `JSON`, `CBOR` or `MsgPack` format or QoS 2, MQTTX lists the settings it needs to change when you check Batch and changes them only after you confirm. You can select `JSON` again afterwards. Keep Payload Format Indicator off.
+
+### MQTT 5.0 and 3.1.1
+
+| Connection | Publish topic | Subscribe to          | Retain        |
+| ---------- | ------------- | --------------------- | ------------- |
+| MQTT 5.0   | `demo/batch`  | `demo/batch`          | Supported     |
+| MQTT 3.1.1 | `demo/topic`  | `$batch/+/demo/topic` | Not supported |
+
+On MQTT 5.0, MQTTX adds the `batch-format=v1` and `batch-size=N` User Properties. On MQTT 3.1.1, it publishes to `$batch/{N}/demo/topic`, so enter only `demo/topic` in the topic field. A `#` subscription does not match topics that start with `$`.
+
+If your MQTT 5.0 broker requires clients to declare batch support when connecting, add `batch-publish` with value `v1` to the connection's User Properties before connecting, then check **Batch negotiation** in the connection information. If the broker does not accept, MQTTX shows a notice but still lets you publish.
+
+### Receive and view
+
+Subscribe to the topic in the table above. Received batches are recognized automatically, even when Batch publishing is off. Each batch is shown as one message with a **Batch × N** tag and the first 5 messages. When a batch has more than 5 messages and was stored with **Save all**, click **See More** to view each message and its size, 100 per page. **Save to Local** in that dialog exports it.
+
+![Batch item table](./assets/batch-items.png)
+
+A malformed or oversized batch shows an error and a short hex preview. In `Plaintext` format, messages that are not valid UTF-8 are kept as binary and marked **binary**.
+
+> **Note:** Batches skip Schema and scripts, and received batches are not GZIP-decompressed.
+
+### Limits and storage
+
+Configure these options in **Settings > Advanced**:
+
+| Setting                 | Default  | Description                                                                |
+| ----------------------- | -------- | -------------------------------------------------------------------------- |
+| Enable Batch publishing | Off      | Show the Batch option in the publish bar; turning it off exits Batch mode. |
+| Batch max items         | `256`    | Shared by publishing and receiving; range `1–65535`.                       |
+| Batch max bytes         | `65536`  | Each message adds 2 bytes for its length; range `1024–1048576`.            |
+| Batch storage mode      | Save all | Store every received message.                                              |
+
+Publish history can restore Batch mode only while **Enable Batch publishing** is on.
+
+A single message can be up to 65,535 bytes. On MQTT 5.0, **Broker Maximum Packet Size** also limits the whole packet.
+
+With **Summary only**, later batches keep only the first 20 messages, up to 32 bytes each, and are marked as summaries. The rest cannot be recovered or exported.
