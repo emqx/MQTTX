@@ -27,10 +27,10 @@ const receiveContext = () => {
     decompressGzip: true,
     scriptOption: { apply: 'all', function: {}, schema: {} },
     convertPayloadBySchema: () => {
-      throw new Error('Batch must bypass Schema')
+      throw new Error('Batch ran Schema')
     },
     convertPayloadByFunction: () => {
-      throw new Error('Batch must bypass scripts')
+      throw new Error('Batch ran a script')
     },
   }
   context.processReceivedMessage = methods.processReceivedMessage.bind(context)
@@ -52,7 +52,7 @@ const publishContext = (overrides: Record<string, any> = {}): any => ({
 })
 
 describe('Desktop batch message pipeline', () => {
-  it('stores one incoming PUBLISH as one converted item array before Schema, script or gzip', () => {
+  it('stores each received Batch once without running Schema, scripts or gzip', () => {
     const context = receiveContext()
     const incoming = packet([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([255])])
     const message = context.processReceivedMessage(incoming.topic, incoming.payload, incoming)
@@ -68,7 +68,7 @@ describe('Desktop batch message pipeline', () => {
     ).to.deep.equal(['2041 20', '', 'ff'])
   })
 
-  it('identifies topic carrier first using the delivering client version', () => {
+  it('checks the $batch topic first with the receiving client version', () => {
     const context = receiveContext()
     const incoming = { ...packet(), topic: '$batch/2/demo', properties: undefined }
     const message = context.processReceivedMessage(incoming.topic, incoming.payload, incoming, 4)
@@ -79,7 +79,7 @@ describe('Desktop batch message pipeline', () => {
     ).to.equal('INVALID_BATCH_METADATA')
   })
 
-  it('validates all frames before saving a summary and rejects a malformed unsaved item', () => {
+  it('rejects a summary if an unsaved item is malformed', () => {
     const context = receiveContext()
     context.batchStorageMode = 'summary'
     const incoming = packet(Array.from({ length: 21 }, () => Buffer.from('x'.repeat(40))))
@@ -103,7 +103,7 @@ describe('Desktop batch message pipeline', () => {
     expect(bad.payload).to.equal(incoming.payload.subarray(0, 3).toString('hex'))
   })
 
-  it('enforces hard limits before item conversion and stores only the bounded hex preview', () => {
+  it('saves a bounded hex preview when Batch exceeds a limit', () => {
     const context = receiveContext()
     context.batchMaxItems = 1
     const incoming = packet()
@@ -111,7 +111,7 @@ describe('Desktop batch message pipeline', () => {
     expect(JSON.parse(message.meta).batch.error).to.equal('BATCH_LIMIT_EXCEEDED')
     expect(message.payload).to.equal('000566')
   })
-  it('records conversion fallback for the received batch notice', () => {
+  it('records when a received item is saved as text after conversion fails', () => {
     const context = receiveContext()
     context.receivedMsgType = 'JSON'
     const incoming = packet([Buffer.from('not JSON')])
@@ -148,7 +148,7 @@ describe('Desktop batch message pipeline', () => {
     }
   })
 
-  it('awaits ordinary history before scripts and conversion, even when conversion fails', async () => {
+  it('saves ordinary publish history before converting the payload', async () => {
     const events: string[] = []
     const history: any[] = []
     let releaseHistory!: () => void
@@ -172,7 +172,7 @@ describe('Desktop batch message pipeline', () => {
       },
       client: {
         publish: () => {
-          throw new Error('Invalid payload must not be sent')
+          throw new Error('Published an invalid payload')
         },
       },
     })
@@ -193,7 +193,7 @@ describe('Desktop batch message pipeline', () => {
     expect(result[0].message).to.equal('The payload could not be converted to JSON')
   })
 
-  it('stops a queued batch when publishing is disabled and reports the result', async () => {
+  it('stops a queued Batch when Batch publishing is disabled', async () => {
     let stopped = false
     let result: Error | undefined
     const context = publishContext({
@@ -204,7 +204,7 @@ describe('Desktop batch message pipeline', () => {
       },
       client: {
         publish: () => {
-          throw new Error('Disabled batch must not publish')
+          throw new Error('Published Batch while disabled')
         },
       },
     })
@@ -223,7 +223,7 @@ describe('Desktop batch message pipeline', () => {
     expect(result!.message).to.equal('connections.batchPublishingDisabled')
   })
 
-  it('records history before batch validation and reports localized publish errors', async () => {
+  it('saves Batch history before reporting a validation error', async () => {
     const errors: string[] = []
     const events: string[] = []
     const context = publishContext({
@@ -238,7 +238,7 @@ describe('Desktop batch message pipeline', () => {
       $t: (key: string, values: any) => `${key} ${JSON.stringify(values)}`,
       client: {
         publish: () => {
-          throw new Error('Invalid batch must not be sent')
+          throw new Error('Published an invalid batch')
         },
       },
     })
@@ -253,7 +253,7 @@ describe('Desktop batch message pipeline', () => {
     expect(errors).to.deep.equal(['connections.batchItemsLimit {"count":120,"max":100}'])
   })
 
-  it('sends framed bytes and keeps editor text and batch flag in history and the outgoing bubble', async () => {
+  it('keeps sent Batch text in history and the published bubble', async () => {
     const history: any[] = []
     const sent: any[] = []
     const bubbles: any[] = []
@@ -262,10 +262,10 @@ describe('Desktop batch message pipeline', () => {
       insertHistory: async (...args: any[]) => history.push(args),
       handleSuccessfulPublish: async (...args: any[]) => bubbles.push(args),
       convertPayloadByFunction: () => {
-        throw new Error('Must skip scripts')
+        throw new Error('Batch ran a script')
       },
       handlePayloadBySchemaOrType: () => {
-        throw new Error('Must skip Schema')
+        throw new Error('Batch ran Schema')
       },
       client: {
         publish: (topic: string, payload: Buffer, options: any, done: (error?: Error) => void) => {
@@ -292,7 +292,7 @@ describe('Desktop batch message pipeline', () => {
     expect(JSON.parse(bubbles[0][0].meta).batch).to.include({ count: 2, payloadType: 'Plaintext' })
   })
 
-  it('revalidates each timer iteration and stops on a newly reduced broker limit', async () => {
+  it('stops timed Batch sending when the broker limit is reduced', async () => {
     const originalInterval = window.setInterval
     let tick!: () => Promise<void>
     let stops = 0
@@ -333,7 +333,7 @@ describe('Desktop batch message pipeline', () => {
     }
   })
 
-  it('shows negotiation and the broker limit from each successful CONNACK', () => {
+  it('updates Batch status and the broker limit on each CONNACK', () => {
     let saved: any
     const warnings: string[] = []
     const context: any = {

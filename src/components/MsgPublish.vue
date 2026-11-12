@@ -299,7 +299,7 @@
           <i class="iconfont icon-send"></i>
         </a>
       </div>
-      <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
+      <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchError">
         <template v-if="!batchInput.error">
           {{
             $tc('connections.batchStatus', batchState.count, {
@@ -407,15 +407,6 @@ export default class MsgPublish extends Vue {
     )
   }
 
-  get batchStatusTitle(): string {
-    if (this.batchState.error) return this.batchError
-    return [
-      this.$t('connections.batchInputRules'),
-      this.$t('connections.batchCarrierNotice'),
-      this.$t('connections.batchProcessingDisabled'),
-    ].join(' · ')
-  }
-
   get batchQosOptions(): QoS[] {
     return this.msgRecord.batch ? [0, 1] : [0, 1, 2]
   }
@@ -438,7 +429,7 @@ export default class MsgPublish extends Vue {
     return Boolean(this.msgRecord.batch && this.mqttVersion !== '5.0')
   }
 
-  // Element UI needs a writable value to reset its native checkbox when confirmation is canceled.
+  // A writable value lets Element UI reset the native checkbox after cancel.
   private batchChecked = false
 
   private async handleBatchToggle(batch: boolean) {

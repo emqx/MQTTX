@@ -117,7 +117,7 @@ describe('MsgPublish per-connection input', () => {
     Container.get = originalGet
   })
 
-  it('hides disabled Batch controls and prevents history from restoring a hidden batch mode', async () => {
+  it('keeps Batch off when Batch publishing is disabled', async () => {
     vm.$store.state.batchPublishEnabled = false
     await settle()
     expect(wrapper.find('.batch-checkbox').exists()).to.equal(false)
@@ -225,7 +225,7 @@ describe('MsgPublish per-connection input', () => {
     expect(notices).to.deep.equal([])
   })
 
-  it('preserves incompatible history settings and blocks sending instead of silently changing them', async () => {
+  it('blocks sending incompatible Batch history without changing its settings', async () => {
     await wrapper.setProps({ mqttVersion: '3.1.1' })
     Object.assign(vm.msgRecord, { payloadType: 'Plaintext', payload: 'valid' })
     vm.MQTT5PropsForm = { payloadFormatIndicator: true }
@@ -245,7 +245,7 @@ describe('MsgPublish per-connection input', () => {
     expect(notices.filter((notice) => notice === 'connections.batchDisabledMqtt31')).to.have.length(1)
   })
 
-  it('preserves saved batch settings across a protocol change and blocks incompatible Retain', async () => {
+  it('keeps saved Batch settings when the MQTT version changes', async () => {
     savedMessages.b = { topic: 'demo', qos: 1, retain: true, batch: true, payload: 'valid', payloadType: 'Plaintext' }
     await switchTo('b')
     expect(vm.msgRecord).to.deep.equal(savedMessages.b)
@@ -279,7 +279,7 @@ describe('MsgPublish per-connection input', () => {
     expect(wrapper.emitted('handleSend')![0][0]).to.include({ batch: true, payload: '41\n42' })
   })
 
-  it('clears a retained property-carrier batch with an ordinary unmarked empty publication', async () => {
+  it('clears retained Batch with an empty message without Batch markers', async () => {
     await wrapper.setProps({ mqttVersion: '5.0', mqtt5PropsEnable: true })
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: 'one\ntwo', payloadType: 'Plaintext' })
     vm.MQTT5PropsSend = { userProperties: { 'batch-format': 'v1', 'batch-size': '2', other: 'kept' } }
@@ -291,14 +291,14 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.msgRecord).to.include({ payload: '', retain: true })
     expect(dialogs.map(({ message }) => message)).to.deep.equal(['connections.batchClearRetainedConfirm "demo"'])
   })
-  it('uses localized publish reasons for the status line, including the actual limit', async () => {
+  it('shows the item limit in the translated status error', async () => {
     vm.$t = (key: string, values: Record<string, number> = {}) => `${key} ${JSON.stringify(values)}`
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '\n'.repeat(120), payloadType: 'Plaintext' })
     expect(vm.batchError).to.equal('connections.batchItemsLimit {"count":120,"max":100}')
   })
 
   for (const count of [1, 2]) {
-    it(`renders the batch status with the correct item count for ${count}`, async () => {
+    it(`renders the batch status for ${count}`, async () => {
       vm.$tc = i18n.tc.bind(i18n)
       Object.assign(vm.msgRecord, {
         batch: true,
@@ -342,7 +342,7 @@ describe('MsgPublish per-connection input', () => {
     expect(dialogs).to.have.length(0)
   })
 
-  it('confirms JSON and QoS changes together before applying them and enabling batch', async () => {
+  it('confirms JSON and QoS changes before enabling Batch', async () => {
     let confirm!: () => void
     vm.$t = translate
     confirmResult = () => new Promise<void>((resolve) => (confirm = resolve))
@@ -408,7 +408,7 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.msgRecord).to.include({ batch: true, retain: false })
   })
 
-  it('lists PFI once when either property record is true and clears both after confirmation', async () => {
+  it('confirms PFI once and turns it off in both property records', async () => {
     vm.msgRecord.payloadType = 'Plaintext'
     vm.$t = translate
     for (const source of ['MQTT5PropsForm', 'MQTT5PropsSend']) {
@@ -429,7 +429,7 @@ describe('MsgPublish per-connection input', () => {
     expect(dialogs).to.have.length(2)
   })
 
-  it('includes bypassing active processing in the toggle confirmation', async () => {
+  it('lists skipped Schema and scripts in the Batch confirmation', async () => {
     await wrapper.setProps({ batchProcessingActive: true })
     vm.msgRecord.payloadType = 'Plaintext'
     vm.$t = translate
@@ -450,7 +450,7 @@ describe('MsgPublish per-connection input', () => {
     expect(notices).to.deep.equal(['connections.batchBeautifySkipped'])
   })
 
-  it('explains disabled batch controls and automatic framing in tooltips', async () => {
+  it('shows why Batch controls are disabled in tooltips', async () => {
     Object.assign(vm.msgRecord, { batch: true, payloadType: 'Plaintext', payload: 'one\ntwo\n', topic: 'demo' })
     await wrapper.setProps({ mqttVersion: '3.1.1' })
     expect(wrapper.find('.retain-checkbox').attributes('title')).to.equal('connections.batchRetainDisabled')
@@ -459,9 +459,7 @@ describe('MsgPublish per-connection input', () => {
     expect(wrapper.find('[command="clearRetainedMessage"]').attributes('title')).to.equal(
       'connections.batchClearRetainedDisabled',
     )
-    expect(wrapper.find('.batch-status').attributes('title'))
-      .to.include('connections.batchInputRules')
-      .and.include('connections.batchCarrierNotice')
+    expect(wrapper.find('.batch-status').attributes('title')).to.equal('')
   })
 
   it('notifies when active processing changes while Batch is already on', async () => {

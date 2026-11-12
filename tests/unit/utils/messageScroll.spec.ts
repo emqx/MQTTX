@@ -65,7 +65,7 @@ describe('Message scroll scheduling', () => {
     expect(calls).to.equal(2)
   })
 
-  it('does no hidden work and resumes once for a bottom follower', () => {
+  it('waits for the window to be visible before scrolling to the bottom', () => {
     visibility(true)
     scroll.request()
     scroll.request()
@@ -86,7 +86,7 @@ describe('Message scroll scheduling', () => {
     expect(calls).to.equal(1)
   })
 
-  it('keeps a reader away from the bottom when becoming visible', () => {
+  it('keeps the reading position when the window becomes visible', () => {
     following = false
     visibility(true)
     scroll.request()
@@ -95,14 +95,14 @@ describe('Message scroll scheduling', () => {
     expect(calls).to.equal(0)
   })
 
-  it('still honours an explicit visible scroll when reading older messages', () => {
+  it('scrolls on request while reading older messages', () => {
     following = false
     scroll.request()
     flush()
     expect(calls).to.equal(1)
   })
 
-  it('disposes pending work and the visibility listener', () => {
+  it('cancels pending scrolling and removes the visibility listener', () => {
     scroll.request()
     scroll.dispose()
     visibility(true)

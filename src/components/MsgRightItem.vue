@@ -18,7 +18,7 @@
       <p class="right-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch {{ batch.count }}</el-tag>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch × {{ batch.count }}</el-tag>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
       <BatchItems

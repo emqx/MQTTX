@@ -10,7 +10,6 @@ import {
   validateBatchSelection,
 } from '@/utils/batchPublishing'
 
-// Register the shared CLI vectors as individual Mocha cases.
 const each = (rows: readonly any[]) => (name: string, test: (...args: any[]) => void) => {
   rows.forEach((row, index) =>
     it(`${name.replace('$name', row?.name || '')} [${index + 1}]`, () => test(...(Array.isArray(row) ? row : [row]))),
@@ -161,7 +160,7 @@ describe('spec §§3.3, 4 and 9.3', () => {
     expect(decodeBatch(packet, 5)).to.equal(undefined)
     expect(decodeBatch(property('1', '0000'), 4)).to.equal(undefined)
   })
-  it('enforces item budgets, framing and ordered offset slices without partial results', () => {
+  it('rejects invalid frames without returning partial items', () => {
     const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     const decoded = decodeBatch(property('3', payload), 5)!
     expect(decoded.items).to.deep.equal([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
@@ -257,7 +256,7 @@ describe('spec §§9.1, 9.3 and 9.8 exact packets', () => {
   })
 })
 
-describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
+describe('PUBLISH byte counts match mqtt-packet.generate', () => {
   const properties: BatchPacket['properties'][] = [
     {},
     { payloadFormatIndicator: false },
@@ -294,7 +293,7 @@ describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
 })
 
 describe('MQTT 5 negotiation', () => {
-  it('requires one exact, solicited v1 selection on each connection', () => {
+  it('accepts v1 only when requested once and selected once', () => {
     const offered = { 'batch-publish': 'v1' }
     expect(validateBatchSelection(offered, offered)).to.equal(true)
     for (const value of [undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']]) {

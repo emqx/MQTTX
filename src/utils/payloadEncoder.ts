@@ -5,7 +5,6 @@ import { jsonStringify } from './jsonUtils'
 
 export const payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
 
-/** Payload formats that can encode each batch line independently. */
 export const batchPayloadTypeOptions: PayloadType[] = ['Plaintext', 'Hex', 'Base64', 'JSON']
 
 /**
@@ -45,7 +44,6 @@ export const encodePayloadByType = (value: string, type: PayloadType = 'Plaintex
   }
 }
 
-/** Decode received bytes using the selected display format. */
 export const decodePayloadByType = (value: Buffer, type: PayloadType = 'Plaintext'): string => {
   switch (type) {
     case 'Base64':

@@ -35,7 +35,7 @@
           >Topic: <span v-html="highlightedTopic"></span
         ></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch {{ batch.count || 0 }}</el-tag>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch × {{ batch.count || 0 }}</el-tag>
         <el-tag
           v-if="gzipDecompressed"
           class="gzip-tag"

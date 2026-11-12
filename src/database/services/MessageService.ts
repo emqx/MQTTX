@@ -242,7 +242,7 @@ export default class MessageService {
       }
       return entities
     }
-    // SQLite shares its query runner. Join an existing transaction just as repository.save did.
+    // SQLite shares its query runner. Reuse an active transaction.
     const queryRunner = manager.queryRunner || manager.connection.createQueryRunner()
     if (queryRunner.isTransactionActive) return insert(queryRunner.manager)
     return manager.transaction(insert)

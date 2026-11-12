@@ -29,7 +29,7 @@ describe('Desktop batch input', () => {
     ['a\n\n', ['a', '']],
     ['a\rb', ['a\rb']],
   ] as [string, string[]][]) {
-    it(`splits ${JSON.stringify(input)} with CLI newline semantics`, () =>
+    it(`splits ${JSON.stringify(input)} like CLI --file-read`, () =>
       expect(splitBatchLines(input)).to.deep.equal(expected))
   }
   it('encodes each line independently and includes all length prefixes', () => {
@@ -40,7 +40,7 @@ describe('Desktop batch input', () => {
     expect(inspectBatchLines('QQ==\nQg==', 'Base64').items).to.deep.equal([Buffer.from('A'), Buffer.from('B')])
     expect(inspectBatchLines('{"a":1}\n\nfalse', 'JSON').items?.map(text)).to.deep.equal(['{"a":1}', '', 'false'])
   })
-  it('rejects bad hex, base64 and JSON at their line, with no partial item result', () => {
+  it('reports the invalid Hex, Base64 or JSON line without returning items', () => {
     for (const [payload, type] of [
       ['41\n4', 'Hex'],
       ['QQ==\n@@==', 'Base64'],
@@ -52,7 +52,7 @@ describe('Desktop batch input', () => {
       expect(result.items).to.equal(undefined)
     }
   })
-  it('builds property and topic carriers without changing editor text', () => {
+  it('prepares MQTT 5 and 3.1.1 batches without changing editor text', () => {
     for (const version of [4, 5]) {
       const prepared = prepareBatchPublish(message, 'Plaintext', version, undefined, DEFAULT_BATCH_LIMITS)
       expect(prepared.error).to.equal(undefined)
@@ -64,7 +64,7 @@ describe('Desktop batch input', () => {
       expect(message.payload).to.equal('Msg1\nLongerMsg2')
     }
   })
-  it('rejects protocol, topic, metadata and local-budget conflicts', () => {
+  it('rejects unsupported settings, invalid topics and exceeded limits', () => {
     for (const [override, version, props, limits, error] of [
       [{}, 3, undefined, DEFAULT_BATCH_LIMITS, 'BATCH_MQTT_VERSION'],
       [{ qos: 2 }, 5, undefined, DEFAULT_BATCH_LIMITS, 'UNSUPPORTED_BATCH_QOS'],
@@ -82,7 +82,7 @@ describe('Desktop batch input', () => {
         error,
       )
   })
-  it('compares the complete packet against the broker limit, including VBI and properties', () => {
+  it('includes headers and properties when checking the broker size limit', () => {
     const prepared = prepareBatchPublish(
       message,
       'Plaintext',
@@ -115,13 +115,13 @@ describe('Desktop batch input', () => {
 })
 
 describe('Desktop batch storage bounds', () => {
-  it('keeps invalid UTF-8 in a lossless b64 object only for Plaintext', () => {
+  it('stores non-UTF-8 Plaintext items as Base64', () => {
     const item = Buffer.from([0xff, 0x00, 0xc0, 0x80])
     expect(storeBatchItems([item], 'full', 'Plaintext').items).to.deep.equal([{ b64: item.toString('base64') }])
     expect(storeBatchItems([Buffer.from('�')], 'full', 'Plaintext').items).to.deep.equal(['�'])
     expect(storeBatchItems([item], 'full', 'Hex').items).to.deep.equal(['ff00 c080 '])
   })
-  it('keeps at most 20 items and truncates UTF-8 on a complete character within 32 raw bytes', () => {
+  it('keeps 20 summary items and cuts each to 32 bytes without splitting UTF-8 characters', () => {
     const items = Array.from({ length: 25 }, () => Buffer.from('a'.repeat(31) + '中tail'))
     const saved = storeBatchItems(items, 'summary', 'Plaintext').items
     expect(saved).to.have.length(20)
@@ -133,7 +133,7 @@ describe('Desktop batch storage bounds', () => {
     ])
     expect(storeBatchItems([binary], 'summary', 'Hex').items).to.deep.equal(['ffff '.repeat(16) + '…'])
   })
-  it('only converts the saved prefix and does not expose the tail in summary mode', () => {
+  it('converts only the saved prefix in summary mode', () => {
     const saved = storeBatchItems([Buffer.from('{"message":"' + 'x'.repeat(60) + '"}')], 'summary', 'JSON')
     expect(saved.conversionFallback).to.equal(true)
     expect(saved.items[0]).to.equal('{"message":"' + 'x'.repeat(20) + '…')
@@ -165,7 +165,7 @@ describe('Localized batch publish diagnostics', () => {
     i18n.locale = lang
     return String(i18n.t(key, values))
   }
-  it('identifies count, framed payload bytes and the per-item byte ceiling', () => {
+  it('reports exceeded item, payload and per-item byte limits', () => {
     const cases = [
       [{ ...message, payload: '\n'.repeat(120) }, { maxItems: 100, maxBytes: 65536 }, '超出上限：120 条 > 100'],
       [{ ...message, payload: 'x'.repeat(69998) }, DEFAULT_BATCH_LIMITS, '超出上限：70000 B > 65536 B'],
@@ -197,7 +197,7 @@ describe('Localized batch publish diagnostics', () => {
         else expect(reason).to.include('Plaintext')
       }
     })
-    it(`localizes each publish reason in ${lang} without changing its protocol code`, () => {
+    it(`translates publish errors into ${lang} without changing their codes`, () => {
       for (const error of [
         'INVALID_BATCH_TOPIC',
         'INVALID_BATCH_MARKERS',

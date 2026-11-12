@@ -89,7 +89,7 @@ describe('Batch message display', () => {
     expect(wrapper.findAll('.batch-row').at(1).text()).to.equal('2')
     wrapper.destroy()
   })
-  it('keeps the complete long text in the row tooltip', () => {
+  it('shows the full item text in its tooltip', () => {
     const text = JSON.stringify({ id: 'device-004', value: 'x'.repeat(400) })
     const wrapper = mountMessage({ ...props(), payload: JSON.stringify([text]) })
     expect(wrapper.find('.batch-content').attributes('title')).to.equal(text)
@@ -102,7 +102,7 @@ describe('Batch message display', () => {
       wrapper.destroy()
     }
   })
-  it('opens the full batch using the existing See More button', async () => {
+  it('opens the full Batch with See More', async () => {
     const wrapper = mountMessage(props())
     expect(wrapper.find('.see-more-btn').text()).to.equal('common.seeMore')
     await wrapper.find('.see-more-btn').trigger('click')
@@ -128,7 +128,7 @@ describe('Batch message display', () => {
     expect(wrapper.find('.topic .search-highlight').text()).to.equal('emo')
     wrapper.destroy()
   })
-  it('explains how many summary items were kept without a dialog link', () => {
+  it('shows the saved summary count without See More', () => {
     for (const [count, saved, unit] of [
       [1, 1, 'item'],
       [250, 20, 'items'],
@@ -149,7 +149,7 @@ describe('Batch message display', () => {
     expect(wrapper.findAll('.batch-row')).to.have.length(0)
     expect(wrapper.find('.msg-tag').text()).to.include('BATCH_LIMIT_EXCEEDED')
     expect(wrapper.find('.batch-hex').text()).to.equal('0000ff')
-    expect(wrapper.find('.batch-notice').text()).to.equal('Batch validation failed; a hex preview was saved')
+    expect(wrapper.find('.batch-notice').text()).to.equal('Batch validation failed. A hex preview was saved.')
     wrapper.destroy()
   })
   it('labels the hex preview length only when it is truncated', async () => {
@@ -163,7 +163,7 @@ describe('Batch message display', () => {
     expect(wrapper.find('.batch-preview-note').text()).to.equal('Preview: 3 B of 10 B')
     wrapper.destroy()
   })
-  it('explains item conversion falling back to text', () => {
+  it('shows when item conversion fails and text is saved', () => {
     const message = props()
     const wrapper = mountMessage({
       ...message,
@@ -208,7 +208,7 @@ describe('Batch message display', () => {
     expect(list.scrollTop).to.equal(0)
     wrapper.destroy()
   })
-  it('paginates saved arrays at 100 items through the last page', async () => {
+  it('shows 100 items per page through the last page', async () => {
     const wrapper = await mountDialog({
       batchItems: JSON.parse(props().payload),
       exportText: props().payload,
@@ -252,7 +252,7 @@ describe('Batch message display', () => {
 })
 
 describe('Batch settings persistence', () => {
-  it('uses defaults for old configurations and rejects invalid actions without committing', () => {
+  it('uses defaults for missing settings and rejects invalid values', () => {
     expect(app.state).to.include({
       batchPublishEnabled: false,
       batchStorageMode: 'full',

@@ -1623,7 +1623,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private isScrollBottom() {
-    // Appended content may move the bottom before the scheduled scroll has caught up.
+    // New messages can change scrollHeight before the scheduled scroll runs.
     if (document.hidden || this.messageScroll?.pending) return this.followingBottom
     const msgListRef = this.getMsgListRef()
     const msgListDOM = msgListRef?.$el

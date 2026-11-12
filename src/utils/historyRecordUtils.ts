@@ -1,7 +1,6 @@
 import useServices from '@/database/useServices'
 import _ from 'lodash'
 
-/** Compare only the settings restored by selecting a publish header. */
 export const getMsgHeader = (item: HistoryMessageHeaderModel): HistoryMessageHeaderModel => ({
   ..._.pick(item, ['qos', 'retain', 'topic']),
   batch: Boolean(item.batch),

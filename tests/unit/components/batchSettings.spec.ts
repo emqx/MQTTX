@@ -39,7 +39,7 @@ const context = () => {
 }
 
 describe('Batch settings notices', () => {
-  it('persists enabling and disabling Batch publishing through the settings handler', () => {
+  it('saves the Batch publishing switch', () => {
     const state = { ...app.state, allConnections: [] }
     const writes: unknown[][] = []
     const originalSet = Store.prototype.set
@@ -67,11 +67,11 @@ describe('Batch settings notices', () => {
     }
   })
 
-  it('confirms the item and byte truncation before enabling summary storage', async () => {
+  it('confirms summary limits before changing storage mode', async () => {
     const { ctx, saved, prompts } = context()
     await methods.handleBatchStorageModeChange.call(ctx, 'summary')
     expect(prompts).to.deep.equal([
-      'Summary saves the first 20 items, up to 32 B each; full data cannot be recovered. Continue?',
+      'A summary keeps the first 20 items, up to the first 32 B each. Full data cannot be recovered.',
     ])
     expect(saved).to.deep.equal([{ batchStorageMode: 'summary' }])
   })
@@ -83,21 +83,24 @@ describe('Batch settings notices', () => {
     expect(saved).to.deep.equal([])
   })
 
-  it('notifies when an input-number will clamp a typed batch limit', () => {
+  it('warns when a typed Batch limit is clamped', () => {
     const { ctx, warnings } = context()
     methods.handleBatchLimitInput.call(ctx, { target: { value: '70000' } }, 'items')
     expect(warnings).to.deep.equal(['Batch limit adjusted to 65535'])
   })
 
-  it('reports rejected fractional or missing limits instead of silently discarding them', () => {
+  it('warns when fractional or missing limits are rejected', () => {
     const { ctx, warnings, saved } = context()
     methods.handleBatchLimitChange.call(ctx, 1.5, 'items')
     methods.handleBatchLimitChange.call(ctx, undefined, 'bytes')
-    expect(warnings).to.deep.equal(['Invalid Batch setting; not saved', 'Invalid Batch setting; not saved'])
+    expect(warnings).to.deep.equal([
+      'Batch setting is invalid, so it was not saved',
+      'Batch setting is invalid, so it was not saved',
+    ])
     expect(saved).to.deep.equal([])
   })
 
-  it('notifies at startup about normalized saved settings but not missing defaults', () => {
+  it('warns at startup when a saved Batch setting is adjusted', () => {
     const originalGet = Store.prototype.get
     const { warnings, ctx } = context()
     Store.prototype.get = (key: string) => (key === 'settings.batchMaxItems' ? 0 : undefined)

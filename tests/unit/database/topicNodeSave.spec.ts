@@ -171,7 +171,7 @@ describe('TopicNodeService batch save (SQLite)', () => {
       expect(result[0]).to.include({ meta: stored.meta, userProperties: stored.userProperties })
     })
 
-    it('inserts a large batch in input order within the portable SQLite parameter limit', async () => {
+    it("inserts messages in order within SQLite's parameter limit", async () => {
       const messages = Array.from({ length: 130 }, (_, index) => message(`chunk-${index}`))
       const runner = database.createQueryRunner()
       const query = runner.query

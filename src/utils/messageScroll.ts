@@ -4,7 +4,6 @@ interface MessageScroll {
   dispose: () => void
 }
 
-/** Coalesce message scrolling and defer hidden-window work until the bottom follower is visible. */
 export function createMessageScroll(scroll: () => void, isFollowingBottom: () => boolean): MessageScroll {
   let frame: number | undefined
   let pending = false

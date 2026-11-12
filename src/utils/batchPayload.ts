@@ -35,7 +35,6 @@ export interface BatchItemDisplay {
 
 const BATCH_BINARY_PREVIEW_BYTES = 6
 
-/** Present stored binary items without exposing their persistence wrapper. */
 export const getBatchItemDisplay = (item: StoredBatchItem): BatchItemDisplay => {
   if (typeof item === 'string') {
     return { text: item, title: item, bytes: Buffer.byteLength(item), binary: false }
@@ -51,7 +50,6 @@ export const getBatchItemDisplay = (item: StoredBatchItem): BatchItemDisplay => 
   }
 }
 
-/** Derive presentation status from connection facts, without persisting translations. */
 export const getBatchNegotiationStatus = (version: string, requested?: boolean, selected?: boolean): string => {
   if (version !== '5.0') return 'batchNotApplicable'
   if (selected) return 'batchSelected'
@@ -59,7 +57,7 @@ export const getBatchNegotiationStatus = (version: string, requested?: boolean, 
   return 'batchNotRequested'
 }
 
-/** Same newline rules as CLI --file-read: preserve empty lines, drop one final separator. */
+// Match CLI --file-read: keep empty lines and drop one trailing newline.
 export const splitBatchLines = (text: string): string[] => {
   if (text === '') return []
   const lines = text.split(/\r?\n/)
@@ -76,7 +74,6 @@ export interface BatchInput {
   error?: string
 }
 
-/** Encode each editor line once and retain the first failing line. */
 export const inspectBatchLines = (text: string, type: PayloadType): BatchInput => {
   const lines = splitBatchLines(text)
   const items: Buffer[] = []
@@ -98,7 +95,7 @@ export const inspectBatchLines = (text: string, type: PayloadType): BatchInput =
   return { count: lines.length, bytes, items }
 }
 
-/** Rebuild sent items from editor text; older history used Plaintext implicitly. */
+// Published history without a payload type used Plaintext.
 export const getPublishedBatchItems = (text: string, type: PayloadType = 'Plaintext'): StoredBatchItem[] => {
   const { items = [] } = inspectBatchLines(text, type)
   return items.map((item) => {
@@ -107,7 +104,6 @@ export const getPublishedBatchItems = (text: string, type: PayloadType = 'Plaint
   })
 }
 
-/** Reused by the publish status and every timed-send iteration. */
 export const prepareBatchPublish = (
   message: { topic: string; payload: string; qos: number; retain: boolean },
   type: PayloadType,
@@ -154,7 +150,7 @@ export const prepareBatchPublish = (
   }
 }
 
-/** Publish-only diagnostics; received protocol error codes stay verbatim. */
+// Keep protocol error codes unchanged on receive.
 export const formatBatchPublishError = (
   input: BatchInput,
   limits: BatchLimits,
@@ -200,11 +196,11 @@ export const formatBatchPublishError = (
 
 const isValidUtf8 = (item: Buffer): boolean => Buffer.from(item.toString('utf8')).equals(item)
 
-/** Slice before encoding so even failed, oversized packets have a bounded stored preview. */
+// Slice before hex encoding to bound memory for oversized packets.
 export const batchHexPreview = (payload: Buffer, maxDisplaySize: number): string =>
   payload.subarray(0, Math.max(0, Math.floor(maxDisplaySize / 2))).toString('hex')
 
-/** Convert validated slices, bounding summaries before decoding text. */
+// Cut summaries before decoding to keep the converted data small.
 export const storeBatchItems = (
   items: Buffer[],
   mode: BatchStorageMode,
@@ -217,7 +213,7 @@ export const storeBatchItems = (
     const binary = type === 'Plaintext' && !utf8
     let prefix = mode === 'summary' ? item.subarray(0, BATCH_SUMMARY_BYTES) : item
     if (utf8 && prefix.length < item.length) {
-      // A partial final UTF-8 code point is omitted, never replaced with U+FFFD.
+      // Drop a partial UTF-8 character at the cut to avoid U+FFFD.
       while (prefix.length && !isValidUtf8(prefix)) prefix = prefix.subarray(0, prefix.length - 1)
     }
     if (binary) return { b64: prefix.toString('base64') }

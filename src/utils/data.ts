@@ -44,18 +44,15 @@ export const DEFAULT_BATCH_MAX_BYTES = 65536
 export const MIN_BATCH_MAX_BYTES = 1024
 export const MAX_BATCH_MAX_BYTES = 1048576
 
-/** Normalize persisted batch settings, including older configurations without these keys. */
 export function normalizeBatchStorageMode(value?: unknown): BatchStorageMode {
   return value === 'summary' ? 'summary' : DEFAULT_BATCH_STORAGE_MODE
 }
 
-/** Normalize the batch item limit to an integer within the supported range. */
 export function normalizeBatchMaxItems(value?: number): number {
   if (typeof value !== 'number' || Number.isNaN(value)) return DEFAULT_BATCH_MAX_ITEMS
   return Math.round(Math.min(MAX_BATCH_MAX_ITEMS, Math.max(MIN_BATCH_MAX_ITEMS, value)))
 }
 
-/** Normalize the batch payload limit to an integer within the supported range. */
 export function normalizeBatchMaxBytes(value?: number): number {
   if (typeof value !== 'number' || Number.isNaN(value)) return DEFAULT_BATCH_MAX_BYTES
   return Math.round(Math.min(MAX_BATCH_MAX_BYTES, Math.max(MIN_BATCH_MAX_BYTES, value)))
