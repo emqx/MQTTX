@@ -31,7 +31,7 @@ const newWindow = (id: string, options: WindowOptions): void => {
     },
     titleBarStyle: options.isMac ? 'hidden' : 'default',
     backgroundColor: options.theme === 'dark' ? '#232323' : '#ffffff',
-    icon: `${options.static}/app.ico`,
+    icon: `${options.static}/icons/${process.platform === 'win32' ? 'app.ico' : '512x512.png'}`,
   })
   // Load page
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -43,7 +43,7 @@ const newWindow = (id: string, options: WindowOptions): void => {
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    createWindow.loadURL(`app://./index.html/#${options.path}/${id}`)
+    createWindow.loadURL(`app://./index.html#${options.path}/${id}`)
   }
   // 添加 @electron/remote 初始化
   enable(createWindow.webContents)

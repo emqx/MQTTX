@@ -1115,13 +1115,15 @@
     color: var(--color-main-green);
   }
   .btn.primary {
-    background: var(--color-main-green);
-    border-color: var(--color-main-green);
-    color: #fff;
+    background: var(--color-action-green);
+    border-color: var(--color-action-green);
+    color: var(--color-action-foreground);
   }
-  .btn.primary:hover {
-    background: var(--color-minor-green);
-    color: #fff;
+  .btn.primary:hover,
+  .btn.primary:focus-visible {
+    background: var(--color-action-green-hover);
+    border-color: var(--color-action-green-hover);
+    color: var(--color-action-foreground);
   }
   .btn.text {
     border-color: transparent;
@@ -1133,7 +1135,6 @@
   }
   .kbd {
     font-size: 11px;
-    opacity: 0.75;
   }
 
   /* Saved project files */
@@ -1622,8 +1623,8 @@
     border: 0;
     display: grid;
     place-items: center;
-    background: var(--color-main-green);
-    color: #fff;
+    background: var(--color-action-green);
+    color: var(--color-action-foreground);
     box-shadow: 0 2px 6px var(--color-shadow-sendbtn);
     cursor: pointer;
     flex: none;

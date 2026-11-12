@@ -155,16 +155,6 @@ export default class DashboardContent extends Vue {
     border-radius: 8px;
     font-size: 13px;
     font-weight: 500;
-    background: var(--color-main-green);
-    border-color: var(--color-main-green);
-    color: var(--color-text-active);
-
-    &:hover,
-    &:focus {
-      background: var(--color-minor-green);
-      border-color: var(--color-minor-green);
-      color: var(--color-text-active);
-    }
   }
 }
 </style>
