@@ -339,7 +339,7 @@ mqttx pub --help
 
 ### Batch 消息
 
-从 v1.14.0 起，Batch 可将同一逻辑主题下的多条有序消息打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1，以及 QoS 0/1。使用前，确认 Broker 路由配置和消费者支持相同的批量格式及上限。以下示例假设 `localhost:1883` 已配置这样的路由；请按部署情况替换主机、端口、认证和 TLS 参数。
+从 v1.14.0 起，Batch 可将同一逻辑主题下的多条有序消息打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1，以及 QoS 0/1。
 
 #### 发布与订阅
 
@@ -375,7 +375,7 @@ mqttx pub -h localhost -p 1883 -V 5.0 -q 1 -t demo/batch -b -m hello -m world
 - `pub -b --file-read` 可用 `--split ','` 指定分隔符。Unix 类系统可以用 `--file-read /dev/stdin` 读取管道；`-s`、`-M`、`-lm` 不作为 Batch 输入。
 - `-f` 对每条消息应用所选编码。Batch 发布不支持逐条 Protobuf/Avro 编码，也不支持 `pub -S`。
 - `pub` 默认按每包最多 **256 条、65,536 字节 Payload** 自动拆包。每条消息的两字节大端长度前缀计入字节上限。单条消息不能再拆分，且不得超过 65,535 字节或每包字节预算减去长度前缀。
-- `sub` 使用相同默认上限。格式错误或超限时整批拒绝；发送更大批次时，应同步调高接收上限，并遵守路由限制。
+- `sub` 使用相同默认上限。格式错误或超限时整批拒绝；发送更大批次时，应同步调高接收上限。
 - MQTT 5.0 Broker 返回的 Maximum Packet Size 限制完整 PUBLISH，包括报文头。超过该限制时 MQTTX 拒绝发送，不会按此限制再次自动拆包。
 
 | 参数                          | 命令                                   | 说明                                                                               |
@@ -407,9 +407,9 @@ mqttx sub -h localhost -p 1883 -V 3.1.1 -q 1 -t '$batch/+/demo/topic' -b
 mqttx pub -h localhost -p 1883 -V 3.1.1 -q 1 -t demo/topic -b -m hello -m world
 ```
 
-Shell 中须用引号包住 `$batch`。订阅 `#` 无法匹配这些主题。MQTT 3.1.1 Batch 不支持 Retain；MQTT 5.0 可在兼容路由上保留整批消息，清除时发送不带 `-b` 和 Batch 标记的普通保留空消息。
+Shell 中须用引号包住 `$batch`。订阅 `#` 无法匹配这些主题。MQTT 3.1.1 Batch 不支持 Retain；MQTT 5.0 可以保留整批消息，清除时发送不带 `-b` 和 Batch 标记的普通保留空消息。
 
-如果 MQTT 5.0 路由要求能力协商，在发布命令中添加 `--batch-negotiate`。CLI 会在 CONNECT 中声明能力，并在发送前检查 CONNACK 是否确认。不要同时添加 `-Cup 'batch-publish: v1'`。协商不能代替路由兼容性配置。
+如果 MQTT 5.0 Broker 要求能力协商，在发布命令中添加 `--batch-negotiate`。CLI 会在 CONNECT 中声明能力，并在发送前检查 CONNACK 是否确认。不要同时添加 `-Cup 'batch-publish: v1'`。
 
 #### 性能测试
 
@@ -423,7 +423,7 @@ mqttx bench sub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b
 mqttx bench pub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b -bi 256 -m hello -im 1000 -L 5
 ```
 
-`-L` 按包计数，因此共发送 1,280 条消息。输出分别统计包和条目。`bench pub -b` 会在每包内重复同一条目模板，来源是 `-m`、生成的 Payload，或 `--file-read` 读取的**整个文件**；它不会逐行拆文件，也不支持 `--split`。压测批次使用协议上限，不沿用 `pub`/`sub` 的默认上限，应按 Broker 路由限制选择 `-bi` 和单条大小。`bench sub -b` 统计校验通过的条目，并单独报告无效批次。
+`-L` 按包计数，因此共发送 1,280 条消息。输出分别统计包和条目。`bench pub -b` 会在每包内重复同一条目模板，来源是 `-m`、生成的 Payload，或 `--file-read` 读取的**整个文件**；它不会逐行拆文件，也不支持 `--split`。压测批次使用协议上限，不沿用 `pub`/`sub` 的默认上限，应按 Broker 限制选择 `-bi` 和单条大小。`bench sub -b` 统计校验通过的条目，并单独报告无效批次。
 
 ### 性能测试
 
