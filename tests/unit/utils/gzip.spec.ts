@@ -3,6 +3,18 @@ import zlib from 'zlib'
 import { gunzipIfCompressed } from '@/utils/gzip'
 
 describe('gunzipIfCompressed', () => {
+  let stackTraceLimit: number
+
+  before(() => {
+    stackTraceLimit = Error.stackTraceLimit
+    // Formatting the zlib error's stack through the test bundle's source map takes ~600 ms.
+    Error.stackTraceLimit = 0
+  })
+
+  after(() => {
+    Error.stackTraceLimit = stackTraceLimit
+  })
+
   it('should decompress gzip payloads', () => {
     const payload = zlib.gzipSync(Buffer.from('{"temp":25}'))
     expect(gunzipIfCompressed(payload).toString()).to.equal('{"temp":25}')
