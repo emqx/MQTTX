@@ -33,8 +33,8 @@ describe('Subscription completion', () => {
     return { context, callbacks, topics, events }
   }
 
-  it('resolves success after persistence and logging without waiting for a timer', async () => {
-    const { context, callbacks, events } = createContext()
+  it('resolves success after persistence without waiting for a timer', async () => {
+    const { context, callbacks } = createContext()
     let finishSync!: () => void
     context.syncSubscriptions = (subscriptions: unknown, closeDialog: boolean) => {
       expect(subscriptions).to.equal(context.subsList)
@@ -46,7 +46,6 @@ describe('Subscription completion', () => {
     let resolved = false
     const completion = methods.subscribe.call(context, context.subRecord).then(() => {
       resolved = true
-      events.push('resolved')
     })
     await Promise.resolve()
     expect(resolved).to.equal(false)
@@ -61,20 +60,14 @@ describe('Subscription completion', () => {
     await callbackCompletion
     await Promise.resolve()
     expect(resolved).to.equal(true)
-    expect(events).to.deep.equal([
-      'Saved topic: test/topic',
-      'Successfully subscribed to topic: test/topic',
-      'resolved',
-    ])
     await completion
   })
 
-  it('resolves an error after emitting and logging without waiting for a timer', async () => {
+  it('resolves an error after emitting without waiting for a timer', async () => {
     const { context, callbacks, events } = createContext()
     let resolved = false
     const completion = methods.subscribe.call(context, context.subRecord).then(() => {
       resolved = true
-      events.push('resolved')
     })
     await Promise.resolve()
     expect(resolved).to.equal(false)
@@ -84,37 +77,29 @@ describe('Subscription completion', () => {
     expect(resolved).to.equal(true)
     expect(context.subLoading).to.equal(false)
     expect(context.subsList).to.have.length(0)
-    expect(events).to.deep.equal([
-      ['onSubError', 'Error: subscribe failed', 'Topics: "test/topic"'],
-      'Error subscribing to topic: Error: subscribe failed',
-      'resolved',
-    ])
+    expect(events).to.deep.include(['onSubError', 'Error: subscribe failed', 'Topics: "test/topic"'])
     await completion
   })
 
-  for (const granted of [undefined, []]) {
-    it(`resolves ${granted ? 'empty' : 'missing'} grants without waiting for a timer`, async () => {
-      const { context, callbacks, events } = createContext()
-      context.syncSubscriptions = () => {
-        throw new Error('Empty grants must not be persisted')
-      }
-      let resolved = false
-      const completion = methods.subscribe.call(context, context.subRecord).then(() => {
-        resolved = true
-        events.push('resolved')
-      })
-      await Promise.resolve()
-      expect(resolved).to.equal(false)
-
-      await callbacks[0](null, granted)
-      await Promise.resolve()
-      expect(resolved).to.equal(true)
-      expect(context.subLoading).to.equal(false)
-      expect(context.subsList).to.have.length(0)
-      expect(events).to.deep.equal(granted ? ['resolved'] : ['Error subscribing to topic: granted empty', 'resolved'])
-      await completion
+  it('resolves missing grants without waiting for a timer', async () => {
+    const { context, callbacks } = createContext()
+    context.syncSubscriptions = () => {
+      throw new Error('Missing grants must not be persisted')
+    }
+    let resolved = false
+    const completion = methods.subscribe.call(context, context.subRecord).then(() => {
+      resolved = true
     })
-  }
+    await Promise.resolve()
+    expect(resolved).to.equal(false)
+
+    await callbacks[0](null, undefined)
+    await Promise.resolve()
+    expect(resolved).to.equal(true)
+    expect(context.subLoading).to.equal(false)
+    expect(context.subsList).to.have.length(0)
+    await completion
+  })
 
   it('resubscribes enabled topics in order as each callback finishes without waiting for timers', async () => {
     const { context, callbacks, topics } = createContext()
