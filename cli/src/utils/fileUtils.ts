@@ -53,10 +53,22 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): void => {
+// Keep surrogate pairs from joining across items.
+const appendFile = (filePath: string, data: string | Buffer | (string | Buffer)[], delimiter = '\n'): void => {
+  const items = Array.isArray(data) ? data : [data]
+  if (items.length === 0) return
   try {
-    const content = Buffer.isBuffer(data) ? Buffer.concat([data, Buffer.from(`${delimiter}`)]) : `${data}${delimiter}`
-    fs.appendFileSync(filePath, content)
+    const separator = Buffer.from(`${delimiter}`)
+    const chunks: Buffer[] = []
+    for (const item of items) {
+      if (Buffer.isBuffer(item)) {
+        chunks.push(item)
+        if (separator.length) chunks.push(separator)
+      } else {
+        chunks.push(Buffer.from(`${item}${delimiter}`))
+      }
+    }
+    fs.appendFileSync(filePath, chunks.length === 1 ? chunks[0] : Buffer.concat(chunks))
   } catch (error) {
     const err = error as Error
     logWrapper.fail(err.toString())
@@ -105,6 +117,20 @@ const fileDataSplitter = (data: string | Buffer, split: true | string): string[]
   return stringData.split(splitRegex)
 }
 
+// Empty lines are items. Ignore one trailing separator.
+const splitBatchFile = (data: string | Buffer, split: true | string = true): string[] => {
+  let items: string[]
+  if (split === true || split === '\n' || split === '\\n') {
+    items = data.toString('utf-8').replace(/\r\n/g, '\n').split('\n')
+  } else {
+    items = fileDataSplitter(data, split)
+  }
+  if (items[items.length - 1] === '') {
+    items.pop()
+  }
+  return items
+}
+
 export {
   processPath,
   getPathExtname,
@@ -117,4 +143,5 @@ export {
   appendFile,
   createNextNumberedFileName,
   fileDataSplitter,
+  splitBatchFile,
 }

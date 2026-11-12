@@ -7,15 +7,11 @@ import { ScramAuth } from '@/utils/scramAuth'
 import { setupScramAuth, setupAuthHandler } from '@/utils/scramUtils'
 import { setMQTT5Properties, setWillMQTT5Properties } from '@/utils/mqtt5Properties'
 import { encodePayloadByType } from '@/utils/payloadEncoder'
+import { mqttVersionDict } from '@/utils/constant'
 
 export { setMQTT5Properties, setWillMQTT5Properties }
 
 export const getClientOptions = (record: ConnectionModel): IClientOptions => {
-  const mqttVersionDict = {
-    '3.1': 3,
-    '3.1.1': 4,
-    '5.0': 5,
-  }
   const {
     clientId,
     username,
@@ -33,7 +29,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     ALPNProtocols,
     clientIdWithTime,
   } = record
-  const protocolVersion = mqttVersionDict[mqttVersion as '3.1' | '3.1.1' | '5.0']
+  const protocolVersion = mqttVersionDict[mqttVersion]
 
   const options: IClientOptions = {
     clientId,

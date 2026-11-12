@@ -1,8 +1,11 @@
 import cbor from 'cbor'
-import { pack } from 'msgpackr'
+import { pack, unpack } from 'msgpackr'
 import validFormatJson from './validFormatJson'
+import { jsonStringify } from './jsonUtils'
 
 export const payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
+
+export const batchPayloadTypeOptions: PayloadType[] = ['Plaintext', 'Hex', 'Base64', 'JSON']
 
 /**
  * Editor language for a payload type. Binary formats are written as JSON.
@@ -38,6 +41,23 @@ export const encodePayloadByType = (value: string, type: PayloadType = 'Plaintex
       return pack(JSON.parse(value))
     default:
       return value
+  }
+}
+
+export const decodePayloadByType = (value: Buffer, type: PayloadType = 'Plaintext'): string => {
+  switch (type) {
+    case 'Base64':
+      return value.toString('base64')
+    case 'Hex':
+      return value.toString('hex').replace(/(.{4})/g, '$1 ')
+    case 'JSON':
+      return validFormatJson(value.toString()) || value.toString()
+    case 'CBOR':
+      return jsonStringify(cbor.decodeFirstSync(value), null, 2)
+    case 'MsgPack':
+      return jsonStringify(unpack(value), null, 2)
+    default:
+      return value.toString()
   }
 }
 
