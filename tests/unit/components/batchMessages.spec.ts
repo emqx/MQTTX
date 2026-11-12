@@ -4,7 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import VueI18n from 'vue-i18n'
 import { createLocalVue, mount } from '@vue/test-utils'
-import { Button, Table, TableColumn } from 'element-ui'
+import ElementUI from 'element-ui'
 import { ipcRenderer } from 'electron'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgRightItem from '@/components/MsgRightItem.vue'
@@ -51,9 +51,7 @@ const mountMessage = (propsData: any, component: any = MsgLeftItem) =>
   })
 const mountDialog = async (propsData: any) => {
   const vue = createLocalVue()
-  vue.use(Button)
-  vue.use(Table)
-  vue.use(TableColumn)
+  vue.use(ElementUI)
   const wrapper = mount(FullMsgDialog, {
     localVue: vue,
     sync: false,
