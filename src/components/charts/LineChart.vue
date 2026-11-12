@@ -44,7 +44,7 @@ export default class LineChart extends Vue {
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
 
   // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
-  private myChart?: echarts.ECharts | null
+  private myChart?: echarts.ECharts
   private detachResize: (() => void) | null = null
   // Created up front: the data watchers can fire before `mounted`.
   private debouncedUpdate = this.debounce(this.updateChart, 100)

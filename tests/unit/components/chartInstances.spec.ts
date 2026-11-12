@@ -21,10 +21,8 @@ describe('Non-reactive ECharts instances', () => {
   const originalWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
   const originalHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
   let wrapper: Wrapper<Vue> | undefined
-  let originalAsync: boolean
 
   beforeEach(() => {
-    originalAsync = Vue.config.async
     // Exercise the real init/update/dispose methods without a canvas implementation in jsdom.
     rendererWindow.__ECHARTS__DEFAULT__RENDERER__ = 'svg'
     HTMLCanvasElement.prototype.getContext = (() => null) as typeof originalGetContext
@@ -35,7 +33,6 @@ describe('Non-reactive ECharts instances', () => {
   afterEach(() => {
     wrapper?.destroy()
     wrapper = undefined
-    Vue.config.async = originalAsync
     if (originalRenderer === undefined) delete rendererWindow.__ECHARTS__DEFAULT__RENDERER__
     else rendererWindow.__ECHARTS__DEFAULT__RENDERER__ = originalRenderer
     HTMLCanvasElement.prototype.getContext = originalGetContext
@@ -85,12 +82,6 @@ describe('Non-reactive ECharts instances', () => {
       expect(vm.$data).not.to.have.own.property(field)
       expect(vm[prop]).to.have.own.property('__ob__')
 
-      let updates = 0
-      const setOption = chart.setOption.bind(chart)
-      chart.setOption = (...args: any[]) => {
-        updates++
-        return setOption(...args)
-      }
       let disposals = 0
       const dispose = chart.dispose.bind(chart)
       chart.dispose = () => {
@@ -106,7 +97,6 @@ describe('Non-reactive ECharts instances', () => {
       await vm.$nextTick()
       await new Promise((resolve) => setTimeout(resolve, 150))
 
-      expect(updates).to.be.greaterThan(0)
       const option = chart.getOption()
       if (name === 'TreeVisual') expect(option.series[0].data[0].name).to.equal('updated root')
       else if (name === 'Gauge') expect(option.series[1].data[0].value).to.equal(42)

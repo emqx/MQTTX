@@ -30,7 +30,7 @@ export default class TreeVisual extends Vue {
   @Getter('currentTheme') private theme!: string
 
   // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
-  private chart?: echarts.ECharts | null
+  private chart?: echarts.ECharts
 
   @Watch('data', { deep: true })
   private onDataChanged() {
