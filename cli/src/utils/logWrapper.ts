@@ -49,6 +49,38 @@ const msgLog = (msg: MsgItem[]) => {
   signale.log(isLogFormat ? outputString : `${outputString}\n`)
 }
 
+// Escape control characters but leave quotes and backslashes alone.
+const escapeControlCharacter = (character: string): string => {
+  if (character === '\n') return '\\n'
+  if (character === '\r') return '\\r'
+  return `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+}
+
+const batchLog = {
+  payload: (items: (string | { b64: string })[]) => {
+    const width = String(items.length).length + 2
+    return items
+      .map((item, index) => {
+        const text =
+          typeof item === 'string' ? item.replace(/[\u0000-\u001f]/g, escapeControlCharacter) : JSON.stringify(item)
+        const label = chalk.dim(`[${index + 1}]`.padStart(width))
+        return text ? `${label}  ${text}` : label
+      })
+      .join('\n')
+  },
+  rejected: (error: string, topic: string, bytes: number) => {
+    let message = `Batch rejected (${error}): ${topic}, ${bytes} B, no items delivered.`
+    if (error === 'BATCH_LIMIT_EXCEEDED') {
+      message += ' Check --batch-max-items and --batch-max-bytes.'
+    }
+    logWrapper.fail(message)
+  },
+  published: (items: number, batches: number) =>
+    logWrapper.success(
+      `Published ${items} ${items === 1 ? 'item' : 'items'} in ${batches} ${batches === 1 ? 'batch' : 'batches'}`,
+    ),
+}
+
 const basicLog = {
   connecting: (config: boolean | string | undefined, host: string, port = 1883, topic?: string, message?: string) => {
     if (!config) {
@@ -69,10 +101,7 @@ const basicLog = {
     }
 
     // JSON escapes C0 controls; also escape C1 controls and Unicode line separators.
-    const escaped = JSON.stringify(responseInformation).replace(
-      /[\u007f-\u009f\u2028\u2029]/g,
-      (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
-    )
+    const escaped = JSON.stringify(responseInformation).replace(/[\u007f-\u009f\u2028\u2029]/g, escapeControlCharacter)
     logWrapper.info(`Response Information: ${escaped}`)
   },
   subscribing: (t: string) => logWrapper.await(`Subscribing to ${t}...`),
@@ -103,6 +132,18 @@ const basicLog = {
   },
   fileReading: () => logWrapper.await('Reading file...'),
   fileReadSuccess: () => logWrapper.success('Read file successfully'),
+}
+
+interface PublishStats {
+  total: number
+  failed: number
+}
+
+export interface ReceiveCounts {
+  total: number
+  packets: number
+  failed: number
+  ordinary: number
 }
 
 const benchLog = {
@@ -155,6 +196,59 @@ const benchLog = {
       }
     },
   },
+  publish: (itemsPerPacket?: number) => {
+    if (itemsPerPacket === undefined) {
+      return {
+        summary: ({ total, failed }: PublishStats) =>
+          `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}`,
+        rate: ({ total }: PublishStats, rate: number) => `Published total: ${total}, message rate: ${rate}/s`,
+        finish: ({
+          total,
+          failed,
+          sent,
+          limitReached,
+          limit,
+          fileRead,
+        }: PublishStats & {
+          sent: number
+          limitReached: boolean
+          limit: number
+          fileRead?: string
+        }) => {
+          if (failed > 0) return `${failed} of ${sent} messages failed to publish.`
+          if (limitReached) return `All ${total} messages have been sent, reaching the limit of ${limit}.`
+          return `All ${total} messages from the ${fileRead} have been successfully sent.`
+        },
+      }
+    }
+    const summary = ({ total, failed }: PublishStats) =>
+      `Published total: ${total * itemsPerPacket} items (${total} packets), failed: ${failed} packets`
+    return {
+      summary,
+      rate: (stats: PublishStats, rate: number) =>
+        `${summary(stats)}, rate: ${rate * itemsPerPacket} items/s (${rate} packets/s)`,
+      finish: summary,
+    }
+  },
+  receive: (batch: boolean) => {
+    if (batch) {
+      const summary = ({ total, packets, failed, ordinary }: ReceiveCounts) => {
+        let message = `Received total: ${total} items (${packets} batch packets)`
+        if (failed > 0) message += `, failed: ${failed} packets`
+        if (ordinary > 0) message += `, ordinary: ${ordinary} packets`
+        return message
+      }
+      return {
+        summary,
+        rate: (counts: ReceiveCounts, rate: number) => `${summary(counts)}, rate: ${rate} items/s`,
+      }
+    }
+    const summary = ({ total }: ReceiveCounts) => `Received total: ${total}`
+    return {
+      summary,
+      rate: (counts: ReceiveCounts, rate: number) => `${summary(counts)}, rate: ${rate}/s`,
+    }
+  },
   error: (count: number, total: number, id: string, err: Error) =>
     logWrapper.fail(`[${count}/${total}] - Client ID: ${id}, ${err}`),
   close: (count: number, total: number, id: string) =>
@@ -188,6 +282,6 @@ const simulateLog = {
   },
 }
 
-export { Signale, signale, singaleConfig, spinner, msgLog, basicLog, benchLog, simulateLog }
+export { Signale, signale, singaleConfig, spinner, msgLog, batchLog, basicLog, benchLog, simulateLog }
 
 export default logWrapper

@@ -1,0 +1,217 @@
+import { normalizeBatchMaxItems, normalizeBatchMaxBytes, normalizeBatchStorageMode } from '@/utils/data'
+import { expect } from 'chai'
+import {
+  batchHexPreview,
+  formatBatchPublishError,
+  inspectBatchLines,
+  prepareBatchPublish,
+  splitBatchLines,
+  storeBatchItems,
+} from '@/utils/batchPayload'
+import { DEFAULT_BATCH_LIMITS, decodeBatch, calculatePublishSize, encodeBatchPayload } from '@/utils/batchPublishing'
+import VueI18n from 'vue-i18n'
+import { createLocalVue } from '@vue/test-utils'
+import messages from '@/lang'
+
+createLocalVue().use(VueI18n)
+const i18n = new VueI18n({ locale: 'zh', messages: messages })
+
+const text = (item: Buffer) => item.toString()
+const message = { topic: 'demo/topic', qos: 1, retain: false, payload: 'Msg1\nLongerMsg2' }
+
+describe('Desktop batch input', () => {
+  for (const [input, expected] of [
+    ['', []],
+    ['a\r\n\r\nb\r\n', ['a', '', 'b']],
+    ['\n', ['']],
+    ['\n\n', ['', '']],
+    [' a \n b', [' a ', ' b']],
+    ['a\n\n', ['a', '']],
+    ['a\rb', ['a\rb']],
+  ] as [string, string[]][]) {
+    it(`splits ${JSON.stringify(input)} like CLI --file-read`, () =>
+      expect(splitBatchLines(input)).to.deep.equal(expected))
+  }
+  it('encodes each line independently and includes all length prefixes', () => {
+    const input = inspectBatchLines('41 42\r\n\r\nff\r\n', 'Hex')
+    expect(input.count).to.equal(3)
+    expect(input.bytes).to.equal(9)
+    expect(input.items).to.deep.equal([Buffer.from('AB'), Buffer.alloc(0), Buffer.from([255])])
+    expect(inspectBatchLines('QQ==\nQg==', 'Base64').items).to.deep.equal([Buffer.from('A'), Buffer.from('B')])
+    expect(inspectBatchLines('{"a":1}\n\nfalse', 'JSON').items?.map(text)).to.deep.equal(['{"a":1}', '', 'false'])
+  })
+  it('reports the invalid Hex, Base64 or JSON line without returning items', () => {
+    for (const [payload, type] of [
+      ['41\n4', 'Hex'],
+      ['QQ==\n@@==', 'Base64'],
+      ['{}\n{', 'JSON'],
+    ] as [string, PayloadType][]) {
+      const result = inspectBatchLines(payload, type)
+      expect(result.line).to.equal(2)
+      expect(result.error).to.be.a('string')
+      expect(result.items).to.equal(undefined)
+    }
+  })
+  it('prepares MQTT 5 and 3.1.1 batches without changing editor text', () => {
+    for (const version of [4, 5]) {
+      const prepared = prepareBatchPublish(message, 'Plaintext', version, undefined, DEFAULT_BATCH_LIMITS)
+      expect(prepared.error).to.equal(undefined)
+      expect(prepared.bytes).to.equal(18)
+      expect(
+        decodeBatch({ ...prepared.packet!, payload: encodeBatchPayload(prepared.items!) }, version)?.items?.map(text),
+      ).to.deep.equal(['Msg1', 'LongerMsg2'])
+      expect(prepared.packet?.topic).to.equal(version === 5 ? 'demo/topic' : '$batch/2/demo/topic')
+      expect(message.payload).to.equal('Msg1\nLongerMsg2')
+    }
+  })
+  it('rejects unsupported settings, invalid topics and exceeded limits', () => {
+    for (const [override, version, props, limits, error] of [
+      [{}, 3, undefined, DEFAULT_BATCH_LIMITS, 'BATCH_MQTT_VERSION'],
+      [{ qos: 2 }, 5, undefined, DEFAULT_BATCH_LIMITS, 'UNSUPPORTED_BATCH_QOS'],
+      [{ topic: '$batch/2/demo' }, 5, undefined, DEFAULT_BATCH_LIMITS, 'BATCH_LOGICAL_TOPIC'],
+      [{ topic: 'a+b' }, 5, undefined, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_TOPIC'],
+      [{ topic: '' }, 5, undefined, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_TOPIC'],
+      [{ retain: true }, 4, undefined, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_METADATA'],
+      [{}, 5, { payloadFormatIndicator: true }, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_METADATA'],
+      [{}, 5, { userProperties: { 'batch-format': 'v1' } }, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_MARKERS'],
+      [{}, 5, { userProperties: { 'batch-size': ['2'] } }, DEFAULT_BATCH_LIMITS, 'INVALID_BATCH_MARKERS'],
+      [{}, 5, undefined, { maxItems: 1 }, 'BATCH_LIMIT_EXCEEDED'],
+      [{}, 5, undefined, { maxBytes: 17 }, 'BATCH_LIMIT_EXCEEDED'],
+    ] as any[])
+      expect(prepareBatchPublish({ ...message, ...override }, 'Plaintext', version, props, limits).error).to.equal(
+        error,
+      )
+  })
+  it('includes headers and properties when checking the broker size limit', () => {
+    const prepared = prepareBatchPublish(
+      message,
+      'Plaintext',
+      5,
+      { userProperties: { x: 'y'.repeat(128) } },
+      DEFAULT_BATCH_LIMITS,
+    )
+    const size = calculatePublishSize(prepared.packet!, 5, prepared.bytes)
+    expect(
+      prepareBatchPublish(
+        message,
+        'Plaintext',
+        5,
+        prepared.packet?.properties && { userProperties: { x: 'y'.repeat(128) } },
+        DEFAULT_BATCH_LIMITS,
+        size,
+      ).packet,
+    ).to.not.equal(undefined)
+    expect(
+      prepareBatchPublish(
+        message,
+        'Plaintext',
+        5,
+        { userProperties: { x: 'y'.repeat(128) } },
+        DEFAULT_BATCH_LIMITS,
+        size - 1,
+      ).error,
+    ).to.equal('BATCH_PACKET_TOO_LARGE')
+  })
+})
+
+describe('Desktop batch storage bounds', () => {
+  it('stores non-UTF-8 Plaintext items as Base64', () => {
+    const item = Buffer.from([0xff, 0x00, 0xc0, 0x80])
+    expect(storeBatchItems([item], 'full', 'Plaintext').items).to.deep.equal([{ b64: item.toString('base64') }])
+    expect(storeBatchItems([Buffer.from('�')], 'full', 'Plaintext').items).to.deep.equal(['�'])
+    expect(storeBatchItems([item], 'full', 'Hex').items).to.deep.equal(['ff00 c080 '])
+  })
+  it('keeps 20 summary items and cuts each to 32 bytes without splitting UTF-8 characters', () => {
+    const items = Array.from({ length: 25 }, () => Buffer.from('a'.repeat(31) + '中tail'))
+    const saved = storeBatchItems(items, 'summary', 'Plaintext').items
+    expect(saved).to.have.length(20)
+    expect(saved[0]).to.equal('a'.repeat(31) + '…')
+    expect(storeBatchItems([Buffer.from('é'.repeat(16))], 'summary', 'Plaintext').items).to.deep.equal(['é'.repeat(16)])
+    const binary = Buffer.alloc(40, 255)
+    expect(storeBatchItems([binary], 'summary', 'Plaintext').items).to.deep.equal([
+      { b64: Buffer.alloc(32, 255).toString('base64') },
+    ])
+    expect(storeBatchItems([binary], 'summary', 'Hex').items).to.deep.equal(['ffff '.repeat(16) + '…'])
+  })
+  it('converts only the saved prefix in summary mode', () => {
+    const saved = storeBatchItems([Buffer.from('{"message":"' + 'x'.repeat(60) + '"}')], 'summary', 'JSON')
+    expect(saved.conversionFallback).to.equal(true)
+    expect(saved.items[0]).to.equal('{"message":"' + 'x'.repeat(20) + '…')
+  })
+  it('cuts the raw Buffer before making a bounded hex preview', () => {
+    expect(batchHexPreview(Buffer.alloc(1000000, 255), 7)).to.equal('ffffff')
+    expect(batchHexPreview(Buffer.from([1]), 10)).to.equal('01')
+    expect(batchHexPreview(Buffer.alloc(4), 0)).to.equal('')
+  })
+  it('normalizes defaults and clamps integer batch settings to the specified ranges', () => {
+    expect(normalizeBatchMaxItems()).to.equal(256)
+    expect(normalizeBatchMaxBytes()).to.equal(65536)
+    expect(normalizeBatchMaxItems(0)).to.equal(1)
+    expect(normalizeBatchMaxBytes(1048577)).to.equal(1048576)
+    expect(normalizeBatchStorageMode()).to.equal('full')
+    expect(normalizeBatchStorageMode('invalid')).to.equal('full')
+    expect(normalizeBatchStorageMode('summary')).to.equal('summary')
+    for (const value of [1, 100, 65535]) expect(normalizeBatchMaxItems(value)).to.equal(value)
+    for (const value of [0, 65536, 1.5, NaN, Infinity, '100', undefined])
+      expect(normalizeBatchMaxItems(value as number)).not.to.equal(value)
+    for (const value of [1024, 65536, 1048576]) expect(normalizeBatchMaxBytes(value)).to.equal(value)
+    for (const value of [1023, 1048577, 1024.5, NaN, Infinity, null])
+      expect(normalizeBatchMaxBytes(value as number)).not.to.equal(value)
+  })
+})
+
+describe('Localized batch publish diagnostics', () => {
+  const translate = (lang: Language) => (key: string, values?: Record<string, string | number | undefined>) => {
+    i18n.locale = lang
+    return String(i18n.t(key, values))
+  }
+  it('reports exceeded item, payload and per-item byte limits', () => {
+    const cases = [
+      [{ ...message, payload: '\n'.repeat(120) }, { maxItems: 100, maxBytes: 65536 }, '超出上限：120 条 > 100'],
+      [{ ...message, payload: 'x'.repeat(69998) }, DEFAULT_BATCH_LIMITS, '超出上限：70000 B > 65536 B'],
+      [
+        { ...message, payload: 'x'.repeat(65536) },
+        { maxItems: 100, maxBytes: 1048576 },
+        '第 1 条超出上限：65536 B > 65535 B',
+      ],
+    ] as const
+    for (const [input, limits, expected] of cases) {
+      const prepared = prepareBatchPublish(input, 'Plaintext', 5, undefined, limits)
+      expect(prepared.error).to.equal('BATCH_LIMIT_EXCEEDED')
+      expect(formatBatchPublishError(prepared, limits, undefined, translate('zh'))).to.equal(expected)
+    }
+  })
+  for (const lang of ['zh', 'en', 'tr', 'ja', 'hu', 'ko'] as Language[]) {
+    it(`explains invalid encodings on the failing line in ${lang}`, () => {
+      for (const [payload, type, example] of [
+        ['41\n4', 'Hex', '01'],
+        ['41\nGG', 'Hex', 'FF'],
+        ['QQ==\n@@==', 'Base64', 'QQ=='],
+        ['{}\n{', 'JSON', ''],
+      ] as [string, PayloadType, string][]) {
+        const prepared = prepareBatchPublish({ ...message, payload }, type, 5, undefined, DEFAULT_BATCH_LIMITS)
+        const reason = formatBatchPublishError(prepared, DEFAULT_BATCH_LIMITS, undefined, translate(lang))
+        expect(reason).to.include('2').and.include(example)
+        expect(reason).not.to.include('undefined').and.not.to.include('connections.')
+        if (type === 'JSON') expect(reason).to.include(prepared.encodingError!)
+        else expect(reason).to.include('Plaintext')
+      }
+    })
+    it(`translates publish errors into ${lang} without changing their codes`, () => {
+      for (const error of [
+        'INVALID_BATCH_TOPIC',
+        'INVALID_BATCH_MARKERS',
+        'INVALID_BATCH_METADATA',
+        'UNSUPPORTED_BATCH_QOS',
+        'BATCH_LIMIT_EXCEEDED',
+      ]) {
+        const input = { error, count: 300, bytes: 600 }
+        const reason = formatBatchPublishError(input, DEFAULT_BATCH_LIMITS, undefined, translate(lang))
+        expect(reason).to.be.a('string').and.not.equal('')
+        expect(reason).not.to.include(error).and.not.to.include('connections.').and.not.to.include('{')
+        if (error === 'BATCH_LIMIT_EXCEEDED') expect(reason).to.include('300').and.include('256')
+        expect(input.error).to.equal(error)
+      }
+    })
+  }
+})

@@ -8,7 +8,8 @@
     @keyup.enter.native="handleEnterEvent"
   >
     <slot></slot>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" :class="['dialog-footer', { 'has-footer-left': $slots['footer-left'] }]">
+      <slot name="footer-left"></slot>
       <el-button class="cancel" type="text" size="small" @click="hideDialog">
         {{ $t('common.cancel') }}
       </el-button>
@@ -79,6 +80,13 @@ export default class MyDialog extends Vue {
 @import '~@/assets/scss/variable.scss';
 
 .my-dialog {
+  .dialog-footer.has-footer-left {
+    display: flex;
+    align-items: center;
+    .cancel {
+      margin-left: auto;
+    }
+  }
   .el-dialog--center .el-dialog__body {
     padding: 32px 24px 0;
   }
