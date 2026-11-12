@@ -48,7 +48,7 @@
 
 ## Batch 消息
 
-从 v1.14.0 起，Batch 将同一主题下的多条消息按顺序打包到一个 MQTT PUBLISH 中，在兼容的 Broker 路由上支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。
+从 v1.14.0 起，Batch 将同一主题下的多条消息按顺序打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。
 
 ### 发送 Batch
 
@@ -79,7 +79,7 @@
 
 MQTTX 为 MQTT 5.0 自动添加 `batch-format=v1` 和 `batch-size=N` User Properties。MQTT 3.1.1 实际发布到 `$batch/{N}/demo/topic`，发布框只填写 `demo/topic`。订阅 `#` 无法匹配以 `$` 开头的主题。
 
-如果 MQTT 5.0 路由要求能力协商，在连接前给连接的 User Properties 添加 `batch-publish`，值为 `v1`，再在连接信息中查看 **Batch 协商**。Broker 未选中时会显示警告，但不阻止发布。
+如果 MQTT 5.0 Broker 要求能力协商，在连接前给连接的 User Properties 添加 `batch-publish`，值为 `v1`，再在连接信息中查看 **Batch 协商**。Broker 未选中时会显示警告，但不阻止发布。
 
 ### 接收与查看
 

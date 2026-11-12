@@ -226,7 +226,7 @@ Click **Connect** in the upper right corner to create the connection and connect
 
 ### Batch messages
 
-Batch sends multiple items in one MQTT PUBLISH. In **Settings > Advanced**, turn on **Enable Batch publishing**, then check **Batch** in the publish bar and enter one item per line. See [Batch messages](./desktop/en/use-desktop/pub-sub.md#batch-messages) for publishing, subscriptions, formats, limits, and storage.
+From v1.14.0, Batch sends multiple items in one MQTT PUBLISH. In **Settings > Advanced**, turn on **Enable Batch publishing**, then check **Batch** in the publish bar and enter one item per line. See [Batch messages](./desktop/en/use-desktop/pub-sub.md#batch-messages) for publishing, subscriptions, formats, limits, and storage.
 
 ### MQTT 5
 

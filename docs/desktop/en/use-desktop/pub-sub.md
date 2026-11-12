@@ -48,7 +48,7 @@ So far, the testing of an `MQTT` message is completed.
 
 ## Batch Messages
 
-From v1.14.0, Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1 on compatible broker routes.
+From v1.14.0, Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1.
 
 ### Send a batch
 
@@ -79,7 +79,7 @@ Choose `Plaintext`, `JSON`, `Hex`, or `Base64`. JSON requires one valid value pe
 
 MQTTX adds `batch-format=v1` and `batch-size=N` User Properties for MQTT 5.0. For MQTT 3.1.1, it publishes to `$batch/{N}/demo/topic`; enter only `demo/topic` in the publish field. A subscription to `#` does not match topics starting with `$`.
 
-If your MQTT 5.0 route requires negotiation, add `batch-publish` with value `v1` to the connection's User Properties before connecting. Check **Batch negotiation** in the connection information. A missing selection shows a warning but does not block publishing.
+If your MQTT 5.0 broker requires negotiation, add `batch-publish` with value `v1` to the connection's User Properties before connecting. Check **Batch negotiation** in the connection information. A missing selection shows a warning but does not block publishing.
 
 ### Receive and inspect
 

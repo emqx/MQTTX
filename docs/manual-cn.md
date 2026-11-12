@@ -226,7 +226,7 @@ sudo snap install mqttx
 
 ### Batch 消息
 
-Batch 将多条消息打包到一个 MQTT PUBLISH 中。在**设置 > 高级**中开启**启用 Batch 发布**，再勾选发布栏中的 **Batch**，每行输入一条消息。发布、订阅、格式、上限和存储说明见 [Batch 消息](./desktop/zh/use-desktop/pub-sub.md#batch-消息)。
+从 v1.14.0 起，Batch 将多条消息打包到一个 MQTT PUBLISH 中。在**设置 > 高级**中开启**启用 Batch 发布**，再勾选发布栏中的 **Batch**，每行输入一条消息。发布、订阅、格式、上限和存储说明见 [Batch 消息](./desktop/zh/use-desktop/pub-sub.md#batch-消息)。
 
 ### MQTT 5
 
