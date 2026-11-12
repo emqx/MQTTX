@@ -100,9 +100,7 @@ For additional information on usage and advanced features, please consult our [G
 
 ## Batch Messages
 
-> Planned for MQTTX CLI 1.14.0. These commands require a build with Batch support; they are not available in 1.13.3.
-
-Batch mode packs ordered items into one MQTT PUBLISH on the same logical topic. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1. Use a route whose broker configuration and consumers support the same batch format and limits. The examples below assume such a route at `localhost:1883`; replace the host, port, authentication, and TLS options for your deployment.
+From v1.14.0, batch mode packs ordered items into one MQTT PUBLISH on the same logical topic. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1. Use a route whose broker configuration and consumers support the same batch format and limits. The examples below assume such a route at `localhost:1883`; replace the host, port, authentication, and TLS options for your deployment.
 
 ### Publish and subscribe
 
