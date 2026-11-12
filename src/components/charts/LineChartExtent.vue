@@ -174,24 +174,22 @@ export default class LineChartExtent extends Vue {
     }
   }
 
+  private handleResize() {
+    if (this.areaLineChart) {
+      this.areaLineChart.resize()
+    }
+  }
+
   mounted() {
     this.initChart()
-    window.addEventListener('resize', () => {
-      if (this.areaLineChart) {
-        this.areaLineChart.resize()
-      }
-    })
+    window.addEventListener('resize', this.handleResize)
   }
 
   beforeDestroy() {
     if (this.areaLineChart) {
       this.areaLineChart.dispose()
     }
-    window.removeEventListener('resize', () => {
-      if (this.areaLineChart) {
-        this.areaLineChart.resize()
-      }
-    })
+    window.removeEventListener('resize', this.handleResize)
   }
 }
 </script>
