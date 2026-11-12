@@ -1,23 +1,4 @@
-import { AIModel, AImodelsOptionsModel, ReasoningEffort } from '@/types/agent'
-import { createOpenAI } from '@ai-sdk/openai'
-import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createXai } from '@ai-sdk/xai'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createAzure } from '@ai-sdk/azure'
-import { createAlibaba } from '@ai-sdk/alibaba'
-import { createMistral } from '@ai-sdk/mistral'
-import { createGroq } from '@ai-sdk/groq'
-import { createCohere } from '@ai-sdk/cohere'
-import { createTogetherAI } from '@ai-sdk/togetherai'
-import { createFireworks } from '@ai-sdk/fireworks'
-import { createDeepInfra } from '@ai-sdk/deepinfra'
-import { createCerebras } from '@ai-sdk/cerebras'
-import { createMoonshotAI } from '@ai-sdk/moonshotai'
-import { createMiniMax } from '@ai-sdk/minimax'
-import { createZai } from '@ai-sdk/zai'
-import { createPerplexity } from '@ai-sdk/perplexity'
-import { createGateway } from '@ai-sdk/gateway'
+import type { AIModel, AImodelsOptionsModel, ReasoningEffort } from '@/types/agent'
 
 import basePrompt from './prompts/base.txt'
 import { renderSkillList } from './agent/skills'
@@ -80,11 +61,12 @@ const OPENAI_MODELS = [
  *
  * The structure follows the AImodelsOptionsModel type defined in types/agent.ts
  */
+// Resolve SDK factories on first use so importing the model list does not evaluate every provider.
 export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'OpenAI' as const,
     children: OPENAI_MODELS,
-    providerCreator: createOpenAI,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/openai').createOpenAI(...args),
   },
   {
     value: 'DeepSeek' as const,
@@ -103,7 +85,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 1000000,
       },
     ],
-    providerCreator: createDeepSeek,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/deepseek').createDeepSeek(...args),
   },
   {
     value: 'Anthropic',
@@ -115,7 +97,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5', contextWindow: 200000 },
       { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5', contextWindow: 200000 },
     ],
-    providerCreator: createAnthropic,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/anthropic').createAnthropic(...args),
   },
   {
     value: 'xAI' as const,
@@ -127,7 +109,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'grok-4.5', label: 'Grok 4.5', contextWindow: 500000 },
       { value: 'grok-4.3', label: 'Grok 4.3', contextWindow: 1000000 },
     ],
-    providerCreator: createXai,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/xai').createXai(...args),
   },
   {
     value: 'Google' as const,
@@ -154,13 +136,13 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', contextWindow: 1048576 },
       { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite', contextWindow: 1048576 },
     ],
-    providerCreator: createGoogleGenerativeAI,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/google').createGoogleGenerativeAI(...args),
   },
   {
     value: 'Azure OpenAI' as const,
     // The same models as OpenAI; Azure addresses them by their deployment name
     children: OPENAI_MODELS.map((model) => ({ ...model, value: `deployment-${model.value}` })),
-    providerCreator: createAzure,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/azure').createAzure(...args),
   },
   {
     value: 'SiliconFlow' as const,
@@ -188,7 +170,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 33000,
       },
     ],
-    providerCreator: createOpenAI,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/openai').createOpenAI(...args),
   },
   {
     value: 'Alibaba',
@@ -200,7 +182,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus', vision: false, contextWindow: 1048576 },
       { value: 'qwen3-235b-a22b', label: 'Qwen3 235B A22B', vision: false, contextWindow: 131072 },
     ],
-    providerCreator: createAlibaba,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/alibaba').createAlibaba(...args),
   },
   {
     value: 'Mistral',
@@ -223,7 +205,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'codestral-latest', label: 'Codestral', vision: false, reasoning: false, contextWindow: 256000 },
       { value: 'ministral-8b-latest', label: 'Ministral 8B', vision: false, reasoning: false, contextWindow: 262144 },
     ],
-    providerCreator: createMistral,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/mistral').createMistral(...args),
   },
   {
     value: 'Groq',
@@ -263,7 +245,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 131072,
       },
     ],
-    providerCreator: createGroq,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/groq').createGroq(...args),
   },
   {
     value: 'Cohere',
@@ -274,7 +256,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'command-r7b-12-2024', label: 'Command R7B', vision: false, reasoning: false, contextWindow: 128000 },
       { value: 'command-r-plus', label: 'Command R+', vision: false, reasoning: false },
     ],
-    providerCreator: createCohere,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/cohere').createCohere(...args),
   },
   {
     value: 'Together AI',
@@ -319,7 +301,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 131072,
       },
     ],
-    providerCreator: createTogetherAI,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/togetherai').createTogetherAI(...args),
   },
   {
     value: 'Fireworks',
@@ -363,7 +345,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 512000,
       },
     ],
-    providerCreator: createFireworks,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/fireworks').createFireworks(...args),
   },
   {
     value: 'DeepInfra',
@@ -406,7 +388,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 262144,
       },
     ],
-    providerCreator: createDeepInfra,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/deepinfra').createDeepInfra(...args),
   },
   {
     value: 'Cerebras',
@@ -420,7 +402,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       },
       { value: 'qwen-3.8-27b', label: 'Qwen 3.8 27B', reasoningEfforts: COMPATIBLE_EFFORTS, contextWindow: 131072 },
     ],
-    providerCreator: createCerebras,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/cerebras').createCerebras(...args),
   },
   {
     value: 'Moonshot AI',
@@ -444,7 +426,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'moonshot-v1-128k', label: 'Moonshot v1 128K', vision: false, reasoning: false },
       { value: 'moonshot-v1-8k-vision-preview', label: 'Moonshot v1 8K Vision', reasoning: false },
     ],
-    providerCreator: createMoonshotAI,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/moonshotai').createMoonshotAI(...args),
   },
   {
     value: 'MiniMax',
@@ -455,7 +437,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'minimax-m2.1', label: 'MiniMax M2.1', vision: false, contextWindow: 204800 },
       { value: 'minimax-m2', label: 'MiniMax M2', vision: false, contextWindow: 204800 },
     ],
-    providerCreator: createMiniMax,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/minimax').createMiniMax(...args),
   },
   {
     value: 'Z.AI',
@@ -467,7 +449,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'glm-4.6', label: 'GLM-4.6', vision: false, reasoningEfforts: ON_OFF_EFFORTS, contextWindow: 204800 },
       { value: 'glm-4.6v', label: 'GLM-4.6V', reasoningEfforts: ON_OFF_EFFORTS, contextWindow: 128000 },
     ],
-    providerCreator: createZai,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/zai').createZai(...args),
   },
   {
     value: 'Perplexity',
@@ -485,7 +467,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'high', label: 'Perplexity Agent (high)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
       { value: 'xhigh', label: 'Perplexity Agent (xhigh)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
     ],
-    providerCreator: createPerplexity,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/perplexity').createPerplexity(...args),
   },
   {
     value: 'Vercel AI Gateway',
@@ -497,7 +479,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'deepseek/deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash', contextWindow: 1048576 },
       { value: 'meta/llama-4-maverick', label: 'Llama 4 Maverick', reasoning: false, contextWindow: 128000 },
     ],
-    providerCreator: createGateway,
+    providerCreator: (...args: any[]): any => require('@ai-sdk/gateway').createGateway(...args),
   },
 ]
 
@@ -631,7 +613,7 @@ export const getModelProvider = (opts: {
     console.warn(
       `Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI with host ${baseURL} and model ${model}.`,
     )
-    const fallbackProvider = createOpenAI({ apiKey })
+    const fallbackProvider = require('@ai-sdk/openai').createOpenAI({ apiKey })
     return fallbackProvider.chat(model)
   }
 
