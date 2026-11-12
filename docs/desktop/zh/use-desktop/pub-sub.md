@@ -50,6 +50,8 @@
 
 从 v1.14.0 起，Batch 将同一主题下的多条消息按顺序打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。
 
+> **注意：** Batch 消息需要 MQTT Broker 支持。使用前，请确认 Broker 和订阅端都支持 Batch 消息。
+
 ### 发送 Batch
 
 1. 打开**设置 > 高级**，开启**启用 Batch 发布**。

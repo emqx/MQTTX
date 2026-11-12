@@ -50,6 +50,8 @@ So far, the testing of an `MQTT` message is completed.
 
 From v1.14.0, Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1.
 
+> **Note:** Batch messages require MQTT broker support. Before using them, make sure your broker and subscribers support batch messages.
+
 ### Send a batch
 
 1. Open **Settings > Advanced** and turn on **Enable Batch publishing**.
