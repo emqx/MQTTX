@@ -1,9 +1,12 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
-import { EntityManager, Repository } from 'typeorm'
+import { EntityManager, In, Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
+
+// Keep each query within SQLite's 999 bind-parameter limit.
+const SQLITE_MAX_PARAMETERS = 999
 
 @Service()
 export default class MessageService {
@@ -342,8 +345,13 @@ export default class MessageService {
    * @param batchSize - Number of messages to retrieve per batch (default: 1000)
    * @returns AsyncGenerator that yields batches of messages
    */
-  public async countByConnectionId(connectionId: string): Promise<number> {
-    return this.messageRepository.count({ connectionId })
+  public async countByConnectionIds(connectionIds: string[]): Promise<number> {
+    let total = 0
+    for (let offset = 0; offset < connectionIds.length; offset += SQLITE_MAX_PARAMETERS) {
+      const ids = connectionIds.slice(offset, offset + SQLITE_MAX_PARAMETERS)
+      total += await this.messageRepository.count({ connectionId: In(ids) })
+    }
+    return total
   }
 
   public async *streamMessagesForExport(
