@@ -8,6 +8,7 @@ import {
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
+  parseMessage,
   parseQoS,
   parseQoSValue,
   parseVariadicOfBooleanType,
@@ -26,7 +27,16 @@ import ls from './lib/ls'
 import { initConfig } from './lib/init'
 import { version } from '../package.json'
 import state from './state'
-import { DEFAULT_MAX_INFLIGHT, DEFAULT_MQTT_PUB_MESSAGE, MAX_INFLIGHT_LIMIT } from './utils/constants'
+import {
+  DEFAULT_BATCH_LIMITS,
+  DEFAULT_BATCH_ITEMS,
+  MAX_BATCH_ITEMS,
+  MIN_BATCH_BYTES,
+  MAX_BATCH_BYTES,
+  DEFAULT_MAX_INFLIGHT,
+  DEFAULT_MQTT_PUB_MESSAGE,
+  MAX_INFLIGHT_LIMIT,
+} from './utils/constants'
 
 const utm = '?utm_source=mqttx-cli&utm_medium=referral&utm_campaign='
 const learnMoreText = [
@@ -173,7 +183,12 @@ export class Commander {
       .command('pub')
       .description('Publish a message to a topic.')
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
-      .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
+      .option(
+        '-m, --message <BODY>',
+        'the message body (repeat -m with -b for each item)',
+        parseMessage,
+        DEFAULT_MQTT_PUB_MESSAGE,
+      )
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
@@ -276,7 +291,29 @@ export class Commander {
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
-      .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
+      .option(
+        '--file-read <PATH>',
+        'read a file, one item per line with -b (pipe: --file-read /dev/stdin)',
+        parseFileRead,
+      )
+      .option(
+        '--split [CHARACTER]',
+        'split the input message in a single file by a specified character, default is "\\n"',
+      )
+      .option('-b, --batch', 'send messages in batches (MQTT 5.0 or 3.1.1)')
+      .option(
+        '--batch-max-items <NUMBER>',
+        `maximum items per batch (1-${MAX_BATCH_ITEMS})`,
+        parseNumber,
+        DEFAULT_BATCH_LIMITS.maxItems,
+      )
+      .option(
+        '--batch-max-bytes <SIZE>',
+        `maximum batch payload bytes, including length prefixes (${MIN_BATCH_BYTES}-${MAX_BATCH_BYTES})`,
+        parseNumber,
+        DEFAULT_BATCH_LIMITS.maxBytes,
+      )
+      .option('--batch-negotiate', 'require batch-publish=v1 from the broker (MQTT 5.0)')
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -420,6 +457,19 @@ export class Commander {
           .conflicts('fileWrite'),
       )
       .option('--delimiter [CHARACTER]', 'append a delimiter to the end of each message, default is "\\n"')
+      .option('-b, --batch', 'decode batch messages')
+      .option(
+        '--batch-max-items <NUMBER>',
+        `maximum items per batch (1-${MAX_BATCH_ITEMS})`,
+        parseNumber,
+        DEFAULT_BATCH_LIMITS.maxItems,
+      )
+      .option(
+        '--batch-max-bytes <SIZE>',
+        `maximum batch payload bytes, including length prefixes (${MIN_BATCH_BYTES}-${MAX_BATCH_BYTES})`,
+        parseNumber,
+        DEFAULT_BATCH_LIMITS.maxBytes,
+      )
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -657,6 +707,13 @@ export class Commander {
         '--split [CHARACTER]',
         'split the input message in a single file by a specified character, default is "\\n"',
       )
+      .option('-b, --batch', `send batches of ${DEFAULT_BATCH_ITEMS} items by default`)
+      .option(
+        '-bi, --batch-items <NUMBER>',
+        `items per batch (1-${MAX_BATCH_ITEMS}, requires -b, -L counts packets)`,
+        parseNumber,
+      )
+      .option('--batch-negotiate', 'require batch-publish=v1 from the broker (MQTT 5.0)')
       .option(
         '-S, --payload-size <SIZE>',
         'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
@@ -768,6 +825,7 @@ export class Commander {
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
+      .option('-b, --batch', 'count batch items and failed packets')
       .option(
         '-am, --authentication-method <METHOD>',
         'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',

@@ -17,6 +17,7 @@
     <div v-if="msgError" class="msg-tag">
       <el-tag type="danger" size="mini">
         <span>{{ msgError }}</span>
+        <span v-if="batch && msgError === 'BATCH_LIMIT_EXCEEDED'"> · {{ $t('connections.batchLimitUnparsed') }}</span>
       </el-tag>
     </div>
     <span
@@ -30,8 +31,11 @@
     </span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
-        <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
+        <span class="topic" :title="batch && batch.carrier === 'topic' ? topic : undefined"
+          >Topic: <span v-html="highlightedTopic"></span
+        ></span>
         <span class="qos">QoS: {{ qos }}</span>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch × {{ batch.count || 0 }}</el-tag>
         <el-tag
           v-if="gzipDecompressed"
           class="gzip-tag"
@@ -43,7 +47,30 @@
         <span v-if="retain" class="retain">{{ $t('connections.retained') }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
-      <template v-if="isLargeMsg">
+      <template v-if="batch">
+        <div v-if="batch.error" class="batch-error-preview">
+          <p class="batch-notice">{{ $t('connections.batchRejectedPreview') }}</p>
+          <pre class="batch-hex">{{ payload }}</pre>
+          <p v-if="payload.length / 2 < payloadBytes" class="batch-preview-note">
+            {{
+              $t('connections.batchHexPreview', {
+                saved: formatBytes(payload.length / 2),
+                total: formatBytes(payloadBytes),
+              })
+            }}
+          </p>
+        </div>
+        <BatchItems
+          v-else
+          :items="batchItems"
+          :count="batch.count"
+          :summary="Boolean(batch.summary)"
+          direction="left"
+          @view-all="handleShowFullMsg"
+        />
+        <p v-if="conversionFallback" class="batch-notice">{{ $t('connections.batchConversionFallback') }}</p>
+      </template>
+      <template v-else-if="isLargeMsg">
         <div class="large-message">
           <pre v-html="highlightedPayloadPreview"></pre>
           <el-tooltip
@@ -65,13 +92,24 @@
       </template>
     </div>
     <p class="left-time time">{{ createAt }}</p>
-    <FullMsgDialog v-if="showFullMsg" :visible.sync="showFullMsg" :msgId="msgId" :msgType="msgType" />
+    <FullMsgDialog
+      v-if="showFullMsg"
+      :visible.sync="showFullMsg"
+      :msgId="msgId"
+      :msgType="msgType"
+      :batch-items="batch && !batch.error && !batch.summary ? batchItems : undefined"
+      :export-text="batch && !batch.error && !batch.summary ? payload : undefined"
+      :export-format="batch ? 'json' : undefined"
+    />
   </div>
 </template>
 
 <script lang="ts">
+import { formatBytes } from '@/utils/formatter'
+import { StoredBatchItem } from '@/utils/batchPayload'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import FullMsgDialog from './FullMsgDialog.vue'
+import BatchItems from './BatchItems.vue'
 import Prism from 'prismjs'
 import { Getter } from 'vuex-class'
 import { SHOW_MAX_LENGTH } from '@/utils/data'
@@ -81,6 +119,7 @@ import { highlightSearchTerm, highlightInPrismCode, escapeHtml } from '@/utils/h
 @Component({
   components: {
     FullMsgDialog,
+    BatchItems,
     MqttProperties,
   },
 })
@@ -105,6 +144,31 @@ export default class MsgLeftItem extends Vue {
   public highlight = false
 
   private showFullMsg = false
+  private formatBytes = formatBytes
+
+  get parsedMeta() {
+    return this.meta ? JSON.parse(this.meta) : undefined
+  }
+
+  get batch() {
+    return this.meta ? this.parsedMeta.batch : undefined
+  }
+
+  get payloadBytes() {
+    return this.meta ? this.parsedMeta.payloadBytes : 0
+  }
+
+  get conversionFallback(): boolean {
+    return Boolean(this.meta && this.parsedMeta.batchConversionFallback)
+  }
+
+  get batchItems(): StoredBatchItem[] {
+    return this.batch && !this.batch.error ? JSON.parse(this.payload) : []
+  }
+
+  get displayedTopic(): string {
+    return this.batch?.carrier === 'topic' ? this.batch.logicalTopic || this.topic : this.topic
+  }
 
   @Watch('searchParams', { deep: true })
   private onSearchParamsChanged() {
@@ -115,9 +179,9 @@ export default class MsgLeftItem extends Vue {
 
   get highlightedTopic(): string {
     if (this.searchParams.topic) {
-      return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
+      return highlightSearchTerm(this.displayedTopic, this.searchParams.topic, 'search-highlight')
     }
-    return escapeHtml(this.topic)
+    return escapeHtml(this.displayedTopic)
   }
 
   get highlightedPayload(): string {
@@ -200,7 +264,7 @@ export default class MsgLeftItem extends Vue {
   }
 
   private highlightJSON() {
-    if (this.jsonHighlight === false) {
+    if (this.batch || this.jsonHighlight === false) {
       return
     }
     try {
@@ -237,11 +301,6 @@ export default class MsgLeftItem extends Vue {
   .msg-tag:nth-child(2) {
     margin-top: 2px;
   }
-  .el-tag.gzip-tag {
-    margin-left: 12px;
-    color: var(--color-text-default);
-    vertical-align: middle;
-  }
   .topic-color {
     height: calc(100% - 62px);
     display: inline-block;
@@ -263,22 +322,19 @@ export default class MsgLeftItem extends Vue {
     right: 0px;
     animation: leftMsg 0.3s ease-in-out;
   }
-  .input-prop {
-    textarea {
-      color: var(--color-text-left_info) !important;
-      border: 1px solid var(--color-border-left_metainfo) !important;
+
+  .batch-error-preview {
+    margin-top: 10px;
+    color: var(--color-text-tips);
+    .batch-hex {
+      max-height: 4.8em;
+      margin: 0;
+      overflow: auto;
+      word-break: break-all;
     }
-  }
-  .large-message {
-    .el-button.see-more-btn {
-      margin-top: 6px;
-      background: transparent;
-      color: var(--color-text-left_info);
-      border: 1px solid var(--color-text-left_info);
-      &:hover {
-        background: transparent;
-        color: var(--color-text-default);
-      }
+    .batch-preview-note {
+      margin-top: 8px;
+      font-size: 12px;
     }
   }
 }
