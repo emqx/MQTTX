@@ -124,7 +124,7 @@
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
             :content="batchRetainDisabled ? $t('connections.batchRetainDisabled') : 'Retain'"
           >
-            <i class="toolbar-icon el-icon-paperclip" aria-hidden="true"></i>
+            <i class="toolbar-icon el-icon-collection-tag" aria-hidden="true"></i>
           </el-tooltip>
           <span class="toolbar-label">Retain</span>
         </el-checkbox>
@@ -146,7 +146,7 @@
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
             :content="isMqtt31 ? $t('connections.batchMqttVersion') : 'Batch'"
           >
-            <i class="toolbar-icon el-icon-files" aria-hidden="true"></i>
+            <i class="toolbar-icon el-icon-document-copy" aria-hidden="true"></i>
           </el-tooltip>
           <span class="toolbar-label">Batch</span>
         </el-checkbox>
@@ -175,14 +175,15 @@
                 :effect="currentTheme !== 'light' ? 'light' : 'dark'"
                 content="Meta"
               >
-                <i class="toolbar-icon el-icon-s-operation" aria-hidden="true"></i>
+                <i class="toolbar-icon el-icon-set-up" aria-hidden="true"></i>
               </el-tooltip>
               <span class="toolbar-label">Meta</span>
             </el-button>
           </el-badge>
         </el-tooltip>
         <el-dropdown class="actions-dropdown" placement="top" trigger="click" @command="handleActionCommand">
-          <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini" icon="el-icon-caret-top">
+          <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini">
+            <i class="el-icon-caret-top"></i><i class="toolbar-icon el-icon-arrow-up" aria-hidden="true"></i>
           </el-button>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
             <el-dropdown-item
@@ -1118,23 +1119,46 @@ export default class MsgPublish extends Vue {
       display: none;
     }
     @container publish-toolbar (max-width: 527px) {
+      .el-badge.item,
+      .actions-dropdown {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        height: 28px;
+        line-height: 1;
+      }
       .el-checkbox.retain-checkbox,
       .el-checkbox.batch-checkbox,
-      .el-badge.item .dropdown-btn {
+      .el-badge.item .dropdown-btn,
+      .actions-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        box-sizing: border-box;
         width: 28px;
         height: 28px;
+        border-width: 1px;
         padding: 0;
+        line-height: 1;
       }
-      .el-checkbox__inner {
+      .el-checkbox .el-checkbox__input,
+      .actions-btn .el-icon-caret-top {
         display: none;
       }
-      .el-checkbox__label {
-        padding-left: 0;
+      .el-checkbox .el-checkbox__label,
+      .dropdown-btn > span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        padding: 0;
+        margin: 0;
         line-height: 1;
+      }
+      .actions-btn {
+        margin-right: 0;
       }
       .el-checkbox.is-checked:not(.is-disabled) .toolbar-icon {
         color: var(--color-main-green);
@@ -1146,15 +1170,18 @@ export default class MsgPublish extends Vue {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 26px;
-        height: 26px;
+        width: 14px;
+        height: 14px;
         font-size: 14px;
+        line-height: 1;
       }
       .toolbar-label {
         // Keep the control's accessible name while only its icon is visible.
         position: absolute;
         width: 1px;
         height: 1px;
+        padding: 0;
+        margin: 0;
         overflow: hidden;
         clip-path: inset(50%);
       }
