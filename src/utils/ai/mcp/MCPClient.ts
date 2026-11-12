@@ -2,14 +2,9 @@
 import { MCPServer, ToolCallResult } from '@/types/mcp'
 import { EventEmitter } from 'events'
 
-// The SDK resolves through package `exports`, so these stay external and are loaded by Node at runtime
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js')
-const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js')
-const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js')
-const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js')
-
 /**
  * MCPClient class implements communication with MCP server
+ * SDK modules are required where they are used; package `exports` keeps them external, so Node loads them at runtime.
  */
 export class MCPClient extends EventEmitter {
   private client: any
@@ -34,15 +29,18 @@ export class MCPClient extends EventEmitter {
           const url = new URL(config.url)
           try {
             console.log(`[MCP] Connecting to MCP Streamable HTTP server: ${config.url}`)
+            const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js')
             await this.connectTransport(new StreamableHTTPClientTransport(url))
           } catch (httpError) {
             // Older servers only speak the deprecated HTTP+SSE transport
             console.log(`[MCP] Streamable HTTP failed, falling back to SSE: ${config.url}`, httpError)
             await this.transport.close().catch(() => undefined)
+            const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js')
             await this.connectTransport(new SSEClientTransport(url))
           }
         } else if (config.command && config.args) {
           console.log(`[MCP] Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
+          const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js')
           await this.connectTransport(
             new StdioClientTransport({
               command: config.command,
@@ -100,6 +98,7 @@ export class MCPClient extends EventEmitter {
       console.error('[MCP] Transport error:', error)
     }
     this.transport = transport
+    const { Client } = require('@modelcontextprotocol/sdk/client/index.js')
     this.client = new Client({
       name: 'mqttx-mcp-client',
       version: '1.0.0',
