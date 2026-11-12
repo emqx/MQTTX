@@ -4,6 +4,7 @@ import { logCloudFailure } from './diagnostics'
 import { CloudError, cloudIssue } from '../../utils/cloudErrors'
 // Node.js HTTP 模块，用来临时监听浏览器授权后的本机回调。
 import http from 'http'
+import version from '../../version'
 // 分别用于生成随机值、计算 PKCE 摘要，以及用恒定时间比较 state，减少比较耗时泄露信息。
 import { randomBytes, createHash, timingSafeEqual } from 'crypto'
 // 服务器地址的类型，读取系统分配的监听端口时使用。
@@ -196,7 +197,7 @@ export class CloudAuth {
         res.end(cloudCallbackText(code, locale))
       }
       // 只接收约定路径的 GET 回调，其他请求不参与授权处理。
-      if (req.method !== 'GET' || url.pathname !== '/oauth/callback') return reply(404, 'OPERATION_DENIED')
+      if (req.method !== 'GET' || url.pathname !== '/mqttx/callback') return reply(404, 'OPERATION_DENIED')
       // received 是回调带回的 state，必须与发起授权时的 expectedState 相同。
       const received = url.searchParams.get('state') || ''
       // timingSafeEqual 要求两个 Buffer 长度相同，所以先检查长度，再比较内容。
@@ -231,7 +232,10 @@ export class CloudAuth {
         // response 是 Auth Center 的 HTTP 响应；用授权码和 PKCE 原值兑换 token。
         const response = await fetch(`${this.authURL}/api/v2/oauth/token`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': `MQTTX/${version} (${process.platform}; ${process.arch})`,
+          },
           // 禁止跟随重定向，避免把认证请求自动转发到其他地址。
           redirect: 'error',
           // 将字段编码为表单；redirect_uri 必须与发起授权时一致。
@@ -294,7 +298,7 @@ export class CloudAuth {
         server.listen(0, '127.0.0.1', resolve)
       })
       // AddressInfo 是类型断言，用实际分配的端口组成浏览器授权完成后的跳转地址。
-      redirectURI = `http://127.0.0.1:${(server.address() as AddressInfo).port}/oauth/callback`
+      redirectURI = `http://127.0.0.1:${(server.address() as AddressInfo).port}/mqttx/callback`
       // 这个 url 是浏览器要打开的 Auth Center 地址，与回调函数里的本机请求 url 不同。
       const url = new URL(`${this.authURL}/oauth/authorize`)
       // 把授权参数编码进查询字符串；传入 PKCE 摘要，保留 verifier 原值在主进程内存。
