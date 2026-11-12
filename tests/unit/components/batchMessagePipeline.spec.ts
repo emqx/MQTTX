@@ -52,6 +52,18 @@ const publishContext = (overrides: Record<string, any> = {}): any => ({
 })
 
 describe('Desktop batch message pipeline', () => {
+  let stackTraceLimit: number
+
+  before(() => {
+    stackTraceLimit = Error.stackTraceLimit
+    // Formatting stacks through the test bundle's source map takes ~600 ms.
+    Error.stackTraceLimit = 0
+  })
+
+  after(() => {
+    Error.stackTraceLimit = stackTraceLimit
+  })
+
   it('stores each received Batch once without running Schema, scripts or gzip', () => {
     const context = receiveContext()
     const incoming = packet([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([255])])
