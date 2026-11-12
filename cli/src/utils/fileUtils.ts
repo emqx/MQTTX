@@ -53,7 +53,7 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-/** Append scalar or list items in one write, preserving each item's encoding. */
+// Keep surrogate pairs from joining across items.
 const appendFile = (filePath: string, data: string | Buffer | (string | Buffer)[], delimiter = '\n'): void => {
   const items = Array.isArray(data) ? data : [data]
   if (items.length === 0) return
@@ -117,7 +117,7 @@ const fileDataSplitter = (data: string | Buffer, split: true | string): string[]
   return stringData.split(splitRegex)
 }
 
-/** Split batch file items, preserving empty lines and ignoring one trailing separator. */
+// Empty lines are items. Ignore one trailing separator.
 const splitBatchFile = (data: string | Buffer, split: true | string = true): string[] => {
   let items: string[]
   if (split === true || split === '\n' || split === '\\n') {

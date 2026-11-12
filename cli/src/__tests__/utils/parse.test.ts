@@ -45,14 +45,14 @@ describe('parse utilities', () => {
       fs.rmSync(directory, { recursive: true, force: true })
     })
     it.each([MQTT_SINGLE_MESSAGE_BYTE_LIMIT - 1, MQTT_SINGLE_MESSAGE_BYTE_LIMIT])(
-      'checks the file size boundary at %i bytes without reading its contents',
+      'checks file size at %i bytes without reading the file',
       (size) => {
         const file = path.join(directory, 'payload')
         fs.writeFileSync(file, '')
         fs.truncateSync(file, size)
         const originalRead = fs.readFileSync
         const read = jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
-          if (args[0] === file) throw new Error('File contents must not be read during argument parsing')
+          if (args[0] === file) throw new Error('Parser read the file contents')
           return originalRead(...args)
         })
         try {
@@ -68,7 +68,7 @@ describe('parse utilities', () => {
         }
       },
     )
-    it('reports a missing file and exits with failure', () => {
+    it('exits with an error for a missing file', () => {
       expect(() => parseFileRead(path.join(directory, 'missing'))).toThrow('Process exited with code 1')
       expect(logWrapper.fail).toHaveBeenCalledWith(expect.stringContaining('ENOENT'))
       expect(mockExit).toHaveBeenCalledWith(1)
@@ -294,18 +294,12 @@ describe('parse utilities', () => {
     })
 
     it.each([
-      [{ mqttVersion: 3 }, 'Batch publishing requires MQTT 5.0 or 3.1.1. MQTT 3.1 is unsupported.'],
+      [{ mqttVersion: 3 }, 'Batch publishing requires MQTT 5.0 or 3.1.1.'],
       [{ qos: 2 }, 'Batch publishing requires QoS 0 or 1.'],
-      [{ mqttVersion: 4, retain: true }, 'MQTT 3.1.1 batch publishing requires RETAIN=0.'],
-      [{ payloadFormatIndicator: true }, 'Batch envelopes require Payload Format Indicator 0 or absent.'],
-      [
-        { userProperties: { 'batch-format': 'v1' } },
-        '-up batch-format and batch-size are generated automatically with -b.',
-      ],
-      [
-        { userProperties: { 'batch-size': '2' } },
-        '-up batch-format and batch-size are generated automatically with -b.',
-      ],
+      [{ mqttVersion: 4, retain: true }, 'MQTT 3.1.1 batches cannot be retained.'],
+      [{ payloadFormatIndicator: true }, 'Batch publishing requires Payload Format Indicator to be off.'],
+      [{ userProperties: { 'batch-format': 'v1' } }, '-b sets batch-format and batch-size. Remove them from -up.'],
+      [{ userProperties: { 'batch-size': '2' } }, '-b sets batch-format and batch-size. Remove them from -up.'],
       [
         { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
         '--batch-negotiate cannot be combined with -Cup batch-publish.',
@@ -329,13 +323,13 @@ describe('parse utilities', () => {
         { lineMode: true },
         '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
       ],
-      [{ payloadSize: '1KB' }, '-b reads items from -m or --file-read. -S is unsupported.'],
+      [{ payloadSize: '1KB' }, '-S is not supported with -b. Use -m or --file-read.'],
       [{ split: true, batch: false }, '--split requires -b.'],
       [{ split: true }, '--split requires --file-read.'],
-      [{ protobufPath: 'schema.proto' }, 'Batch publishing does not support per-item schema encoding.'],
+      [{ protobufPath: 'schema.proto' }, 'Batch publishing does not support schema encoding.'],
       [{ topic: '$SYS/demo' }, 'Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC).'],
       [{ topic: '$batch' }, 'Invalid topic for -b: $batch (INVALID_BATCH_TOPIC).'],
-    ])('rejects option conflict %j', (override, message) => {
+    ])('rejects batch options %j', (override, message) => {
       expect(() => validateBatchOptions({ ...options(), ...override } as PublishOptions, 'pub')).toThrow(
         'Process exited with code 1',
       )
@@ -347,20 +341,18 @@ describe('parse utilities', () => {
       ['$batch/2/demo/topic', ' Try: -t demo/topic'],
       ['$batch/2//demo', ' Try: -t /demo'],
       ['$batch/no-separator', ''],
-    ])('rejects prefixed logical topic %s', (topic, suggestion) => {
+    ])('rejects a $batch prefix in -t: %s', (topic, suggestion) => {
       expect(() => validateBatchOptions({ ...options(), topic }, 'pub')).toThrow('Process exited with code 1')
-      expect(logWrapper.fail).toHaveBeenCalledWith(
-        `With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`,
-      )
+      expect(logWrapper.fail).toHaveBeenCalledWith(`With -b, use -t without the $batch/{N}/ prefix.${suggestion}`)
       expect(() => validateBatchOptions({ ...options(), topic, batch: false }, 'pub')).not.toThrow()
     })
 
-    it('explains unsupported bench splitting', () => {
+    it('rejects --split with bench pub -b', () => {
       expect(() => validateBatchOptions({ ...options(), split: true }, 'benchPub')).toThrow(
         'Process exited with code 1',
       )
       expect(logWrapper.fail).toHaveBeenCalledWith(
-        'bench pub -b uses the whole file as one item template. --split is unsupported.',
+        'bench pub -b uses the whole file per item. --split is not supported.',
       )
     })
 
@@ -371,7 +363,7 @@ describe('parse utilities', () => {
       expect(logWrapper.fail).toHaveBeenCalledWith('-bi requires -b.')
     })
 
-    it('accepts the default and explicit bench item counts with negotiation', () => {
+    it('accepts default and explicit batch counts with --batch-negotiate', () => {
       expect(() => validateBatchOptions(options(), 'benchPub')).not.toThrow()
       expect(() =>
         validateBatchOptions({ ...options(), batchItems: 101, batchNegotiate: true }, 'benchPub'),
@@ -391,7 +383,7 @@ describe('parse utilities', () => {
       expect(parseMessage('first', 'default')).toEqual(['first'])
     })
 
-    it('keeps repeated messages in input order, including empty items', () => {
+    it('keeps repeated -m values in order, including empty items', () => {
       expect(parseMessage('', parseMessage('first', 'default'))).toEqual(['first', ''])
     })
   })

@@ -17,7 +17,7 @@ export interface CliProcess {
   until: (condition: string | (() => boolean), description?: string) => Promise<void>
 }
 
-/** Run CLI processes with an isolated HOME and clean them up after each test. */
+// Each test gets its own HOME.
 export const createCli = () => {
   const children: CliProcess[] = []
   let directory: string | undefined

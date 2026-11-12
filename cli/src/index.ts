@@ -185,7 +185,7 @@ export class Commander {
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
       .option(
         '-m, --message <BODY>',
-        'the message body; repeat with -b for one item per -m',
+        'the message body (repeat -m with -b for each item)',
         parseMessage,
         DEFAULT_MQTT_PUB_MESSAGE,
       )
@@ -293,14 +293,14 @@ export class Commander {
       )
       .option(
         '--file-read <PATH>',
-        'read the message body from the file; with -b, one item per line (pipe: --file-read /dev/stdin)',
+        'read a file, one item per line with -b (pipe: --file-read /dev/stdin)',
         parseFileRead,
       )
       .option(
         '--split [CHARACTER]',
         'split the input message in a single file by a specified character, default is "\\n"',
       )
-      .option('-b, --batch', 'publish MQTT Batch Publishing v1 items (MQTT 5.0 or 3.1.1)')
+      .option('-b, --batch', 'send messages in batches (MQTT 5.0 or 3.1.1)')
       .option(
         '--batch-max-items <NUMBER>',
         `maximum items per batch (1-${MAX_BATCH_ITEMS})`,
@@ -313,7 +313,7 @@ export class Commander {
         parseNumber,
         DEFAULT_BATCH_LIMITS.maxBytes,
       )
-      .option('--batch-negotiate', 'require batch-publish=v1 selection from the broker (MQTT 5.0)')
+      .option('--batch-negotiate', 'require batch-publish=v1 from the broker (MQTT 5.0)')
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -457,7 +457,7 @@ export class Commander {
           .conflicts('fileWrite'),
       )
       .option('--delimiter [CHARACTER]', 'append a delimiter to the end of each message, default is "\\n"')
-      .option('-b, --batch', 'recognize and decode MQTT Batch Publishing v1; subscription filters are unchanged')
+      .option('-b, --batch', 'decode batch messages')
       .option(
         '--batch-max-items <NUMBER>',
         `maximum items per batch (1-${MAX_BATCH_ITEMS})`,
@@ -707,13 +707,13 @@ export class Commander {
         '--split [CHARACTER]',
         'split the input message in a single file by a specified character, default is "\\n"',
       )
-      .option('-b, --batch', `publish MQTT Batch Publishing v1 with ${DEFAULT_BATCH_ITEMS} items per packet by default`)
+      .option('-b, --batch', `send batches of ${DEFAULT_BATCH_ITEMS} items by default`)
       .option(
         '-bi, --batch-items <NUMBER>',
-        `set items per batch packet (1-${MAX_BATCH_ITEMS}); requires -b; -L counts packets; logs count items`,
+        `items per batch (1-${MAX_BATCH_ITEMS}, requires -b, -L counts packets)`,
         parseNumber,
       )
-      .option('--batch-negotiate', 'require batch-publish=v1 selection from the broker (MQTT 5.0)')
+      .option('--batch-negotiate', 'require batch-publish=v1 from the broker (MQTT 5.0)')
       .option(
         '-S, --payload-size <SIZE>',
         'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
@@ -825,7 +825,7 @@ export class Commander {
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
-      .option('-b, --batch', 'count validated batch items and report failed batch packets separately')
+      .option('-b, --batch', 'count batch items and failed packets')
       .option(
         '-am, --authentication-method <METHOD>',
         'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',

@@ -1,11 +1,10 @@
-/// <reference path="../../src/types/global.d.ts" />
+/// <reference path="../../types/global.d.ts" />
 import { createServer, Server, Socket } from 'net'
 import { generate, parser, Packet, IPublishPacket, IConnackPacket } from 'mqtt-packet'
 import { createCli } from './cli'
-import { decodeBatch, encodeBatchPayload } from '../../src/utils/batchPublishing'
-import { PROTOCOL_BATCH_LIMITS } from '../../src/utils/constants'
+import { decodeBatch, encodeBatchPayload } from '../../utils/batchPublishing'
+import { PROTOCOL_BATCH_LIMITS } from '../../utils/constants'
 
-/** Set up an isolated CLI process and local MQTT broker for each test. */
 export const createBatchBroker = () => {
   const sockets = new Set<Socket>()
   const servers: Server[] = []

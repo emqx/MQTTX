@@ -79,18 +79,15 @@ describe('appendFile', () => {
     expect(fs.readFileSync(filePath)).toEqual(Buffer.from([0xff, 0x80, 0x74, 0x72, 0x75, 0x65]))
   })
 
-  it.each(['', '\n', '\r\n', '|', '结束', '\ud800', '\udc00'])(
-    'preserves per-item bytes when appending a list with delimiter %j',
-    (delimiter) => {
-      const items = [Buffer.from([0x00, 0xff, 0x80]), '', Buffer.alloc(0), '你好', '\ud800', '\udc00']
-      const reference = path.join(directory, 'reference.bin')
-      items.forEach((item) => appendFile(reference, item, delimiter))
+  it.each(['', '\n', '\r\n', '|', '结束', '\ud800', '\udc00'])('appends item bytes with delimiter %j', (delimiter) => {
+    const items = [Buffer.from([0x00, 0xff, 0x80]), '', Buffer.alloc(0), '你好', '\ud800', '\udc00']
+    const reference = path.join(directory, 'reference.bin')
+    items.forEach((item) => appendFile(reference, item, delimiter))
 
-      appendFile(filePath, items, delimiter)
+    appendFile(filePath, items, delimiter)
 
-      expect(fs.readFileSync(filePath)).toEqual(fs.readFileSync(reference))
-    },
-  )
+    expect(fs.readFileSync(filePath)).toEqual(fs.readFileSync(reference))
+  })
 
   it('does not create a file for an empty item list', () => {
     appendFile(filePath, [])
@@ -113,11 +110,11 @@ describe('batch file splitting', () => {
     expect(splitBatchFile(data, true)).toEqual(expected),
   )
 
-  it.each(['\n', '\\n'])('recognizes the explicit newline separator %j', (separator) => {
+  it.each(['\n', '\\n'])('splits on newline separator %j', (separator) => {
     expect(splitBatchFile('a\r\n\r\nb\r\n', separator)).toEqual(['a', '', 'b'])
   })
 
-  it('uses the existing custom separator semantics', () => {
+  it('splits on custom separators', () => {
     expect(splitBatchFile('one::two::::', '::')).toEqual(['one', 'two', ''])
   })
 

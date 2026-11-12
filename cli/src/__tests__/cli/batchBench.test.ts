@@ -2,7 +2,7 @@
 import { IPublishPacket } from 'mqtt-packet'
 import { Commander } from '../../index'
 import { benchLog } from '../../utils/logWrapper'
-import { createBatchBroker } from '../../../tests/helpers/batchBroker'
+import { createBatchBroker } from '../helpers/batchBroker'
 
 jest.setTimeout(60000)
 
@@ -14,7 +14,7 @@ describe('batch benchmarks', () => {
     { failed: 0, ordinary: 0, expected: 'Received total: 10 items (2 batch packets)' },
     { failed: 1, ordinary: 0, expected: 'Received total: 10 items (2 batch packets), failed: 1 packets' },
     { failed: 0, ordinary: 2, expected: 'Received total: 10 items (2 batch packets), ordinary: 2 packets' },
-  ])('omits zero counters with failed=$failed and ordinary=$ordinary', ({ failed, ordinary, expected }) => {
+  ])('hides zero counters with failed=$failed and ordinary=$ordinary', ({ failed, ordinary, expected }) => {
     const log = benchLog.receive(true)
     const counts = { total: 10, packets: 2, failed, ordinary }
 
@@ -40,7 +40,7 @@ describe('batch benchmarks', () => {
     return { port, publications }
   }
 
-  it('counts -L packets and successful items separately from failed acknowledgements', async () => {
+  it('counts -L in packets and reports successful items and failures', async () => {
     const { port, publications } = await benchmarkBroker()
     const published = await launch(port, 'bench pub -b -bi 101 -S 1KB -c 1 -im 1 -L 3 -q 1 -t demo -v'.split(' '))
       .closed
@@ -61,7 +61,7 @@ describe('batch benchmarks', () => {
     expect(defaults.output).toContain('Published total: 256 items (1 packets), failed: 0 packets')
   })
 
-  it('counts received items, failed batches, and ordinary packets separately', async () => {
+  it('counts items, rejected batches and ordinary messages separately', async () => {
     const { port, publications } = await benchmarkBroker()
     publications.push(publication('demo', Array(101).fill(Buffer.alloc(1024))))
     const subscribed = launch(port, 'bench sub -b -c 1 -t demo -v'.split(' '))
@@ -71,7 +71,7 @@ describe('batch benchmarks', () => {
     expect(result.output).toContain('Received total: 101 items')
   })
 
-  it('exposes bench -b and explains the default count and -bi requirement', () => {
+  it('shows the bench batch default and -bi requirement', () => {
     const commander = new Commander()
     commander.init()
     const benchPub = commander.program.commands
@@ -81,7 +81,7 @@ describe('batch benchmarks', () => {
     expect(benchPub.opts()).toMatchObject({ batch: true, batchItems: 101 })
     const help = benchPub.helpInformation()
     expect(help).toContain('-b, --batch')
-    expect(help).toContain('256 items per packet by default')
+    expect(help).toContain('batches of 256 items by default')
     expect(help).toContain('requires -b')
   })
 })

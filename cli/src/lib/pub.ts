@@ -154,10 +154,10 @@ const watchBatchConnection = (
       if (maximum !== undefined) {
         const bytes = packetSizes.find((size) => size > maximum)
         if (bytes !== undefined) {
-          throw new Error(`Batch packet too large: ${bytes} bytes exceeds broker Maximum Packet Size ${maximum}.`)
+          throw new Error(`Batch packet too large: ${bytes} bytes, broker Maximum Packet Size is ${maximum}.`)
         }
       }
-      if (selected) logWrapper.success('Batch negotiation selected: v1 (QoS 0/1).')
+      if (selected) logWrapper.success('Broker accepted batch-publish=v1 (QoS 0/1).')
     } catch (error) {
       exitWithPublishError(client, error as Error)
     }
@@ -187,9 +187,7 @@ const buildBatchMessages = (options: PublishOptions, source: (string | Buffer)[]
     if (buffer.length > maxItemBytes) {
       const limit =
         maxItemBytes < MAX_BATCH_ITEM_BYTES ? `--batch-max-bytes ${limits.maxBytes}` : 'the 2-byte item length prefix'
-      logWrapper.fail(
-        `Item ${index + 1} is ${buffer.length} B; a batch item can be at most ${maxItemBytes} B with ${limit}`,
-      )
+      logWrapper.fail(`Item ${index + 1} is ${buffer.length} B, above the ${maxItemBytes} B limit for ${limit}.`)
       process.exit(1)
     }
     if (items.length === limits.maxItems || bytes + buffer.length + 2 > limits.maxBytes) {
@@ -243,7 +241,7 @@ const send = (
         }
         if (index + 1 < messages.length) {
           index += 1
-          // QoS 0 callbacks can run synchronously; avoid growing the call stack.
+          // QoS 0 callbacks can be synchronous and grow the stack.
           setImmediate(next)
           return
         }

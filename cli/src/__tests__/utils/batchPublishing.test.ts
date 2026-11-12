@@ -72,7 +72,7 @@ const vectors: {
 ]
 
 describe('batch validation vectors', () => {
-  it.each(vectors)('$name (property carrier)', (vector) => {
+  it.each(vectors)('$name (properties)', (vector) => {
     const packet = property(vector.count, vector.payload, vector.format)
     const result = decodeBatch(packet, 5, vector.limits)
     const counted = decodeBatch(packet, 5, vector.limits, false)
@@ -84,7 +84,7 @@ describe('batch validation vectors', () => {
     else expect(result?.items?.map((item) => item.length)).toEqual(vector.lengths)
   })
 
-  it.each(vectors.slice(0, 13))('$name (topic carrier, §9.3)', (vector) => {
+  it.each(vectors.slice(0, 13))('$name ($batch topic)', (vector) => {
     const packet = {
       ...property(vector.count, vector.payload),
       topic: `$batch/${vector.count}/batch/demo`,
@@ -96,18 +96,18 @@ describe('batch validation vectors', () => {
     else expect(result?.items?.map((item) => item.length)).toEqual(vector.lengths)
   })
 
-  it('rejects the maximum item under the default byte budget', () => {
+  it('rejects the largest item with the default byte limit', () => {
     expect(decodeBatch(property('1', vectors[2].payload), 5)?.error).toBe('BATCH_LIMIT_EXCEEDED')
   })
 
-  it('rejects the maximum count under a smaller item budget', () => {
+  it('rejects item counts above the batch limit', () => {
     expect(decodeBatch(property('65535', vectors[3].payload), 5, { ...large, maxItems: 65534 })?.error).toBe(
       'BATCH_LIMIT_EXCEEDED',
     )
   })
 })
 
-describe('batch carriers and validation order', () => {
+describe('batch topics and validation order', () => {
   it.each([
     ['$batch/2/batch/demo', '00000000', undefined, 'batch/demo', 2],
     ['$batch/1//demo', '0000', undefined, '/demo', 1],
@@ -127,7 +127,7 @@ describe('batch carriers and validation order', () => {
     else expect(result).toMatchObject({ logicalTopic, count })
   })
 
-  it('preserves slashes in logical topics', () => {
+  it('keeps slashes in topic names', () => {
     expect(buildTopicCarrier(2, '/a//b/')).toBe('$batch/2//a//b/')
     expect(parseTopicCarrier('$batch/2//a//b/')).toEqual({ countText: '2', logicalTopic: '/a//b/' })
   })
@@ -140,7 +140,7 @@ describe('batch carriers and validation order', () => {
     expect(() => buildTopicCarrier(1, '\ud800')).toThrow('INVALID_BATCH_TOPIC')
   })
 
-  it('selects topic first and rejects metadata before count', () => {
+  it('checks $batch topic metadata before its item count', () => {
     const packet = property('1', '0000')
     packet.topic = '$batch/01/demo'
     expect(decodeBatch(packet, 5)?.error).toBe('INVALID_BATCH_METADATA')
@@ -162,7 +162,7 @@ describe('batch carriers and validation order', () => {
     expect(decodeBatch(packet, 5)?.items).toHaveLength(1)
   })
 
-  it('reports QoS, marker, format, metadata, count, limit errors in order', () => {
+  it('checks QoS and batch metadata before payload limits', () => {
     const packet = property('01', '00', 'unknown')
     packet.qos = 2
     expect(decodeBatch(packet, 5)?.error).toBe('UNSUPPORTED_BATCH_QOS')
@@ -198,7 +198,7 @@ describe('batch carriers and validation order', () => {
     expect(decodeBatch(property('1', '0000'), 4)).toBeUndefined()
   })
 
-  it('round-trips ordered items including whitespace, empty items and arbitrary bytes', () => {
+  it('keeps item order, spaces, empty items and binary bytes', () => {
     const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     const decoded = decodeBatch(property('3', payload), 5)!
     expect(decoded.items).toEqual([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
@@ -287,13 +287,13 @@ describe('exact batch packets', () => {
       else expect(result?.items?.map((item) => item.toString())).toEqual(['Msg1', 'LongerMsg2'])
     },
   )
-  it('does not require marker ordering', () => {
+  it('accepts either property order', () => {
     const packet = { ...base5, properties: { userProperties: { 'batch-size': '2', 'batch-format': 'v1' } } }
     expect(decodeBatch(parsed(wire(packet, 5), 5), 5)?.items).toHaveLength(2)
   })
 })
 
-describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
+describe('PUBLISH size against mqtt-packet.generate', () => {
   const properties: PublishProperties[] = [
     {},
     { payloadFormatIndicator: false },
@@ -310,18 +310,18 @@ describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
     { userProperties: { a: 'x'.repeat(110) } },
     { userProperties: { a: 'x'.repeat(16380) } },
   ]
-  it.each(properties)('includes CLI PUBLISH property fixture %#', (properties) => {
+  it.each(properties)('counts bytes for PUBLISH property %#', (properties) => {
     const packet = { ...property('1', '0000'), properties }
     expect(calculatePublishSize(packet, 5)).toBe(wire(packet, 5).length)
   })
 
-  it.each([0, 1, 2] as const)('includes all properties together and QoS %i', (qos) => {
+  it.each([0, 1, 2] as const)('counts all property bytes at QoS %i', (qos) => {
     const merged = Object.assign({}, ...properties.slice(1, 12))
     const packet = { ...property('1', '0000'), qos, properties: merged }
     expect(calculatePublishSize(packet, 5)).toBe(wire(packet, 5).length)
   })
 
-  it.each([4, 5])('handles VBI boundaries and actual Topic Alias omission in version %i', (version) => {
+  it.each([4, 5])('counts VBI and Topic Alias bytes in MQTT version %i', (version) => {
     for (const size of [0, 99, 100, 127, 128, 16370, 16384, 2097152]) {
       for (const topic of ['', '测试/topic']) {
         const packet: BatchPacket = { topic, payload: Buffer.alloc(size), qos: 1, properties: { topicAlias: 1 } }
@@ -331,9 +331,9 @@ describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
   })
 })
 
-describe('batch capability selection', () => {
+describe('batch-publish=v1 replies', () => {
   it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
-    'rejects missing, mismatched or repeated selection %p',
+    'rejects missing, wrong or repeated broker replies %p',
     (value) => {
       const userProperties = value === undefined ? undefined : { 'batch-publish': value }
       const check = createBatchSelectionCheck({ 'batch-publish': 'v1' })
@@ -343,26 +343,24 @@ describe('batch capability selection', () => {
 
   const selected = { properties: { userProperties: { 'batch-publish': 'v1' } } }
 
-  it('requires an exact offer as well as a selection', () => {
+  it('requires a single batch-publish=v1 offer', () => {
     expect(createBatchSelectionCheck()(selected)).toBe(false)
     expect(createBatchSelectionCheck({ 'batch-publish': ['v1', 'unknown'] })(selected)).toBe(false)
   })
 
-  it('rejects a resumed session when v1 was not reselected', () => {
+  it('rejects session resume without batch-publish=v1', () => {
     const check = createBatchSelectionCheck({ 'batch-publish': 'v1' }, true)
     expect(check(selected)).toBe(true)
-    expect(() => check({ sessionPresent: true })).toThrow(
-      'Batch session resume failed: v1 capability was not reselected.',
-    )
+    expect(() => check({ sessionPresent: true })).toThrow('Broker did not confirm batch-publish=v1 on session resume.')
   })
 
-  it('requires selection on a new session when negotiation is requested', () => {
+  it('requires batch-publish=v1 on each new session', () => {
     const check = createBatchSelectionCheck({ 'batch-publish': 'v1' }, true)
     check(selected)
-    expect(() => check({ sessionPresent: false })).toThrow('Batch negotiation failed:')
+    expect(() => check({ sessionPresent: false })).toThrow('Broker did not return batch-publish=v1 exactly once.')
   })
 
-  it('accepts a resumed session without a previous capability selection', () => {
+  it('accepts session resume before any batch-publish=v1 reply', () => {
     const unpinned = createBatchSelectionCheck()
     expect(unpinned({ sessionPresent: true })).toBe(false)
   })

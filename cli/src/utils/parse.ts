@@ -67,7 +67,7 @@ const parseMQTTVersion = (value: string) => {
   return dict[normalizedValue as '3.1' | '3.1.1' | '5']
 }
 
-/** Collect repeated pub messages; the first explicit value replaces the default. */
+// The first -m replaces the default message.
 const parseMessage = (value: string, previous: string | string[]): string | string[] => {
   if (Array.isArray(previous)) {
     previous.push(value)
@@ -76,7 +76,6 @@ const parseMessage = (value: string, previous: string | string[]): string | stri
   return [value]
 }
 
-/** Validate batch options using the same failure path as other CLI validators. */
 const validateBatchOptions = (
   options: PublishOptions | SubscribeOptions | BenchPublishOptions | BenchSubscribeOptions,
   command: 'pub' | 'sub' | 'benchPub' | 'benchSub',
@@ -109,7 +108,7 @@ const validateBatchOptions = (
   }
   if (!enabled) return
   if (options.mqttVersion === 3) {
-    fail('Batch publishing requires MQTT 5.0 or 3.1.1. MQTT 3.1 is unsupported.')
+    fail('Batch publishing requires MQTT 5.0 or 3.1.1.')
   }
   const qos = Array.isArray(options.qos) ? options.qos : [options.qos]
   if (qos.includes(2)) {
@@ -123,9 +122,9 @@ const validateBatchOptions = (
       parseBatchCount(parsed.countText)
       suggestion = ` Try: -t ${parsed.logicalTopic}`
     } catch {
-      // Malformed prefixed topics have no valid logical-topic suggestion.
+      // Suggest a topic only when the prefix is valid.
     }
-    fail(`With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`)
+    fail(`With -b, use -t without the $batch/{N}/ prefix.${suggestion}`)
   }
   if (!validLogicalTopic(pub.topic)) {
     fail(`Invalid topic for -b: ${pub.topic} (INVALID_BATCH_TOPIC).`)
@@ -135,33 +134,33 @@ const validateBatchOptions = (
       const count = command === 'benchPub' ? pub.batchItems ?? DEFAULT_BATCH_ITEMS : 1
       buildTopicCarrier(count, pub.topic)
     } catch {
-      fail(`Invalid topic for -b: ${pub.topic}. The batch topic exceeds the MQTT topic byte limit.`)
+      fail(`Batch topic exceeds the MQTT byte limit: ${pub.topic}.`)
     }
   }
   if (pub.mqttVersion === 4 && pub.retain) {
-    fail('MQTT 3.1.1 batch publishing requires RETAIN=0.')
+    fail('MQTT 3.1.1 batches cannot be retained.')
   }
   if (pub.payloadFormatIndicator) {
-    fail('Batch envelopes require Payload Format Indicator 0 or absent.')
+    fail('Batch publishing requires Payload Format Indicator to be off.')
   }
   if (hasMarker(pub.userProperties)) {
-    fail('-up batch-format and batch-size are generated automatically with -b.')
+    fail('-b sets batch-format and batch-size. Remove them from -up.')
   }
   if (pub.protobufPath || pub.protobufMessageName || pub.avscPath) {
-    fail('Batch publishing does not support per-item schema encoding.')
+    fail('Batch publishing does not support schema encoding.')
   }
   if (command === 'pub') {
     if (pub.stdin || pub.multiline || pub.lineMode) {
       fail('-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.')
     }
     if (pub.payloadSize) {
-      fail('-b reads items from -m or --file-read. -S is unsupported.')
+      fail('-S is not supported with -b. Use -m or --file-read.')
     }
     if (pub.split !== undefined && !pub.fileRead) {
       fail('--split requires --file-read.')
     }
   } else if (pub.split !== undefined) {
-    fail('bench pub -b uses the whole file as one item template. --split is unsupported.')
+    fail('bench pub -b uses the whole file per item. --split is not supported.')
   }
 }
 
