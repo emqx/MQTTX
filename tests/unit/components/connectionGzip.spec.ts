@@ -31,6 +31,18 @@ function render(message: MessageModel) {
 }
 
 describe('Received GZIP indicator', () => {
+  let stackTraceLimit: number
+
+  before(() => {
+    stackTraceLimit = Error.stackTraceLimit
+    // Formatting the zlib error's stack through the test bundle's source map takes ~600 ms.
+    Error.stackTraceLimit = 0
+  })
+
+  after(() => {
+    Error.stackTraceLimit = stackTraceLimit
+  })
+
   it('shows the badge for a successfully decompressed received message', () => {
     const message = receive(zlib.gzipSync(Buffer.from('hello')))
     expect(message.payload).to.equal('hello')
