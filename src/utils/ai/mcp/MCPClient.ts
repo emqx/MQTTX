@@ -2,10 +2,9 @@
 import { MCPServer, ToolCallResult } from '@/types/mcp'
 import { EventEmitter } from 'events'
 
-// SDK modules are required where they are used and stay external because of package `exports`,
-// so Node loads them at runtime.
 /**
  * MCPClient class implements communication with MCP server
+ * SDK modules are required where they are used; package `exports` keeps them external, so Node loads them at runtime.
  */
 export class MCPClient extends EventEmitter {
   private client: any
