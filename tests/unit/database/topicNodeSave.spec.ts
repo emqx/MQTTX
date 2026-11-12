@@ -195,6 +195,35 @@ describe('TopicNodeService batch save (SQLite)', () => {
       }
     })
 
+    it('runs only INSERTs for a batch push and never SELECTs', async () => {
+      const messages = Array.from({ length: 130 }, (_, index) => message(`insert-${index}`))
+      const runner = database.createQueryRunner()
+      const query = runner.query
+      const statements: string[] = []
+      runner.query = function (sql: string, parameters?: any[]) {
+        statements.push(sql.trim().split(/\s+/)[0].toUpperCase())
+        return query.call(this, sql, parameters)
+      }
+      try {
+        await messageService.pushMsgsToConnection(messages, CONNECTION_ID)
+        expect(statements.filter((keyword) => keyword === 'INSERT').length).to.be.greaterThan(0)
+        expect(statements.filter((keyword) => keyword === 'SELECT')).to.deep.equal([])
+      } finally {
+        runner.query = query
+      }
+    })
+
+    it('resolves a concurrent batch and single-message push and stores every row', async () => {
+      const messages = Array.from({ length: 130 }, (_, index) => message(`concurrent-${index}`))
+      const [batch, single] = await Promise.all([
+        messageService.pushMsgsToConnection(messages, CONNECTION_ID),
+        messageService.pushMsgsToConnection(message('concurrent-single'), CONNECTION_ID),
+      ])
+      expect(batch).to.have.length(messages.length)
+      expect(single).to.have.length(1)
+      expect(await messageRepository.count()).to.equal(131)
+    })
+
     it('rolls back earlier chunks when a later insert fails', async () => {
       const messages = Array.from({ length: 130 }, (_, index) => message(`rollback-${index}`))
       messages[129].payload = undefined as any
