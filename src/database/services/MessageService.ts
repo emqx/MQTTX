@@ -5,6 +5,8 @@ import { Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
+const MESSAGE_INSERT_CHUNK_SIZE = 58 // 17 inserted columns × 58 rows = 986, below SQLite's 999-parameter limit.
+
 @Service()
 export default class MessageService {
   constructor(
@@ -220,22 +222,38 @@ export default class MessageService {
     return { list, moreMsg }
   }
 
-  private async saveMessages(
-    messages: MessageModel[],
-    connectionId: string,
-  ): Promise<MessageModel | MessageModel[] | undefined> {
+  public async pushMsgsToConnection(message: MessageModel | MessageModel[], connectionId: string): Promise<void> {
+    const messages = Array.isArray(message) ? message : [message]
     const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
-    return await this.messageRepository.save(entities)
-  }
+    if (entities.length === 0) return
 
-  public async pushMsgsToConnection(
-    message: MessageModel | MessageModel[],
-    connectionId: string,
-  ): Promise<MessageModel | MessageModel[] | undefined> {
-    if (!Array.isArray(message)) {
-      return await this.saveMessages([message], connectionId)
+    const queryRunner = this.messageRepository.manager.connection.createQueryRunner()
+    let isTransactionStartedByUs = false
+    try {
+      if (!queryRunner.isTransactionActive) {
+        isTransactionStartedByUs = true
+        await queryRunner.startTransaction()
+      }
+      for (let i = 0; i < entities.length; i += MESSAGE_INSERT_CHUNK_SIZE) {
+        await queryRunner.manager
+          .createQueryBuilder()
+          .insert()
+          .into(MessageEntity)
+          .values(entities.slice(i, i + MESSAGE_INSERT_CHUNK_SIZE))
+          .updateEntity(false) // Avoid SELECTs to reload defaults such as qos; callers do not use returned entities.
+          .execute()
+      }
+      if (isTransactionStartedByUs) await queryRunner.commitTransaction()
+    } catch (error) {
+      if (isTransactionStartedByUs) {
+        try {
+          await queryRunner.rollbackTransaction()
+        } catch {
+          // Preserve the original error if rollback fails, matching save().
+        }
+      }
+      throw error
     }
-    return await this.saveMessages(message, connectionId)
   }
 
   /**
