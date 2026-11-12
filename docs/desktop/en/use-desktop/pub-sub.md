@@ -48,7 +48,7 @@ So far, the testing of an `MQTT` message is completed.
 
 ## Batch Messages
 
-Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1 on compatible broker routes.
+From v1.14.0, Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1 on compatible broker routes.
 
 ### Send a batch
 

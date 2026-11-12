@@ -48,7 +48,7 @@
 
 ## Batch 消息
 
-Batch 将同一主题下的多条消息按顺序打包到一个 MQTT PUBLISH 中，在兼容的 Broker 路由上支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。
+从 v1.14.0 起，Batch 将同一主题下的多条消息按顺序打包到一个 MQTT PUBLISH 中，在兼容的 Broker 路由上支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。
 
 ### 发送 Batch
 
