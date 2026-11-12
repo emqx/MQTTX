@@ -157,7 +157,7 @@ export default class ImportData extends Vue {
         properties: ['openFile'],
         filters: [{ name: '', extensions: [`${extensionName}`] }],
       })
-      .then((res) => {
+      .then(async (res) => {
         const { filePaths } = res
         if (filePaths.length) {
           loading = this.$loading({
@@ -165,7 +165,7 @@ export default class ImportData extends Vue {
             spinner: 'el-icon-loading',
           })
           const filePath = filePaths[0]
-          this.readFilePath(filePath, extensionName)
+          await this.readFilePath(filePath, extensionName)
         }
       })
       .catch(() => {})
@@ -175,9 +175,10 @@ export default class ImportData extends Vue {
   }
 
   private async getExcelContentByXlsx(filePath: string) {
-    const { default: ExcelConvert } = await import('xlsx')
+    let ExcelConvert: typeof import('xlsx')
     let workbook: import('xlsx').WorkBook
     try {
+      ExcelConvert = (await import('xlsx')).default
       workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
     } catch (err) {
       this.$message.error(`${this.$t('connections.readFileErr')}${(err as Error).message}`)
