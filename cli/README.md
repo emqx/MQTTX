@@ -100,7 +100,7 @@ For additional information on usage and advanced features, please consult our [G
 
 ## Batch Messages
 
-From v1.14.0, batch mode packs ordered items into one MQTT PUBLISH on the same logical topic. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1. Use a route whose broker configuration and consumers support the same batch format and limits. The examples below assume such a route at `localhost:1883`; replace the host, port, authentication, and TLS options for your deployment.
+From v1.14.0, batch mode packs ordered items into one MQTT PUBLISH on the same logical topic. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1.
 
 ### Publish and subscribe
 
@@ -136,7 +136,7 @@ The publisher reports `Published 3 items in 1 batch` for the file above. The sub
 - `--split ','` selects a custom separator for `pub -b --file-read`. On Unix-like systems, pipe input with `--file-read /dev/stdin`; `-s`, `-M`, and `-lm` are not batch inputs.
 - `-f` applies the selected encoding to each item. Batch publishing does not support per-item Protobuf/Avro schemas or `pub -S`.
 - `pub` splits input into packets of at most **256 items** and **65,536 payload bytes** by default. Each item's two-byte big-endian length prefix counts toward the byte limit. An individual item cannot be split and cannot exceed 65,535 bytes or the configured packet budget minus its prefix.
-- `sub` uses the same default limits. A malformed or oversized batch is rejected as a whole. Raise the receiver limits when publishing larger batches, and keep both within the route's limits.
+- `sub` uses the same default limits. A malformed or oversized batch is rejected as a whole. Raise the receiver limits when publishing larger batches.
 - The broker's MQTT 5.0 Maximum Packet Size applies to the complete PUBLISH, including headers. MQTTX rejects packets that exceed it; it does not automatically repack them to fit this limit.
 
 | Option                        | Commands                               | Meaning                                                                                                    |
@@ -168,9 +168,9 @@ mqttx sub -h localhost -p 1883 -V 3.1.1 -q 1 -t '$batch/+/demo/topic' -b
 mqttx pub -h localhost -p 1883 -V 3.1.1 -q 1 -t demo/topic -b -m hello -m world
 ```
 
-Quote `$batch` in a shell. A subscription to `#` does not match these topics. MQTT 3.1.1 batches cannot use Retain. MQTT 5.0 can retain a batch on a compatible route; clear it with an ordinary retained empty publication without `-b` or batch markers.
+Quote `$batch` in a shell. A subscription to `#` does not match these topics. MQTT 3.1.1 batches cannot use Retain. MQTT 5.0 can retain a batch; clear it with an ordinary retained empty publication without `-b` or batch markers.
 
-For an MQTT 5.0 route that requires negotiation, add `--batch-negotiate` to the publish command. It sends the CONNECT offer and requires the matching CONNACK selection before publishing. Do not also set `-Cup 'batch-publish: v1'`. Negotiation does not replace the route's compatibility requirements.
+If an MQTT 5.0 broker requires negotiation, add `--batch-negotiate` to the publish command. It sends the CONNECT offer and requires the matching CONNACK selection before publishing. Do not also set `-Cup 'batch-publish: v1'`.
 
 ### Benchmark
 
@@ -184,7 +184,7 @@ mqttx bench sub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b
 mqttx bench pub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b -bi 256 -m hello -im 1000 -L 5
 ```
 
-`-L` counts packets, so this publishes 1,280 items. Output distinguishes packets from items. `bench pub -b` repeats one item template in each packet: `-m`, a generated payload, or the **whole file** from `--file-read`. It does not split a file into items and rejects `--split`. Benchmark batches use protocol limits rather than the `pub`/`sub` defaults; choose `-bi` and the item size to fit the broker route. `bench sub -b` counts validated items and reports invalid batches separately.
+`-L` counts packets, so this publishes 1,280 items. Output distinguishes packets from items. `bench pub -b` repeats one item template in each packet: `-m`, a generated payload, or the **whole file** from `--file-read`. It does not split a file into items and rejects `--split`. Benchmark batches use protocol limits rather than the `pub`/`sub` defaults; choose `-bi` and the item size to fit the broker's limits. `bench sub -b` counts validated items and reports invalid batches separately.
 
 ## Better Together with EMQX
 
