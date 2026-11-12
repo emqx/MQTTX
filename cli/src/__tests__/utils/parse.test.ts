@@ -1,5 +1,8 @@
 import {
   parseNumber,
+  parseMessage,
+  validateBatchOptions,
+  parseFileRead,
   validateClientCount,
   validateMaxInflight,
   parseProtocol,
@@ -13,6 +16,10 @@ import {
   parseFormat,
   parseSchemaOptions,
 } from '../../utils/parse'
+import fs from 'fs'
+import path from 'path'
+import { tmpdir } from 'os'
+import { MQTT_SINGLE_MESSAGE_BYTE_LIMIT } from '../../utils/constants'
 import logWrapper from '../../utils/logWrapper'
 import { expect, jest } from '@jest/globals'
 
@@ -27,6 +34,45 @@ const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) 
 describe('parse utilities', () => {
   afterEach(() => {
     jest.clearAllMocks()
+  })
+
+  describe('parseFileRead', () => {
+    let directory: string
+    beforeEach(() => {
+      directory = fs.mkdtempSync(path.join(tmpdir(), 'mqttx-cli-parse-file-'))
+    })
+    afterEach(() => {
+      fs.rmSync(directory, { recursive: true, force: true })
+    })
+    it.each([MQTT_SINGLE_MESSAGE_BYTE_LIMIT - 1, MQTT_SINGLE_MESSAGE_BYTE_LIMIT])(
+      'checks file size at %i bytes without reading the file',
+      (size) => {
+        const file = path.join(directory, 'payload')
+        fs.writeFileSync(file, '')
+        fs.truncateSync(file, size)
+        const originalRead = fs.readFileSync
+        const read = jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
+          if (args[0] === file) throw new Error('Parser read the file contents')
+          return originalRead(...args)
+        })
+        try {
+          if (size < MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+            expect(parseFileRead(file)).toBe(file)
+          } else {
+            expect(() => parseFileRead(file)).toThrow('Process exited with code 1')
+            expect(logWrapper.fail).toHaveBeenCalledWith('File size over 256MB not supported by MQTT.')
+          }
+          expect(read.mock.calls.some(([target]) => target === file)).toBe(false)
+        } finally {
+          read.mockRestore()
+        }
+      },
+    )
+    it('exits with an error for a missing file', () => {
+      expect(() => parseFileRead(path.join(directory, 'missing'))).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(expect.stringContaining('ENOENT'))
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
   })
 
   describe('parseNumber', () => {
@@ -229,6 +275,116 @@ describe('parse utilities', () => {
 
     it('should return undefined when no schema options are provided', () => {
       expect(parseSchemaOptions()).toBeUndefined()
+    })
+  })
+
+  describe('validateBatchOptions', () => {
+    const options = (): PublishOptions => ({
+      mqttVersion: 5,
+      hostname: '127.0.0.1',
+      clientId: 'batch',
+      keepalive: 30,
+      clean: true,
+      reconnectPeriod: 0,
+      maximumReconnectTimes: 0,
+      topic: 'demo/topic',
+      message: 'test',
+      qos: 1,
+      batch: true,
+    })
+
+    it.each([
+      [{ mqttVersion: 3 }, 'Batch publishing requires MQTT 5.0 or 3.1.1.'],
+      [{ qos: 2 }, 'Batch publishing requires QoS 0 or 1.'],
+      [{ mqttVersion: 4, retain: true }, 'MQTT 3.1.1 batches cannot be retained.'],
+      [{ payloadFormatIndicator: true }, 'Batch publishing requires Payload Format Indicator to be off.'],
+      [{ userProperties: { 'batch-format': 'v1' } }, '-b sets batch-format and batch-size. Remove them from -up.'],
+      [{ userProperties: { 'batch-size': '2' } }, '-b sets batch-format and batch-size. Remove them from -up.'],
+      [
+        { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
+        '--batch-negotiate cannot be combined with -Cup batch-publish.',
+      ],
+      [{ batchNegotiate: true, mqttVersion: 4 }, '--batch-negotiate requires batch publishing with MQTT 5.0.'],
+      [{ batchNegotiate: true, batch: false }, '--batch-negotiate requires batch publishing with MQTT 5.0.'],
+      [{ batchMaxItems: 0 }, 'Invalid batch max items: 0. Expected an integer between 1 and 65535.'],
+      [{ batchMaxItems: 65536 }, 'Invalid batch max items: 65536. Expected an integer between 1 and 65535.'],
+      [{ batchMaxItems: 1.5 }, 'Invalid batch max items: 1.5. Expected an integer between 1 and 65535.'],
+      [{ batchMaxBytes: 1023 }, 'Invalid batch max bytes: 1023. Expected an integer between 1024 and 1048576.'],
+      [{ batchMaxBytes: 1048577 }, 'Invalid batch max bytes: 1048577. Expected an integer between 1024 and 1048576.'],
+      [
+        { stdin: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [
+        { multiline: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [
+        { lineMode: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [{ payloadSize: '1KB' }, '-S is not supported with -b. Use -m or --file-read.'],
+      [{ split: true, batch: false }, '--split requires -b.'],
+      [{ split: true }, '--split requires --file-read.'],
+      [{ protobufPath: 'schema.proto' }, 'Batch publishing does not support schema encoding.'],
+      [{ topic: '$SYS/demo' }, 'Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC).'],
+      [{ topic: '$batch' }, 'Invalid topic for -b: $batch (INVALID_BATCH_TOPIC).'],
+    ])('rejects batch options %j', (override, message) => {
+      expect(() => validateBatchOptions({ ...options(), ...override } as PublishOptions, 'pub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith(message)
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
+    it.each([
+      ['$batch/2/demo/topic', ' Try: -t demo/topic'],
+      ['$batch/2//demo', ' Try: -t /demo'],
+      ['$batch/no-separator', ''],
+    ])('rejects a $batch prefix in -t: %s', (topic, suggestion) => {
+      expect(() => validateBatchOptions({ ...options(), topic }, 'pub')).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(`With -b, use -t without the $batch/{N}/ prefix.${suggestion}`)
+      expect(() => validateBatchOptions({ ...options(), topic, batch: false }, 'pub')).not.toThrow()
+    })
+
+    it('rejects --split with bench pub -b', () => {
+      expect(() => validateBatchOptions({ ...options(), split: true }, 'benchPub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith(
+        'bench pub -b uses the whole file per item. --split is not supported.',
+      )
+    })
+
+    it('requires -b for bench item counts', () => {
+      expect(() => validateBatchOptions({ ...options(), batch: false, batchItems: 2 }, 'benchPub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith('-bi requires -b.')
+    })
+
+    it('accepts default and explicit batch counts with --batch-negotiate', () => {
+      expect(() => validateBatchOptions(options(), 'benchPub')).not.toThrow()
+      expect(() =>
+        validateBatchOptions({ ...options(), batchItems: 101, batchNegotiate: true }, 'benchPub'),
+      ).not.toThrow()
+    })
+
+    it.each([0, 65536, 1.5, NaN, Infinity])('rejects invalid bench item count %p', (batchItems) => {
+      expect(() => validateBatchOptions({ ...options(), batchItems }, 'benchPub')).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(
+        `Invalid batch items: ${batchItems}. Expected an integer between 1 and 65535.`,
+      )
+    })
+  })
+
+  describe('parseMessage', () => {
+    it('replaces the default with the first explicit message', () => {
+      expect(parseMessage('first', 'default')).toEqual(['first'])
+    })
+
+    it('keeps repeated -m values in order, including empty items', () => {
+      expect(parseMessage('', parseMessage('first', 'default'))).toEqual(['first', ''])
     })
   })
 })
