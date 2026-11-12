@@ -2,6 +2,7 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
 import { EntityManager, Repository } from 'typeorm'
+import { v4 as uuidv4 } from 'uuid'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
@@ -231,14 +232,21 @@ export default class MessageService {
     // Use the portable SQLite limit, counting every column even when a value is inlined.
     const chunkSize = Math.max(1, Math.floor(999 / metadata.columns.length))
     for (const entity of entities) {
+      // The insert skips the reload, so generated ids are assigned here.
+      if (!entity.id) entity.id = uuidv4()
       for (const column of metadata.columns) {
         if (column.isNullable && column.getEntityValue(entity) === undefined) column.setEntityValue(entity, null)
       }
     }
     const insert = async (transactionManager: EntityManager) => {
-      const repository = transactionManager.getRepository<MessageEntity>(target)
       for (let offset = 0; offset < entities.length; offset += chunkSize) {
-        await repository.insert(entities.slice(offset, offset + chunkSize))
+        await transactionManager
+          .createQueryBuilder()
+          .insert()
+          .into(target)
+          .values(entities.slice(offset, offset + chunkSize))
+          .updateEntity(false)
+          .execute()
       }
       return entities
     }
