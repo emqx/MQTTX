@@ -10,7 +10,7 @@ const history = new EntitySchema<MessageEntity>({
   name: 'PaginationHistory',
   columns: {
     id: { type: String, primary: true },
-    connectionId: { type: String },
+    connectionId: { name: 'connection_id', type: String },
     topic: { type: String },
     payload: { type: String },
     createAt: { type: String },
@@ -22,6 +22,7 @@ describe('MessageService history pagination (SQLite)', () => {
   let database: Connection
   let repository: Repository<MessageEntity>
   let service: MessageService
+  const queries: string[] = []
 
   const timestamp = (position: number) => new Date(Date.UTC(2026, 0, 1) + position).toISOString()
   const ids = (positions: number[]) => positions.map((position) => `message-${position}`)
@@ -55,6 +56,7 @@ describe('MessageService history pagination (SQLite)', () => {
     })
     repository = database.getRepository(history)
     service = new MessageService(repository, {} as Repository<ConnectionEntity>)
+    database.logger.logQuery = (query) => queries.push(query)
   })
 
   beforeEach(async () => {
@@ -63,6 +65,56 @@ describe('MessageService history pagination (SQLite)', () => {
 
   after(async () => {
     if (database) await database.close()
+  })
+
+  it('gets numeric zero totals for an empty connection with one count query', async () => {
+    await repository.save(makeMessage(1, { connectionId: 'other-connection', out: true }))
+    queries.length = 0
+
+    const result = await service.get('connection')
+
+    expect(result.total).to.equal(0)
+    expect(result.publishedTotal).to.equal(0)
+    expect(result.receivedTotal).to.equal(0)
+    expect(result.list).to.deep.equal([])
+    expect(queries.filter((query) => /COUNT\(/i.test(query))).to.have.lengthOf(1)
+  })
+
+  it('gets connection-level numeric totals with one count query regardless of page filters', async () => {
+    await repository.save([
+      makeMessage(1),
+      makeMessage(2, { out: true }),
+      makeMessage(3, { topic: 'other/sensor' }),
+      makeMessage(4, { payload: 'unmatched reading' }),
+      makeMessage(5, { connectionId: 'other-connection' }),
+      makeMessage(6, { connectionId: 'other-connection', out: true }),
+    ])
+
+    const filterCases = [
+      { options: {}, positions: [1, 2, 3, 4] },
+      { options: { topic: 'history/#' }, positions: [1, 2, 4] },
+      { options: { searchParams: { topic: 'history', payload: 'needle' } }, positions: [1, 2] },
+      { options: { msgType: 'publish' as MessageType }, positions: [2] },
+      { options: { msgType: 'received' as MessageType }, positions: [1, 3, 4] },
+      {
+        options: {
+          topic: 'history/#',
+          searchParams: { topic: 'sensor', payload: 'needle' },
+          msgType: 'received' as MessageType,
+        },
+        positions: [1],
+      },
+    ]
+    for (const { options, positions } of filterCases) {
+      queries.length = 0
+      const result = await service.get('connection', options)
+
+      expect(result.total).to.equal(4)
+      expect(result.publishedTotal).to.equal(1)
+      expect(result.receivedTotal).to.equal(3)
+      expect(messageIds(result.list)).to.deep.equal(ids(positions))
+      expect(queries.filter((query) => /COUNT\(/i.test(query))).to.have.lengthOf(1)
+    }
   })
 
   const cases = [
