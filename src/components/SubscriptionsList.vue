@@ -511,7 +511,8 @@ export default class SubscriptionsList extends Vue {
         id: id ?? getSubscriptionId(),
       })
     }
-    let isFinished = false
+    let finish!: () => void
+    const finished = new Promise<void>((resolve) => (finish = resolve))
 
     if (this.client.subscribe) {
       const topicsArr = this.multiTopics ? [...new Set(topic.split(','))].filter(Boolean) : topic
@@ -529,7 +530,7 @@ export default class SubscriptionsList extends Vue {
         if (error) {
           this.$emit('onSubError', error.toString(), `Topics: ${JSON.stringify(topicsArr)}`)
           this.$log.error(`Error subscribing to topic: ${error}`)
-          isFinished = true
+          finish()
           return false
         }
         const successSubscriptions: string[] = []
@@ -547,7 +548,7 @@ export default class SubscriptionsList extends Vue {
           })
         }
         if (!successSubscriptions.length) {
-          isFinished = true
+          finish()
           return false
         }
         if (enable) {
@@ -567,19 +568,11 @@ export default class SubscriptionsList extends Vue {
         }
         await this.syncSubscriptions(this.subsList, true)
         successSubscriptions.length && this.$log.info(`Successfully subscribed to topic: ${successSubscriptions}`)
-        isFinished = true
+        finish()
       })
     }
 
-    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-    // TODO: maybe we should replace mqtt.js to mqtt-async.js
-    await new Promise(async (resolve) => {
-      // long pool query base on sleep
-      while (!isFinished) {
-        await sleep(100)
-      }
-      resolve(isFinished)
-    })
+    await finished
   }
 
   // Sync subscriptions list with persistent storage.
