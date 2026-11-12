@@ -61,51 +61,49 @@ export const watchFileAppender = (
   onErrorHandler: (err: NodeJS.ErrnoException) => void,
 ) => {
   let disposed = false
-  let stopWatching: (() => void) | undefined
+  let fd: number | undefined
+  let pendingReads = 0
+  let closed = false
+  const closeFile = () => {
+    // Let reads finish before closing, so their descriptor cannot be reused underneath them.
+    if (fd === undefined || pendingReads > 0 || closed) return
+    closed = true
+    fs.close(fd, () => {})
+  }
+  const listener = (curr: fs.Stats, prev: fs.Stats) => {
+    if (disposed || fd === undefined) return
+    if (curr.mtime > prev.mtime && curr.size - prev.size > 0) {
+      // Changes in the contents of documents
+      const buffer = Buffer.alloc(curr.size - prev.size)
+      pendingReads++
+      handleReadFile(
+        fd,
+        buffer,
+        curr.size - prev.size,
+        prev.size,
+        (buffer) => {
+          pendingReads--
+          if (disposed) closeFile()
+          else onDataHandler(buffer)
+        },
+        (error) => {
+          pendingReads--
+          if (disposed) closeFile()
+          else onErrorHandler(error)
+        },
+      )
+    }
+  }
   // Open the file for reading and appending
-  fs.open(filename, 'r', function (err, fd) {
+  fs.open(filename, 'r', function (err, openedFd) {
     if (err) {
       if (!disposed) onErrorHandler(err)
       return
     }
+    fd = openedFd
     if (disposed) {
-      fs.close(fd, () => {})
+      closeFile()
       return
-    }
-    let pendingReads = 0
-    let closed = false
-    const closeFile = () => {
-      // Let reads finish before closing, so their descriptor cannot be reused underneath them.
-      if (pendingReads === 0 && !closed) {
-        closed = true
-        fs.close(fd, () => {})
-      }
-    }
-    const listener = (curr: fs.Stats, prev: fs.Stats) => {
-      if (disposed) return
-      // Compare the time before and after
-      if (curr.mtime > prev.mtime && curr.size - prev.size > 0) {
-        // Changes in the contents of documents
-        const buffer = Buffer.alloc(curr.size - prev.size)
-        pendingReads++
-        // (curr.size - prev.size) this is the newly added length of the log file
-        handleReadFile(
-          fd,
-          buffer,
-          curr.size - prev.size,
-          prev.size,
-          (buffer) => {
-            pendingReads--
-            if (disposed) closeFile()
-            else onDataHandler(buffer)
-          },
-          (error) => {
-            pendingReads--
-            if (disposed) closeFile()
-            else onErrorHandler(error)
-          },
-        )
-      }
     }
     fs.watchFile(
       filename,
@@ -115,15 +113,12 @@ export const watchFileAppender = (
       },
       listener,
     )
-    stopWatching = () => {
-      fs.unwatchFile(filename, listener)
-      closeFile()
-    }
   })
   return () => {
     if (disposed) return
     disposed = true
-    stopWatching?.()
+    fs.unwatchFile(filename, listener)
+    closeFile()
   }
 }
 

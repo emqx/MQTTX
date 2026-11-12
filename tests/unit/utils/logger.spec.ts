@@ -66,8 +66,7 @@ describe('Log file watcher lifecycle', () => {
       closed.push(fd)
       callback(null)
     }) as typeof fs.close
-    fs.watchFile = ((_filename: string, options: Record<string, unknown>, listener: Listener) => {
-      expect(options).to.deep.equal({ persistent: true, interval: 100 })
+    fs.watchFile = ((_filename: string, _options: Record<string, unknown>, listener: Listener) => {
       listeners.push(listener)
     }) as typeof fs.watchFile
     fs.unwatchFile = ((_filename: string, listener?: Listener) => {

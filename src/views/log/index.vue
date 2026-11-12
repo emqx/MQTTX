@@ -50,7 +50,7 @@ export default class Logs extends Vue {
 
   private logValue = ''
   private selectedLogLevel: LogLevel = 'info'
-  private stopLogWatcher: (() => void) | null = null
+  private stopLogWatcher?: () => void
 
   get editorTheme(): 'editor-log' | 'editor-log-dark' | 'editor-log-night' {
     switch (this.theme) {
