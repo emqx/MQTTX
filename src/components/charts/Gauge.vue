@@ -31,7 +31,8 @@ export default class GaugeChart extends Vue {
   @Prop({ default: 'Absolute' }) public thresholdsType!: 'Absolute' | 'Percentage'
   @Prop({ default: () => [] }) public thresholds!: Threshold[]
 
-  private myChart: echarts.ECharts | null = null
+  // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
+  private myChart?: echarts.ECharts | null
   private detachResize: (() => void) | null = null
 
   // Dynamic min/max tracking
