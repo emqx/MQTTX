@@ -182,8 +182,7 @@
           </el-badge>
         </el-tooltip>
         <el-dropdown class="actions-dropdown" placement="top" trigger="click" @command="handleActionCommand">
-          <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini">
-            <i class="el-icon-caret-top"></i><i class="toolbar-icon el-icon-arrow-up" aria-hidden="true"></i>
+          <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini" icon="el-icon-arrow-up">
           </el-button>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
             <el-dropdown-item
@@ -1142,8 +1141,7 @@ export default class MsgPublish extends Vue {
         padding: 0;
         line-height: 1;
       }
-      .el-checkbox .el-checkbox__input,
-      .actions-btn .el-icon-caret-top {
+      .el-checkbox .el-checkbox__input {
         display: none;
       }
       .el-checkbox .el-checkbox__label,
@@ -1166,7 +1164,8 @@ export default class MsgPublish extends Vue {
       .el-checkbox.is-disabled .toolbar-icon {
         color: var(--color-text-historybtn_disabled);
       }
-      .toolbar-icon {
+      .toolbar-icon,
+      .actions-btn > i {
         display: inline-flex;
         align-items: center;
         justify-content: center;
