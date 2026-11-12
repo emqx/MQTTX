@@ -224,6 +224,10 @@ sudo snap install mqttx
 
    至此，您就完成了一条 `MQTT` 消息的测试。
 
+### Batch 消息
+
+从 v1.14.0 起，MQTTX 可以把同一主题的多条消息合并成一个 MQTT 报文发送，需要 MQTT Broker 支持。在**设置 > 高级**中开启**启用 Batch 发布**，然后勾选发布栏中的 **Batch**，每行输入一条消息。详细用法见 [Batch 消息](./desktop/zh/use-desktop/pub-sub.md#batch-消息)。
+
 ### MQTT 5
 
 1. 用户属性
@@ -269,7 +273,7 @@ sudo snap install mqttx
 - **基础**：语言、自动检查更新、自动恢复订阅、多主题订阅、最大重连次数和最大 Payload 显示大小。
 - **外观**：同步操作系统主题、主题（Light、Dark 或 Night）以及 JSON 数据高亮。
 - **扩展**：一键安装 MQTTX CLI。
-- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、自动解压 GZIP 消息、主题空格检测以及 GPU 加速。
+- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、自动解压 GZIP 消息、主题空格检测、GPU 加速和 Batch 设置。
 - **MQTTX Agent**：启用 Agent，配置模型服务商、推理强度、默认权限模式、每次回复的最大步数和 MCP 服务器，详见 [MQTTX Agent](./desktop/zh/use-desktop/agent.md)。
 
 ![mqttx-theme](../assets/mqttx-theme.png)

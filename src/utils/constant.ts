@@ -15,3 +15,9 @@ export const SCROLL_OFFSET_MAX_NUM = 100
 
 // Messages buffer time in milliseconds
 export const MESSAGES_BUFFER_TIME = 1000
+
+export const mqttVersionDict: Record<string, 3 | 4 | 5 | undefined> = {
+  '3.1': 3,
+  '3.1.1': 4,
+  '5.0': 5,
+}
