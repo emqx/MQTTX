@@ -132,13 +132,13 @@ export default class MessageService {
     const counts = await this.messageRepository
       .createQueryBuilder('msg')
       .select('COUNT(*)', 'total')
-      .addSelect('SUM(CASE WHEN msg.out = 1 THEN 1 ELSE 0 END)', 'publishedTotal')
-      .addSelect('SUM(CASE WHEN msg.out = 0 THEN 1 ELSE 0 END)', 'receivedTotal')
+      .addSelect('SUM(msg.out)', 'publishedTotal')
       .where('msg.connectionId = :connection', { connection: connectionId })
       .getRawOne()
     const total = Number(counts.total)
+    // SUM returns null for an empty connection, and Number(null) is 0.
     const publishedTotal = Number(counts.publishedTotal)
-    const receivedTotal = Number(counts.receivedTotal)
+    const receivedTotal = total - publishedTotal
 
     let query = this.messageRepository
       .createQueryBuilder('msg')

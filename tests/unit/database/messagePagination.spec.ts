@@ -10,7 +10,7 @@ const history = new EntitySchema<MessageEntity>({
   name: 'PaginationHistory',
   columns: {
     id: { type: String, primary: true },
-    connectionId: { name: 'connection_id', type: String },
+    connectionId: { type: String },
     topic: { type: String },
     payload: { type: String },
     createAt: { type: String },
@@ -105,15 +105,17 @@ describe('MessageService history pagination (SQLite)', () => {
         positions: [1],
       },
     ]
-    for (const { options, positions } of filterCases) {
-      queries.length = 0
-      const result = await service.get('connection', options)
+    // Totals and the single count query do not depend on the page filters, so check them once.
+    queries.length = 0
+    const totals = await service.get('connection')
+    expect(totals.total).to.equal(4)
+    expect(totals.publishedTotal).to.equal(1)
+    expect(totals.receivedTotal).to.equal(3)
+    expect(queries.filter((query) => /COUNT\(/i.test(query))).to.have.lengthOf(1)
 
-      expect(result.total).to.equal(4)
-      expect(result.publishedTotal).to.equal(1)
-      expect(result.receivedTotal).to.equal(3)
+    for (const { options, positions } of filterCases) {
+      const result = await service.get('connection', options)
       expect(messageIds(result.list)).to.deep.equal(ids(positions))
-      expect(queries.filter((query) => /COUNT\(/i.test(query))).to.have.lengthOf(1)
     }
   })
 
