@@ -1,0 +1,277 @@
+[
+  {
+    "name": "JSON",
+    "format": "JSON",
+    "extension": "json",
+    "content": "{\"id\":\"connection\",\"name\":\"001.00\",\"clientId\":\"0001\",\"host\":\"localhost\",\"port\":1883,\"ssl\":false,\"messages\":[{\"topic\":\"test/topic\",\"payload\":\"1.00\",\"qos\":1,\"retain\":false}],\"subscriptions\":[],\"properties\":{\"sessionExpiryInterval\":60},\"will\":null}",
+    "expected": {
+      "fileContent": [
+        {
+          "id": "connection",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false,
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {
+            "sessionExpiryInterval": 60
+          },
+          "will": null
+        }
+      ],
+      "fileName": "backup.json",
+      "selected": true,
+      "errors": [],
+      "dateCells": [false]
+    }
+  },
+  {
+    "name": "YAML",
+    "format": "YAML",
+    "extension": "yaml",
+    "content": "- id: connection\n  name: '001.00'\n  clientId: '0001'\n  host: localhost\n  port: 1883\n  ssl: false\n  messages:\n    - topic: test/topic\n      payload: '1.00'\n      qos: 1\n      retain: false\n  subscriptions: []\n  properties:\n    sessionExpiryInterval: 60\n  will: null\n",
+    "expected": {
+      "fileContent": [
+        {
+          "id": "connection",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false,
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {
+            "sessionExpiryInterval": 60
+          },
+          "will": null
+        }
+      ],
+      "fileName": "backup.yaml",
+      "selected": true,
+      "errors": [],
+      "dateCells": [false]
+    }
+  },
+  {
+    "name": "XML",
+    "format": "XML",
+    "extension": "xml",
+    "content": "<?xml version=\"1.0\"?><root ignored=\"yes\"><!--ignored--><?ignore me?><oneConnection><id>connection</id><name>001.00</name><clientId>0001</clientId><host>localhost</host><port>1883</port><ssl>false</ssl><messages><topic>test/topic</topic><payload>1.00</payload><qos>1</qos><retain>false</retain></messages><subscriptions>EMPTY_ARRAY</subscriptions><properties>EMPTY_OBJECT</properties><will>TYPE_NULL</will></oneConnection><oneConnection><id>second</id><name>Second</name><clientId>0002</clientId><host>localhost</host><port>1884</port><ssl>false</ssl><messages>EMPTY_ARRAY</messages><subscriptions>EMPTY_ARRAY</subscriptions></oneConnection></root>",
+    "expected": {
+      "fileContent": [
+        {
+          "id": "connection",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false,
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {},
+          "will": null
+        },
+        {
+          "id": "second",
+          "name": "Second",
+          "clientId": "0002",
+          "host": "localhost",
+          "port": 1884,
+          "ssl": false,
+          "messages": [],
+          "subscriptions": []
+        }
+      ],
+      "fileName": "backup.xml",
+      "selected": true,
+      "errors": [],
+      "dateCells": [false, false]
+    }
+  },
+  {
+    "name": "CSV",
+    "format": "CSV",
+    "extension": "csv",
+    "content": "\"id\",\"name\",\"clientId\",\"host\",\"port\",\"ssl\",\"messages\",\"subscriptions\",\"properties\",\"will\"\n\"connection\",\"001.00\",\"0001\",\"localhost\",1883,false,\"[{\"\"topic\"\":\"\"test/topic\"\",\"\"payload\"\":\"\"1.00\"\",\"\"qos\"\":1,\"\"retain\"\":false}]\",\"EMPTY_ARRAY\",\"{\"\"sessionExpiryInterval\"\":60}\",\"null\"",
+    "expected": {
+      "fileContent": [
+        {
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {
+            "sessionExpiryInterval": 60
+          },
+          "will": null,
+          "id": "connection",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false
+        }
+      ],
+      "fileName": "backup.csv",
+      "selected": true,
+      "errors": [],
+      "dateCells": [false]
+    }
+  },
+  {
+    "name": "Excel",
+    "format": "Excel",
+    "extension": "xlsx",
+    "expected": {
+      "fileContent": [
+        {
+          "id": "connection",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false,
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {
+            "sessionExpiryInterval": 60
+          },
+          "will": null,
+          "createAt": "2024-01-02T03:04:05.000Z"
+        },
+        {
+          "id": "second",
+          "name": "001.00",
+          "clientId": "0001",
+          "host": "localhost",
+          "port": 1883,
+          "ssl": false,
+          "messages": [
+            {
+              "topic": "test/topic",
+              "payload": "1.00",
+              "qos": 1,
+              "retain": false
+            }
+          ],
+          "subscriptions": [],
+          "properties": {
+            "sessionExpiryInterval": 60
+          },
+          "will": null,
+          "createAt": "2024-01-02T03:04:05.000Z"
+        }
+      ],
+      "fileName": "backup.xlsx",
+      "selected": true,
+      "errors": [],
+      "dateCells": [true, true]
+    }
+  },
+  {
+    "name": "corrupt JSON",
+    "format": "JSON",
+    "extension": "json",
+    "content": "{",
+    "expected": {
+      "fileContent": [],
+      "fileName": "",
+      "selected": false,
+      "errors": ["SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)"],
+      "dateCells": []
+    }
+  },
+  {
+    "name": "corrupt YAML",
+    "format": "YAML",
+    "extension": "yaml",
+    "content": "[unterminated",
+    "expected": {
+      "fileContent": [],
+      "fileName": "",
+      "selected": false,
+      "errors": [
+        "YAMLException: unexpected end of the stream within a flow collection (2:1)\n\n 1 | [unterminated\n 2 | \n-----^"
+      ],
+      "dateCells": []
+    }
+  },
+  {
+    "name": "corrupt XML",
+    "format": "XML",
+    "extension": "xml",
+    "content": "<root><bad></root>",
+    "expected": {
+      "fileContent": [],
+      "fileName": "",
+      "selected": false,
+      "errors": ["Error: Unexpected close tag\nLine: 0\nColumn: 18\nChar: >"],
+      "dateCells": []
+    }
+  },
+  {
+    "name": "corrupt CSV",
+    "format": "CSV",
+    "extension": "csv",
+    "content": "\"id\",\"name\",\"clientId\",\"host\",\"port\",\"ssl\",\"messages\",\"subscriptions\",\"properties\",\"will\"\n\"connection\",\"001.00\",\"0001\",\"localhost\",1883,false,\"{\",\"EMPTY_ARRAY\",\"{\"\"sessionExpiryInterval\"\":60}\",\"null\"",
+    "expected": {
+      "fileContent": [],
+      "fileName": "",
+      "selected": false,
+      "errors": [
+        "SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+        "connections.fileContentRequired"
+      ],
+      "dateCells": []
+    }
+  },
+  {
+    "name": "corrupt Excel",
+    "format": "Excel",
+    "extension": "xlsx",
+    "content": "PK\u0003\u0004corrupt",
+    "expected": {
+      "fileContent": [],
+      "fileName": "",
+      "selected": false,
+      "errors": ["connections.readFileErrCorrupted zip : can't find end of central directory"],
+      "dateCells": []
+    }
+  }
+]
