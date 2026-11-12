@@ -31,6 +31,10 @@ const getters = {
   decompressGzip: (state: State) => state.app.decompressGzip,
   maxPayloadDisplaySize: (state: State) => state.app.maxPayloadDisplaySize,
   enableHardwareAcceleration: (state: State) => state.app.enableHardwareAcceleration,
+  batchPublishEnabled: (state: State): boolean => state.app.batchPublishEnabled,
+  batchStorageMode: (state: State): App['batchStorageMode'] => state.app.batchStorageMode,
+  batchMaxItems: (state: State): number => state.app.batchMaxItems,
+  batchMaxBytes: (state: State): number => state.app.batchMaxBytes,
 }
 
 export default getters
