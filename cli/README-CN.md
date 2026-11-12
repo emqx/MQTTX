@@ -341,6 +341,8 @@ mqttx pub --help
 
 从 v1.14.0 起，Batch 可将同一逻辑主题下的多条有序消息打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1，以及 QoS 0/1。
 
+> **注意：** Batch 消息需要 MQTT Broker 支持。使用前，请确认 Broker 和订阅端都支持 Batch 消息。
+
 #### 发布与订阅
 
 在一个终端启动订阅：

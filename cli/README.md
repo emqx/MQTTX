@@ -102,6 +102,8 @@ For additional information on usage and advanced features, please consult our [G
 
 From v1.14.0, batch mode packs ordered items into one MQTT PUBLISH on the same logical topic. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1.
 
+> **Note:** Batch messages require MQTT broker support. Before using them, make sure your broker and subscribers support batch messages.
+
 ### Publish and subscribe
 
 Start the subscriber in one terminal:
