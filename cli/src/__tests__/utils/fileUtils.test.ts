@@ -4,7 +4,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { Commander } from '../../index'
-import { appendFile } from '../../utils/fileUtils'
+import { appendFile, fileDataSplitter, splitBatchFile } from '../../utils/fileUtils'
 
 describe('appendFile', () => {
   let directory: string
@@ -77,5 +77,48 @@ describe('appendFile', () => {
     appendFile(filePath, Buffer.from([0xff, 0x80]), subscribe.opts().delimiter)
 
     expect(fs.readFileSync(filePath)).toEqual(Buffer.from([0xff, 0x80, 0x74, 0x72, 0x75, 0x65]))
+  })
+
+  it.each(['', '\n', '\r\n', '|', '结束', '\ud800', '\udc00'])('appends item bytes with delimiter %j', (delimiter) => {
+    const items = [Buffer.from([0x00, 0xff, 0x80]), '', Buffer.alloc(0), '你好', '\ud800', '\udc00']
+    const reference = path.join(directory, 'reference.bin')
+    items.forEach((item) => appendFile(reference, item, delimiter))
+
+    appendFile(filePath, items, delimiter)
+
+    expect(fs.readFileSync(filePath)).toEqual(fs.readFileSync(reference))
+  })
+
+  it('does not create a file for an empty item list', () => {
+    appendFile(filePath, [])
+
+    expect(fs.existsSync(filePath)).toBe(false)
+  })
+})
+
+describe('batch file splitting', () => {
+  it.each([
+    ['', []],
+    ['a\r\n\r\nb\r\n', ['a', '', 'b']],
+    ['\n', ['']],
+    ['\n\n', ['', '']],
+    [' a \n b', [' a ', ' b']],
+    ['a\n\n', ['a', '']],
+    ['a\rb\r', ['a\rb\r']],
+    ['a\r\r\nb\n', ['a\r', 'b']],
+  ] as [string, string[]][])('splits newline input %j', (data, expected) =>
+    expect(splitBatchFile(data, true)).toEqual(expected),
+  )
+
+  it.each(['\n', '\\n'])('splits on newline separator %j', (separator) => {
+    expect(splitBatchFile('a\r\n\r\nb\r\n', separator)).toEqual(['a', '', 'b'])
+  })
+
+  it('splits on custom separators', () => {
+    expect(splitBatchFile('one::two::::', '::')).toEqual(['one', 'two', ''])
+  })
+
+  it('keeps the ordinary file splitter trailing item', () => {
+    expect(fileDataSplitter('one\n', true)).toEqual(['one', ''])
   })
 })
