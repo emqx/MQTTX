@@ -18,23 +18,43 @@
       <p class="right-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch × {{ batch.count }}</el-tag>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
-      <pre v-if="!searchParams.payload">{{ highlightedPayload }}</pre>
+      <BatchItems
+        v-if="batch"
+        :items="batchItems"
+        :count="batch.count"
+        direction="right"
+        @view-all="showFullMsg = true"
+      />
+      <pre v-else-if="!searchParams.payload">{{ highlightedPayload }}</pre>
       <pre v-else v-html="highlightedPayload"></pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
+    <FullMsgDialog
+      v-if="showFullMsg"
+      :visible.sync="showFullMsg"
+      :batch-items="batchItems"
+      :export-text="payload"
+      export-format="txt"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import MqttProperties from './MqttProperties.vue'
+import BatchItems from './BatchItems.vue'
+import FullMsgDialog from './FullMsgDialog.vue'
+import { getPublishedBatchItems, StoredBatchItem } from '@/utils/batchPayload'
 import { highlightSearchTerm, escapeHtml } from '@/utils/highlightSearch'
 
 @Component({
   components: {
     MqttProperties,
+    BatchItems,
+    FullMsgDialog,
   },
 })
 export default class MsgRightItem extends Vue {
@@ -47,6 +67,12 @@ export default class MsgRightItem extends Vue {
   @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) public searchParams!: {
     topic: string
     payload: string
+  }
+
+  private showFullMsg = false
+
+  get batchItems(): StoredBatchItem[] {
+    return getPublishedBatchItems(this.payload, this.batch.payloadType || 'Plaintext')
   }
 
   get highlightedTopic(): string {
@@ -65,6 +91,14 @@ export default class MsgRightItem extends Vue {
 
   public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
+  }
+
+  get parsedMeta() {
+    return this.meta ? JSON.parse(this.meta) : undefined
+  }
+
+  get batch() {
+    return this.meta ? this.parsedMeta.batch : undefined
   }
 
   get functionName() {
@@ -96,12 +130,7 @@ export default class MsgRightItem extends Vue {
     left: 0px;
     animation: rightMsg 0.3s ease-in-out;
   }
-  .input-prop {
-    textarea {
-      color: var(--color-text-active) !important;
-      border: 1px solid var(--color-border-right_metainfo) !important;
-    }
-  }
+
   .search-highlight {
     background-color: #ffeb3b !important;
     color: #000 !important;

@@ -1,3 +1,6 @@
+import { Container } from 'typedi'
+import { hasMessageHeaderID } from '@/utils/historyRecordUtils'
+import { batchPublishing1794317483954 } from '@/database/migration/1794317483954-batchPublishing'
 import { expect } from 'chai'
 import fs from 'fs'
 import os from 'os'
@@ -65,6 +68,44 @@ describe('Per-connection publish area and history', () => {
     await headerService.create({ connectionId: id, topic: name, qos: 0, retain: false })
     return id!
   }
+
+  it('deduplicates ordinary and batch headers separately within the current connection', async () => {
+    const connectionId = await createConnectionWithHistory('batch history')
+    const header = { topic: 'demo', qos: 1 as const, retain: false, connectionId }
+    const ordinary = await headerService.create({ ...header })
+    const batch = await headerService.create({ ...header, batch: true })
+    const persisted = (await headerService.getAll(connectionId))!.find(({ id }) => id === ordinary!.id)!
+    const candidate = persisted
+    const originalGet = Container.get
+    ;(Container as any).get = (type: unknown) => (type === HistoryMessageHeaderService ? headerService : {})
+    try {
+      expect(await hasMessageHeaderID({ ...candidate, batch: false })).to.equal(ordinary!.id)
+      expect(await hasMessageHeaderID({ ...candidate, batch: true })).to.equal(batch!.id)
+      expect(await hasMessageHeaderID({ ...candidate, connectionId: 'other', batch: true })).to.equal(null)
+    } finally {
+      Container.get = originalGet
+    }
+  })
+
+  it('migrates batch history up and down without removing existing headers', async () => {
+    const connectionId = await createConnectionWithHistory('batch migration')
+    const [header] = (await headerService.getAll(connectionId))!
+    const runner = database.createQueryRunner()
+    const migration = new batchPublishing1794317483954()
+    try {
+      await migration.down(runner)
+      await migration.up(runner)
+      expect(await headerService.getAll(connectionId)).to.deep.equal([{ ...header, batch: false }])
+      await database.getRepository(HistoryMessageHeaderEntity).update(header.id!, { batch: true })
+      await migration.down(runner)
+      const [stored] = await database.query('SELECT id, topic, qos, retain FROM historyMessageHeaderEntity')
+      expect(stored).to.deep.equal({ id: header.id, topic: header.topic, qos: String(header.qos), retain: 0 })
+      const columns = await runner.getTable('historyMessageHeaderEntity')
+      expect(columns!.findColumnByName('batch')).to.equal(undefined)
+    } finally {
+      await runner.release()
+    }
+  })
 
   it('stores the Last Will topic, payload, and payload type in connection history', async () => {
     const record = getDefaultRecord()

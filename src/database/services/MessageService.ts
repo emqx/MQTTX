@@ -1,11 +1,9 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
-import { Repository } from 'typeorm'
+import { EntityManager, Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
-
-const MESSAGE_INSERT_CHUNK_SIZE = 58 // 17 inserted columns × 58 rows = 986, below SQLite's 999-parameter limit.
 
 @Service()
 export default class MessageService {
@@ -222,38 +220,32 @@ export default class MessageService {
     return { list, moreMsg }
   }
 
-  public async pushMsgsToConnection(message: MessageModel | MessageModel[], connectionId: string): Promise<void> {
+  public async pushMsgsToConnection(
+    message: MessageModel | MessageModel[],
+    connectionId: string,
+  ): Promise<MessageModel | MessageModel[] | undefined> {
     const messages = Array.isArray(message) ? message : [message]
     const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
-    if (entities.length === 0) return
-
-    const queryRunner = this.messageRepository.manager.connection.createQueryRunner()
-    let isTransactionStartedByUs = false
-    try {
-      if (!queryRunner.isTransactionActive) {
-        isTransactionStartedByUs = true
-        await queryRunner.startTransaction()
+    if (!entities.length) return entities
+    const { metadata, manager, target } = this.messageRepository
+    // Use the portable SQLite limit, counting every column even when a value is inlined.
+    const chunkSize = Math.max(1, Math.floor(999 / metadata.columns.length))
+    for (const entity of entities) {
+      for (const column of metadata.columns) {
+        if (column.isNullable && column.getEntityValue(entity) === undefined) column.setEntityValue(entity, null)
       }
-      for (let i = 0; i < entities.length; i += MESSAGE_INSERT_CHUNK_SIZE) {
-        await queryRunner.manager
-          .createQueryBuilder()
-          .insert()
-          .into(MessageEntity)
-          .values(entities.slice(i, i + MESSAGE_INSERT_CHUNK_SIZE))
-          .updateEntity(false) // Avoid SELECTs to reload defaults such as qos; callers do not use returned entities.
-          .execute()
-      }
-      if (isTransactionStartedByUs) await queryRunner.commitTransaction()
-    } catch (error) {
-      if (isTransactionStartedByUs) {
-        try {
-          await queryRunner.rollbackTransaction()
-        } catch {
-          // Preserve the original error if rollback fails, matching save().
-        }
-      }
-      throw error
     }
+    const insert = async (transactionManager: EntityManager) => {
+      const repository = transactionManager.getRepository<MessageEntity>(target)
+      for (let offset = 0; offset < entities.length; offset += chunkSize) {
+        await repository.insert(entities.slice(offset, offset + chunkSize))
+      }
+      return entities
+    }
+    // SQLite shares its query runner. Reuse an active transaction.
+    const queryRunner = manager.queryRunner || manager.connection.createQueryRunner()
+    if (queryRunner.isTransactionActive) return insert(queryRunner.manager)
+    return manager.transaction(insert)
   }
 
   /**

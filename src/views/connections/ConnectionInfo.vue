@@ -73,6 +73,10 @@
             }}</el-checkbox>
           </el-form-item>
         </el-col>
+        <el-col v-if="isClientConnected" :span="24" class="batch-negotiation">
+          {{ $t('connections.batchNegotiationLabel') }}: {{ $t(`connections.${batchNegotiation}`) }} ·
+          {{ $t('connections.brokerMaximumPacketSize') }}: {{ maximumPacketSizeLabel }}
+        </el-col>
         <el-col :span="24">
           <el-button
             v-if="!isClientConnected"
@@ -117,6 +121,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getClientId } from '@/utils/idGenerator'
 import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
+import { formatBytes } from '@/utils/formatter'
 import useServices from '@/database/useServices'
 
 @Component
@@ -125,6 +130,9 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public btnLoading!: boolean
   @Prop({ required: true }) public client!: Pick<MqttClient, 'connected'>
   @Prop({ required: true }) public titleName!: string
+
+  @Prop() public batchNegotiation?: string
+  @Prop() public maximumPacketSize?: number
 
   @Getter('currentTheme') private theme!: Theme
 
@@ -138,6 +146,11 @@ export default class ConnectionInfo extends Vue {
   // Return the status of client connection
   get isClientConnected() {
     return this.client.connected
+  }
+
+  get maximumPacketSizeLabel(): string {
+    if (this.maximumPacketSize === undefined) return String(this.$t('connections.batchNotDeclared'))
+    return formatBytes(this.maximumPacketSize)
   }
 
   get rules() {
@@ -297,6 +310,10 @@ export default class ConnectionInfo extends Vue {
     .el-form-item.is-success .el-textarea__inner:focus {
       border: 1px solid var(--color-border-default);
     }
+  }
+  .batch-negotiation {
+    color: var(--color-text-tips);
+    font-size: 12px;
   }
 }
 </style>

@@ -11,6 +11,9 @@ export default class HistoryMessageHeaderEntity {
   @Column({ type: 'boolean' })
   retain!: boolean
 
+  @Column({ type: 'boolean', default: false })
+  batch!: boolean
+
   @Column({ type: 'varchar' })
   topic!: string
 
