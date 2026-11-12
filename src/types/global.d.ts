@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
 import type { AIModel } from '@/utils/ai/models'
+import type { BatchStorageMode } from '@/utils/data'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
 
 declare global {
@@ -83,6 +84,9 @@ declare global {
     [id: string]: {
       client: MqttClient
       subscriptions?: SubscriptionModel[]
+      batchRequested?: boolean
+      batchSelected?: boolean
+      maximumPacketSize?: number
       responseInformation?: string
     }
   }
@@ -122,6 +126,10 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     decompressGzip: boolean
+    batchPublishEnabled: boolean
+    batchStorageMode: BatchStorageMode
+    batchMaxItems: number
+    batchMaxBytes: number
     maxPayloadDisplaySize: number
     enableHardwareAcceleration: boolean
   }
@@ -143,6 +151,9 @@ declare global {
   interface Client {
     readonly id: string
     client: Partial<MqttClient>
+    batchRequested?: boolean
+    batchSelected?: boolean
+    maximumPacketSize?: number
     responseInformation?: string
   }
 
@@ -195,6 +206,7 @@ declare global {
     color?: string
     properties?: PushPropertiesModel
     meta?: string
+    batch?: boolean
   }
 
   interface MessagePaginationModel {
@@ -213,6 +225,7 @@ declare global {
     topic: string
     qos: QoS
     createAt?: string
+    batch?: boolean
   }
 
   interface HistoryMessagePayloadModel {
@@ -230,6 +243,7 @@ declare global {
     retain: boolean
     payload: string
     payloadType: PayloadType
+    batch?: boolean
   }
 
   interface SSLPath {

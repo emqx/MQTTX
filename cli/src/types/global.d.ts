@@ -85,12 +85,17 @@ declare global {
   type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions
 
   interface PublishOptions extends ConnectOptions {
+    batch?: boolean
+    batchMaxItems?: number
+    batchMaxBytes?: number
+    batchNegotiate?: boolean
     topic: string
     message: string | Buffer
     qos: QoS
     retain?: boolean
     dup?: boolean
     fileRead?: string
+    split?: boolean | string
     stdin?: boolean
     multiline?: boolean
     lineMode?: boolean
@@ -110,7 +115,14 @@ declare global {
     payloadSize?: string
   }
 
+  interface PublishInputOptions extends Omit<PublishOptions, 'message'> {
+    message: string | Buffer | string[]
+  }
+
   interface SubscribeOptions extends ConnectOptions {
+    batch?: boolean
+    batchMaxItems?: number
+    batchMaxBytes?: number
     topic: string[]
     qos?: QoS[]
     // Start properties of MQTT 5.0
@@ -140,21 +152,38 @@ declare global {
 
   type OmitPublishOptions = Omit<
     PublishOptions,
-    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'format' | 'debug'
+    | 'stdin'
+    | 'multiline'
+    | 'protobufPath'
+    | 'protobufMessageName'
+    | 'format'
+    | 'debug'
+    | 'batchMaxItems'
+    | 'batchMaxBytes'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
+    batchItems?: number
     count: number
     interval: number
     messageInterval: number
+    maxInflight?: number
     limit: number
     verbose: boolean
-    split?: boolean | string
   }
 
   type OmitSubscribeOptions = Omit<
     SubscribeOptions,
-    'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName' | 'debug' | 'fileWrite' | 'fileSave' | 'delimiter'
+    | 'format'
+    | 'outputMode'
+    | 'protobufPath'
+    | 'protobufMessageName'
+    | 'debug'
+    | 'fileWrite'
+    | 'fileSave'
+    | 'delimiter'
+    | 'batchMaxItems'
+    | 'batchMaxBytes'
   >
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {

@@ -8,6 +8,8 @@ import { generate, IPublishPacket, parser } from 'mqtt-packet'
 jest.setTimeout(20000)
 
 const mqtt5 = { protocolVersion: 5 }
+// listen(0) only hands out ephemeral ports, so no parallel test broker can take this one.
+const REFUSED_PORT = 1
 
 describe('publish exit status', () => {
   const sockets = new Set<Socket>()
@@ -128,9 +130,7 @@ describe('publish exit status', () => {
   it.each(['message', 'file', 'stdin', 'multiline', 'interactive'])(
     'exits with failure when the connection is refused in %s mode',
     async (mode) => {
-      const port = await listen()
-      await new Promise<void>((resolve) => server!.close(() => resolve()))
-      const result = await run(port, mode)
+      const result = await run(REFUSED_PORT, mode)
       expect(result.output).toContain('ECONNREFUSED')
       expect(result.code).toBe(1)
       expect(result.signal).toBeNull()
@@ -150,9 +150,7 @@ describe('publish exit status', () => {
   )
 
   it.each(['multiline', 'interactive'])('does not wait for open %s stdin after connection failure', async (mode) => {
-    const port = await listen()
-    await new Promise<void>((resolve) => server!.close(() => resolve()))
-    const result = await run(port, mode, [], { keepInputOpen: true })
+    const result = await run(REFUSED_PORT, mode, [], { keepInputOpen: true })
     expect(result.output).toContain('ECONNREFUSED')
     expect(result.code).toBe(1)
     expect(result.signal).toBeNull()

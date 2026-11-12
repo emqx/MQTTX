@@ -1,17 +1,19 @@
 import delay from '../../utils/delay'
-import { expect, describe, it } from '@jest/globals'
+import { afterEach, expect, describe, it, jest } from '@jest/globals'
 
 describe('delay function', () => {
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
   it('should delay execution for the specified time', async () => {
-    const startTime = Date.now()
-    const delayTime = 1000 // 1 second
+    jest.useFakeTimers()
+    const resolved = jest.fn()
+    delay(1000).then(resolved)
 
-    await delay(delayTime)
-
-    const endTime = Date.now()
-    const elapsedTime = endTime - startTime
-
-    expect(elapsedTime).toBeGreaterThanOrEqual(delayTime)
-    expect(elapsedTime).toBeLessThan(delayTime + 50)
+    await jest.advanceTimersByTimeAsync(999)
+    expect(resolved).not.toHaveBeenCalled()
+    await jest.advanceTimersByTimeAsync(1)
+    expect(resolved).toHaveBeenCalledTimes(1)
   })
 })

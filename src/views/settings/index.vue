@@ -344,6 +344,106 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.batchPublishEnabled') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.batchPublishEnabledDesc')"
+          >
+            <a href="javascript:;" class="icon-oper"><i class="el-icon-warning-outline"></i></a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="batchPublishEnabled"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleBatchPublishEnabledChange"
+          />
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.batchStorageMode') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.batchStorageModeDesc', { items: batchSummaryItems, bytes: batchSummaryBytes })"
+          >
+            <a href="javascript:;" class="icon-oper"><i class="el-icon-warning-outline"></i></a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4"
+          ><el-select
+            class="settings-options"
+            size="mini"
+            :value="batchStorageMode"
+            @change="handleBatchStorageModeChange"
+            ><el-option value="full" :label="$t('settings.batchFull')" /><el-option
+              value="summary"
+              :label="$t('settings.batchSummaryOnly')" /></el-select
+        ></el-col>
+      </el-row>
+      <el-divider></el-divider>
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.batchMaxItems') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.batchMaxItemsDesc', { min: minBatchMaxItems, max: maxBatchMaxItems })"
+          >
+            <a href="javascript:;" class="icon-oper"><i class="el-icon-warning-outline"></i></a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4"
+          ><el-input-number
+            size="mini"
+            :value="batchMaxItems"
+            :min="minBatchMaxItems"
+            :max="maxBatchMaxItems"
+            @change="handleBatchLimitChange($event, 'items')"
+            @change.native.capture="handleBatchLimitInput($event, 'items')"
+        /></el-col>
+      </el-row>
+      <el-divider></el-divider>
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.batchMaxBytes') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="
+              $t('settings.batchMaxBytesDesc', {
+                min: minBatchMaxBytes,
+                max: maxBatchMaxBytes,
+                default: defaultBatchMaxBytes,
+              })
+            "
+          >
+            <a href="javascript:;" class="icon-oper"><i class="el-icon-warning-outline"></i></a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4"
+          ><el-input-number
+            size="mini"
+            :value="batchMaxBytes"
+            :min="minBatchMaxBytes"
+            :max="maxBatchMaxBytes"
+            @change="handleBatchLimitChange($event, 'bytes')"
+            @change.native.capture="handleBatchLimitInput($event, 'bytes')"
+        /></el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
           <label>{{ $t('settings.topicWhitespaceDetection') }}</label>
@@ -596,12 +696,17 @@ import type { PermissionMode } from '@/utils/ai/agent/approval'
 import { isAutoConfirmedInSession, rememberAutoConfirmed } from '@/utils/ai/agent/permissionMode'
 import {
   MAX_AGENT_MAX_STEPS,
+  MIN_BATCH_MAX_ITEMS, MAX_BATCH_MAX_ITEMS, MIN_BATCH_MAX_BYTES, MAX_BATCH_MAX_BYTES, DEFAULT_BATCH_MAX_BYTES,
+  normalizeBatchMaxItems, normalizeBatchMaxBytes,
+
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
   MIN_AGENT_MAX_STEPS,
   MIN_MAX_PAYLOAD_DISPLAY_SIZE,
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
+import { BATCH_SUMMARY_ITEMS, BATCH_SUMMARY_BYTES } from '@/utils/batchPayload'
 import { formatBytes } from '@/utils/formatter'
+
 import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settingsEffects'
 import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
@@ -647,6 +752,11 @@ export default class Settings extends Vue {
   @Action('SET_AGENT_MAX_STEPS') private actionSetAgentMaxSteps!: (payload: { agentMaxSteps: number }) => void
   @Action('SET_AGENT_REASONING') private actionSetAgentReasoning!: (payload: { agentReasoning: AgentReasoning }) => void
 
+  @Action('SET_BATCH_PUBLISH_ENABLED') private actionBatchPublishEnabled!: (payload: { batchPublishEnabled: boolean }) => void
+  @Action('SET_BATCH_STORAGE_MODE') private actionBatchStorageMode!: (payload: { batchStorageMode: App['batchStorageMode'] }) => void
+  @Action('SET_BATCH_MAX_ITEMS') private actionBatchMaxItems!: (payload: { batchMaxItems: number }) => void
+  @Action('SET_BATCH_MAX_BYTES') private actionBatchMaxBytes!: (payload: { batchMaxBytes: number }) => void
+
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
@@ -668,6 +778,10 @@ export default class Settings extends Vue {
   @Getter('decompressGzip') private decompressGzip!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
   @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
+  @Getter('batchPublishEnabled') private batchPublishEnabled!: boolean
+  @Getter('batchStorageMode') private batchStorageMode!: App['batchStorageMode']
+  @Getter('batchMaxItems') private batchMaxItems!: number
+  @Getter('batchMaxBytes') private batchMaxBytes!: number
 
   private showAIModelsSelect = false
   private modelInputFocused = false
@@ -712,6 +826,13 @@ export default class Settings extends Vue {
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
+  private minBatchMaxItems = MIN_BATCH_MAX_ITEMS
+  private maxBatchMaxItems = MAX_BATCH_MAX_ITEMS
+  private minBatchMaxBytes = MIN_BATCH_MAX_BYTES
+  private maxBatchMaxBytes = MAX_BATCH_MAX_BYTES
+  private defaultBatchMaxBytes = DEFAULT_BATCH_MAX_BYTES
+  private batchSummaryItems = BATCH_SUMMARY_ITEMS
+  private batchSummaryBytes = BATCH_SUMMARY_BYTES
   private minAgentMaxSteps = MIN_AGENT_MAX_STEPS
   private maxAgentMaxSteps = MAX_AGENT_MAX_STEPS
   private minPayloadDisplaySize = MIN_MAX_PAYLOAD_DISPLAY_SIZE
@@ -840,6 +961,51 @@ export default class Settings extends Vue {
 
   private handleMaxStepsChange(value: number) {
     this.actionSetAgentMaxSteps({ agentMaxSteps: value })
+  }
+
+  private handleBatchPublishEnabledChange(value: boolean) {
+    this.actionBatchPublishEnabled({ batchPublishEnabled: value })
+  }
+
+  private async handleBatchStorageModeChange(value: App['batchStorageMode']) {
+    if (value === 'summary' && this.batchStorageMode !== 'summary') {
+      try {
+        await this.$confirm(
+          this.$t('settings.batchSummaryConfirm', { items: BATCH_SUMMARY_ITEMS, bytes: BATCH_SUMMARY_BYTES }) as string,
+          this.$tc('common.warning'),
+          { type: 'warning' },
+        )
+      } catch {
+        return
+      }
+    }
+    this.actionBatchStorageMode({ batchStorageMode: value })
+  }
+
+  private handleBatchLimitInput(event: Event, kind: 'items' | 'bytes') {
+    const input = event.target as HTMLInputElement
+    if (!input.value.trim()) return
+    const value = Number(input.value)
+    const min = kind === 'items' ? MIN_BATCH_MAX_ITEMS : MIN_BATCH_MAX_BYTES
+    const max = kind === 'items' ? MAX_BATCH_MAX_ITEMS : MAX_BATCH_MAX_BYTES
+    if (Number.isNaN(value)) {
+      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
+    } else if (value < min || value > max) {
+      this.$message.warning(this.$t('settings.batchLimitAdjusted', { value: Math.min(max, Math.max(min, value)) }) as string)
+    }
+  }
+
+  private handleBatchLimitChange(value: number, kind: 'items' | 'bytes') {
+    const normalize = kind === 'items' ? normalizeBatchMaxItems : normalizeBatchMaxBytes
+    if (normalize(value) !== value) {
+      this.$message.warning(this.$t('settings.batchSettingInvalid') as string)
+      return
+    }
+    if (kind === 'items') {
+      this.actionBatchMaxItems({ batchMaxItems: value })
+    } else {
+      this.actionBatchMaxBytes({ batchMaxBytes: value })
+    }
   }
 
   private levelLabel(level: AgentReasoning): string {

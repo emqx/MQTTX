@@ -109,12 +109,26 @@ import MyDialog from '@/components/MyDialog.vue'
 import MessageHeaderMeta from '@/widgets/MessageHeaderMeta.vue'
 import MessageViewerHeader from '@/widgets/MessageViewerHeader.vue'
 import { JsonTreeConverter } from '@/utils/jsonTreeConverter'
-import { highlightInPrismCode } from '@/utils/highlightSearch'
+import { highlightInPrismCode, escapeHtml } from '@/utils/highlightSearch'
 import { jsonParse, toPlainObject } from '@/utils/jsonUtils'
+
+// Escape string leaves before vue-json-tree-view renders them with v-html.
+const SafeTreeView = Vue.extend({
+  extends: TreeView,
+  methods: {
+    transformValue(valueToTransform: unknown, keyForValue: string | number) {
+      return {
+        key: keyForValue,
+        type: 'value',
+        value: typeof valueToTransform === 'string' ? escapeHtml(valueToTransform) : valueToTransform,
+      }
+    },
+  },
+})
 
 @Component({
   components: {
-    TreeView,
+    TreeView: SafeTreeView,
     TreeVisual,
     MyDialog,
     MessageHeaderMeta,
@@ -172,12 +186,14 @@ export default class JsonViewer extends Vue {
     }
   }
 
-  customTooltipFormatter = (params: any) => {
+  private customTooltipFormatter(params: any): string {
     const data = params.data
 
     const lines: string[] = []
-    lines.push(`<div style="font-weight: bold; color: #2563eb; margin-bottom: 4px;">${data.id}</div>`)
-    lines.push(`<div style="color: #6b7280; font-size: 11px;">Type: ${data.vtype}</div>`)
+    lines.push(
+      `<div style="font-weight: bold; color: #2563eb; margin-bottom: 4px;">${escapeHtml(String(data.id))}</div>`,
+    )
+    lines.push(`<div style="color: #6b7280; font-size: 11px;">Type: ${escapeHtml(String(data.vtype))}</div>`)
     const childCount = data.children ? data.children.length : 0
     lines.push(`<div style="color: #059669; margin-top: 2px;">Children: ${childCount}</div>`)
 

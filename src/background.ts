@@ -280,6 +280,7 @@ async function createWindow() {
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
+      backgroundThrottling: false,
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
