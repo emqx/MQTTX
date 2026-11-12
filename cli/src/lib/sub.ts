@@ -235,7 +235,7 @@ const sub = (options: SubscribeOptions) => {
         ? items.map((item) => processReceivedMessage(item, schemaOptions, format))
         : items
     const message = !batch && !format && Buffer.isBuffer(messages[0]) ? messages[0].toString('utf8') : messages[0]
-    // Without a display format, batch output preserves original bytes even with a schema.
+    // Without a format, show raw batch bytes even after schema decoding.
     const batchItems = batch && (format ? messages : items).map(cleanBatchItem)
     const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
     if (savePath) {

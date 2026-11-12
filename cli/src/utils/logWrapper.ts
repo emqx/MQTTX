@@ -49,7 +49,7 @@ const msgLog = (msg: MsgItem[]) => {
   signale.log(isLogFormat ? outputString : `${outputString}\n`)
 }
 
-// Keep control characters visible without changing quotes or literal backslashes.
+// Escape control characters but leave quotes and backslashes alone.
 const escapeControlCharacter = (character: string): string => {
   if (character === '\n') return '\\n'
   if (character === '\r') return '\\r'

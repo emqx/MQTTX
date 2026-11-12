@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { encodeBatchPayload } from '../../utils/batchPublishing'
-import { createBatchBroker } from '../../../tests/helpers/batchBroker'
+import { createBatchBroker } from '../helpers/batchBroker'
 
 jest.setTimeout(60000)
 
@@ -29,7 +29,7 @@ describe('batch sub', () => {
     return { port, messages }
   }
 
-  it('preserves quotes and backslashes while displaying controls on one line', async () => {
+  it('keeps quotes and backslashes while escaping controls on one line', async () => {
     const { port } = await quoteBroker()
     const subscriber = launch(port, ['sub', '-b', '-t', 'demo'])
     await subscriber.until('[4]')
@@ -42,7 +42,7 @@ describe('batch sub', () => {
     ])
   })
 
-  it('preserves item content in clean JSON', async () => {
+  it('keeps item text in clean JSON', async () => {
     const { port, messages } = await quoteBroker()
     const clean = launch(port, 'sub -b -t demo --output-mode clean'.split(' '))
     await clean.until('"batch":')
@@ -69,7 +69,7 @@ describe('batch sub', () => {
     return { port, payload, acknowledgements: () => acknowledgements }
   }
 
-  it('prints batch facts once and omits the human header for a rejected batch', async () => {
+  it('prints batch details once and skips headers for rejected batches', async () => {
     const { port } = await sequenceBroker()
     const subscriber = launch(port, 'sub -b -t demo'.split(' '))
     await subscriber.until('after-batch')
@@ -81,7 +81,7 @@ describe('batch sub', () => {
     expect(subscriber.stdout.match(/received_at:/g)).toHaveLength(3)
   })
 
-  it('receives 256 items with the default batch limit', async () => {
+  it('receives 256 items by default', async () => {
     const messages = Array(256).fill(Buffer.from('item'))
     const port = await listen(5, (packet, socket) => {
       if (packet.cmd === 'connect') connack(socket)
@@ -97,7 +97,7 @@ describe('batch sub', () => {
     expect(JSON.parse(subscriber.stdout).batch.items).toEqual(Array(256).fill('item'))
   })
 
-  it('rejects atomically, continues with both carriers, and appends each item', async () => {
+  it('rejects whole batches and keeps reading items on demo and $batch', async () => {
     const { port, acknowledgements } = await sequenceBroker()
     const file = join(broker.directory, 'items.out')
     const sub = launch(port, [
@@ -133,7 +133,7 @@ describe('batch sub', () => {
     expect(acknowledgements()).toBe(4)
   })
 
-  it('saves the raw envelope even when decoding fails', async () => {
+  it('saves raw batch bytes when decoding fails', async () => {
     const { port, payload } = await sequenceBroker()
     const saved = join(broker.directory, 'envelope.bin')
     const saveSub = launch(port, ['sub', '-b', '-t', 'demo', '--file-save', saved])
@@ -145,7 +145,7 @@ describe('batch sub', () => {
     expect(readFileSync(join(broker.directory, 'envelope(2).bin'))).toEqual(payload)
   })
 
-  it('preserves binary item bytes and delimiters when appending both carriers', async () => {
+  it('appends binary items and delimiters from both topic forms', async () => {
     const first = Buffer.from([0xff, 0x80])
     const last = Buffer.from([0x00, 0xc3])
     const { port, acknowledgements } = await sequenceBroker([first, Buffer.alloc(0), last])
@@ -163,7 +163,7 @@ describe('batch sub', () => {
     expect(readFileSync(file)).toEqual(Buffer.concat([envelopeItems, envelopeItems, Buffer.from('after-batch|')]))
   })
 
-  it('keeps ordinary clean output unchanged without -b', async () => {
+  it('omits batch fields from clean output without -b', async () => {
     const { port } = await sequenceBroker()
     const plainSub = launch(port, ['sub', '-t', 'demo', '--output-mode', 'clean'])
     await plainSub.until('after-batch')

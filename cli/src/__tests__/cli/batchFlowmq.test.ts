@@ -1,6 +1,6 @@
 /**
- * Set FLOWMQ_HOST and FLOWMQ_PORT to opt in; otherwise this suite is skipped.
- * Requires FlowMQ with these batch routes (property, negotiation, and topic carriers):
+ * Set FLOWMQ_HOST and FLOWMQ_PORT, or these tests are skipped.
+ * FlowMQ needs these batch routes:
  * [
  *   {"tenant": "plant", "logical_topic": "demo/batch", "carrier": "property",
  *    "packets_per_second": 1000, "bytes_per_second": 1048576, "items_per_second": 10000},
@@ -17,7 +17,7 @@
  * npx jest src/__tests__/cli/batchFlowmq.test.ts
  */
 import { randomBytes } from 'crypto'
-import { createCli, CliProcess } from '../../../tests/helpers/cli'
+import { createCli, CliProcess } from '../helpers/cli'
 
 const environment = { ...process.env }
 const { FLOWMQ_HOST, FLOWMQ_PORT, FLOWMQ_CA, FLOWMQ_CERT, FLOWMQ_KEY, FLOWMQ_USERNAME, FLOWMQ_PASSWORD } = environment
@@ -63,14 +63,14 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     try {
       return JSON.parse(`[${subscriber.stdout.trim().replace(/}\s*{/g, '},{')}]`)
     } catch {
-      // The latest pretty-printed JSON object may still be arriving.
+      // The last JSON record may still be incomplete.
       return []
     }
   }
 
   const subscribe = async (args: string[]) => {
     const subscriber = launch(['sub', '-q', '1', '--output-mode', 'clean', '--debug', ...args])
-    // Clean mode hides connection logs; debug confirms SUBACK without changing stdout.
+    // Debug logs confirm SUBACK while stdout stays JSON.
     await subscriber.until('_handleAck :: packet type suback')
     return subscriber
   }
@@ -85,7 +85,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     return matching().map((message) => message.batch!)
   }
 
-  it('receives four property-carrier items in two packets with --batch-max-items 2', async () => {
+  it('receives four MQTT 5 items in two packets with --batch-max-items 2', async () => {
     const subscriber = await subscribe(['-V', '5', '-b', '-t', 'demo/batch'])
     const messages = Array.from({ length: 4 }, (_, index) => `${token}-${index}`)
     expect((await publish(['--batch-max-items', '2', ...messages.flatMap((message) => ['-m', message])])).code).toBe(0)
@@ -97,7 +97,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     expect(batches.map((batch) => batch.items)).toEqual([messages.slice(0, 2), messages.slice(2)])
   })
 
-  it('decodes MQTT 3.1.1 topic-carrier items and the logical topic', async () => {
+  it('receives MQTT 3.1.1 items on the $batch topic', async () => {
     const subscriber = await subscribe(['-V', '3.1.1', '-b', '-t', '$batch/+/demo/topic'])
     const messages = [`${token}-first`, `${token}-second`]
     expect((await publish(['-V', '3.1.1', '-t', 'demo/topic', '-m', messages[0], '-m', messages[1]])).code).toBe(0)
@@ -109,7 +109,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     )
   })
 
-  it('exposes the raw length-prefixed envelope and user properties without -b', async () => {
+  it('receives length-prefixed bytes and user properties without -b', async () => {
     const subscriber = await subscribe('-V 5 -t demo/batch -f hex'.split(' '))
     const messages = [`${token}-first`, `${token}-second`]
     const hex = messages
@@ -117,7 +117,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
       .join('')
     expect((await publish(['-m', messages[0], '-m', messages[1]])).code).toBe(0)
     const matching = () => records(subscriber).filter((message) => message.payload?.replace(/\s/g, '') === hex)
-    await subscriber.until(() => matching().length > 0, 'raw batch envelope')
+    await subscriber.until(() => matching().length > 0, 'raw batch bytes')
     await cli.stop(subscriber)
     expect(matching()).toHaveLength(1)
     expect(matching()[0].batch).toBeUndefined()
@@ -125,7 +125,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     expect(matching()[0].payload?.replace(/\s/g, '')).toBe(hex)
   })
 
-  it('requires negotiation before publishing on demo/nego', async () => {
+  it('publishes on demo/nego only with --batch-negotiate', async () => {
     const subscriber = await subscribe(['-V', '5', '-b', '-t', 'demo/nego'])
     const declined = `${token}-declined`
     const accepted = `${token}-accepted`
@@ -134,13 +134,13 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     expect(rejected.output).not.toContain('Published 1 item in 1 batch')
     const selected = await publish(['-t', 'demo/nego', '-m', accepted, '--batch-negotiate'])
     expect(selected.code).toBe(0)
-    expect(selected.output).toContain('Batch negotiation selected: v1')
+    expect(selected.output).toContain('Broker accepted batch-publish=v1')
     expect(await receiveBatches(subscriber, 1)).toEqual([
       { carrier: 'property', logicalTopic: 'demo/nego', count: 1, items: [accepted] },
     ])
   })
 
-  it('publishes 500 benchmark items with an explicit 100-item packet size', async () => {
+  it('receives 500 benchmark items in five 100-item packets', async () => {
     const subscriber = await subscribe(['-V', '5', '-b', '-t', 'demo/batch'])
     const result = await launch([
       ...'bench pub -V 5 -q 1 -t demo/batch -b -bi 100 -L 5 -im 100 -c 1 -m'.split(' '),

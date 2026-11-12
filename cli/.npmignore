@@ -7,7 +7,6 @@ tslint.json
 tsconfig.json
 *.log
 /src/
-/tests/
 /release/
 tsconfig.tsbuildinfo
 Dockerfile

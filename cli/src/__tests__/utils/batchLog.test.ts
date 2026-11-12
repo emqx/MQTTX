@@ -13,23 +13,23 @@ describe('batch output', () => {
     jest.restoreAllMocks()
   })
 
-  it('right-aligns indices to the item count and separates text with two spaces', () => {
+  it('right-aligns item labels with two spaces before the text', () => {
     const lines = batchLog.payload(Array.from({ length: 256 }, (_, index) => `item-${index + 1}`)).split('\n')
 
     expect([lines[0], lines[9], lines[255]]).toEqual(['  [1]  item-1', ' [10]  item-10', '[256]  item-256'])
   })
 
-  it('dims the index without dimming the item text', () => {
+  it('dims only the item label', () => {
     chalk.level = 1
 
     expect(batchLog.payload(['text'])).toBe('\u001b[2m[1]\u001b[22m  text')
   })
 
-  it('prints an empty item as an index without trailing spaces', () => {
+  it('prints only the label for an empty item', () => {
     expect(batchLog.payload([''])).toBe('[1]')
   })
 
-  it('keeps the base64 wrapper for binary items', () => {
+  it('shows binary items with a b64 field', () => {
     expect(batchLog.payload([{ b64: '/w==' }])).toBe('[1]  {"b64":"/w=="}')
   })
 
@@ -39,7 +39,7 @@ describe('batch output', () => {
       'BATCH_LIMIT_EXCEEDED',
       'Batch rejected (BATCH_LIMIT_EXCEEDED): demo, 53 B, no items delivered. Check --batch-max-items and --batch-max-bytes.',
     ],
-  ])('reports %s with its context and any limit hint', (code, message) => {
+  ])('reports %s with a hint for batch limits', (code, message) => {
     const fail = jest.spyOn(logWrapper, 'fail').mockImplementation(jest.fn())
 
     batchLog.rejected(code, 'demo', 53)
