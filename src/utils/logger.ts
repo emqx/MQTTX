@@ -53,36 +53,78 @@ export const quitAndRenameLogger = () => {
  * @param filename - the file name
  * @param onDataHandler - data stream handle
  * @param onErrorHandler - data error handle
+ * @returns dispose the watcher and close its file descriptor
  */
 export const watchFileAppender = (
   filename: string,
   onDataHandler: (buffer: Buffer) => void,
   onErrorHandler: (err: NodeJS.ErrnoException) => void,
 ) => {
+  let disposed = false
+  let stopWatching: (() => void) | undefined
   // Open the file for reading and appending
   fs.open(filename, 'r', function (err, fd) {
     if (err) {
-      onErrorHandler(err)
+      if (!disposed) onErrorHandler(err)
       return
     }
-    let buffer: Buffer
+    if (disposed) {
+      fs.close(fd, () => {})
+      return
+    }
+    let pendingReads = 0
+    let closed = false
+    const closeFile = () => {
+      // Let reads finish before closing, so their descriptor cannot be reused underneath them.
+      if (pendingReads === 0 && !closed) {
+        closed = true
+        fs.close(fd, () => {})
+      }
+    }
+    const listener = (curr: fs.Stats, prev: fs.Stats) => {
+      if (disposed) return
+      // Compare the time before and after
+      if (curr.mtime > prev.mtime && curr.size - prev.size > 0) {
+        // Changes in the contents of documents
+        const buffer = Buffer.alloc(curr.size - prev.size)
+        pendingReads++
+        // (curr.size - prev.size) this is the newly added length of the log file
+        handleReadFile(
+          fd,
+          buffer,
+          curr.size - prev.size,
+          prev.size,
+          (buffer) => {
+            pendingReads--
+            if (disposed) closeFile()
+            else onDataHandler(buffer)
+          },
+          (error) => {
+            pendingReads--
+            if (disposed) closeFile()
+            else onErrorHandler(error)
+          },
+        )
+      }
+    }
     fs.watchFile(
       filename,
       {
         persistent: true,
         interval: 100,
       },
-      (curr, prev) => {
-        // Compare the time before and after
-        if (curr.mtime > prev.mtime && curr.size - prev.size > 0) {
-          // Changes in the contents of documents
-          buffer = Buffer.alloc(curr.size - prev.size)
-          // (curr.size - prev.size) this is the newly added length of the log file
-          handleReadFile(fd, buffer, curr.size - prev.size, prev.size, onDataHandler, onErrorHandler)
-        }
-      },
+      listener,
     )
+    stopWatching = () => {
+      fs.unwatchFile(filename, listener)
+      closeFile()
+    }
   })
+  return () => {
+    if (disposed) return
+    disposed = true
+    stopWatching?.()
+  }
 }
 
 /**
