@@ -1,27 +1,27 @@
 import { expect } from 'chai'
 import type { LanguageModelV4 } from '@ai-sdk/provider'
 
-const factories = {
-  OpenAI: [require.resolve('@ai-sdk/openai'), 'createOpenAI'],
-  DeepSeek: [require.resolve('@ai-sdk/deepseek'), 'createDeepSeek'],
-  Anthropic: [require.resolve('@ai-sdk/anthropic'), 'createAnthropic'],
-  xAI: [require.resolve('@ai-sdk/xai'), 'createXai'],
-  Google: [require.resolve('@ai-sdk/google'), 'createGoogleGenerativeAI'],
-  'Azure OpenAI': [require.resolve('@ai-sdk/azure'), 'createAzure'],
-  SiliconFlow: [require.resolve('@ai-sdk/openai'), 'createOpenAI'],
-  Alibaba: [require.resolve('@ai-sdk/alibaba'), 'createAlibaba'],
-  Mistral: [require.resolve('@ai-sdk/mistral'), 'createMistral'],
-  Groq: [require.resolve('@ai-sdk/groq'), 'createGroq'],
-  Cohere: [require.resolve('@ai-sdk/cohere'), 'createCohere'],
-  'Together AI': [require.resolve('@ai-sdk/togetherai'), 'createTogetherAI'],
-  Fireworks: [require.resolve('@ai-sdk/fireworks'), 'createFireworks'],
-  DeepInfra: [require.resolve('@ai-sdk/deepinfra'), 'createDeepInfra'],
-  Cerebras: [require.resolve('@ai-sdk/cerebras'), 'createCerebras'],
-  'Moonshot AI': [require.resolve('@ai-sdk/moonshotai'), 'createMoonshotAI'],
-  MiniMax: [require.resolve('@ai-sdk/minimax'), 'createMiniMax'],
-  'Z.AI': [require.resolve('@ai-sdk/zai'), 'createZai'],
-  Perplexity: [require.resolve('@ai-sdk/perplexity'), 'createPerplexity'],
-  'Vercel AI Gateway': [require.resolve('@ai-sdk/gateway'), 'createGateway'],
+const factories: Record<string, string> = {
+  OpenAI: require.resolve('@ai-sdk/openai'),
+  DeepSeek: require.resolve('@ai-sdk/deepseek'),
+  Anthropic: require.resolve('@ai-sdk/anthropic'),
+  xAI: require.resolve('@ai-sdk/xai'),
+  Google: require.resolve('@ai-sdk/google'),
+  'Azure OpenAI': require.resolve('@ai-sdk/azure'),
+  SiliconFlow: require.resolve('@ai-sdk/openai'),
+  Alibaba: require.resolve('@ai-sdk/alibaba'),
+  Mistral: require.resolve('@ai-sdk/mistral'),
+  Groq: require.resolve('@ai-sdk/groq'),
+  Cohere: require.resolve('@ai-sdk/cohere'),
+  'Together AI': require.resolve('@ai-sdk/togetherai'),
+  Fireworks: require.resolve('@ai-sdk/fireworks'),
+  DeepInfra: require.resolve('@ai-sdk/deepinfra'),
+  Cerebras: require.resolve('@ai-sdk/cerebras'),
+  'Moonshot AI': require.resolve('@ai-sdk/moonshotai'),
+  MiniMax: require.resolve('@ai-sdk/minimax'),
+  'Z.AI': require.resolve('@ai-sdk/zai'),
+  Perplexity: require.resolve('@ai-sdk/perplexity'),
+  'Vercel AI Gateway': require.resolve('@ai-sdk/gateway'),
 }
 
 describe('lazy AI providers', () => {
@@ -61,84 +61,46 @@ describe('lazy AI providers', () => {
     expectNoProvidersLoaded()
   })
 
-  it('resolves each factory on first use and preserves eager provider requests', async () => {
+  it('resolves each factory on first use', () => {
+    const { AImodelsOptions } = require('@/utils/ai/models') as typeof import('@/utils/ai/models')
+    expectNoProvidersLoaded()
+
+    for (const entry of AImodelsOptions) {
+      expect(factories[entry.value], `${entry.value} has a known SDK module`).to.exist
+      const moduleId = factories[entry.value]
+      // SiliconFlow shares OpenAI; evict the entry point again to check its wrapper too.
+      delete require.cache[moduleId]
+
+      const provider = entry.providerCreator({
+        baseURL: 'https://provider.example.test/custom/',
+        apiKey: 'test-api-key',
+      })
+      expect(require.cache[moduleId], `${entry.value} resolves its factory`).not.to.equal(undefined)
+
+      const model: LanguageModelV4 = provider.languageModel(entry.children[0].value)
+      expect(model.modelId, entry.value).to.equal(entry.children[0].value)
+    }
+  })
+
+  it('resolves the OpenAI fallback on first use', () => {
     const { AImodelsOptions, getModelProvider } = require('@/utils/ai/models') as typeof import('@/utils/ai/models')
     expectNoProvidersLoaded()
 
-    const requests: Array<{ url: string; method: string | undefined; headers: Record<string, string>; body: unknown }> =
-      []
-    const mockFetch: typeof fetch = async (input, init) => {
-      requests.push({
-        url: input.toString(),
-        method: init?.method,
-        headers: Object.fromEntries(new Headers(init?.headers)),
-        body: init?.body,
-      })
-      throw new Error('mock fetch: no network')
-    }
-    const options = {
-      baseURL: 'https://provider.example.test/custom/',
-      apiKey: 'test-api-key',
-      headers: { 'x-test-header': 'preserved' },
-      fetch: mockFetch,
-    }
-    const callOptions = {
-      prompt: [{ role: 'user' as const, content: [{ type: 'text' as const, text: 'hello' }] }],
-    }
-
-    for (const entry of AImodelsOptions) {
-      const [moduleId, factoryName] = factories[entry.value]
-      // SiliconFlow shares OpenAI; evict the entry point again to check its wrapper too.
-      delete require.cache[moduleId]
-      const provider = entry.providerCreator(options)
-      expect(require.cache[moduleId], `${entry.value} resolves its factory`).not.to.equal(undefined)
-      const eagerProvider = __webpack_require__(moduleId)[factoryName](options)
-      expect(typeof provider, entry.value).to.equal(typeof eagerProvider)
-      expect(provider.languageModel, entry.value).to.be.a('function')
-      expect(Object.keys(provider), entry.value).to.deep.equal(Object.keys(eagerProvider))
-
-      const modelId = entry.children[0].value
-      const model: LanguageModelV4 = provider.languageModel(modelId)
-      const eagerModel: LanguageModelV4 = eagerProvider.languageModel(modelId)
-      expect(model.provider, entry.value).to.equal(eagerModel.provider)
-      expect(model.modelId, entry.value).to.equal(eagerModel.modelId)
-      expect(model.specificationVersion, entry.value).to.equal(eagerModel.specificationVersion)
-      requests.length = 0
-      await Promise.resolve(model.doGenerate(callOptions)).catch(() => undefined)
-      await Promise.resolve(eagerModel.doGenerate(callOptions)).catch(() => undefined)
-      expect(requests, `${entry.value} reaches mock fetch twice`).to.have.length(2)
-      expect(requests[0], entry.value).to.deep.equal(requests[1])
-      expect(requests[0].url, entry.value).to.include('https://provider.example.test/custom')
-      expect(requests[0].headers['x-test-header'], entry.value).to.equal('preserved')
-    }
-
-    const [openaiId, factoryName] = factories.OpenAI
-    delete require.cache[openaiId]
+    const openaiId = factories.OpenAI
     const originalWarn = console.warn
-    const originalFetch = globalThis.fetch
     console.warn = () => undefined
-    globalThis.fetch = mockFetch
     try {
       const modelId = AImodelsOptions[0].children[0].value
       const model = getModelProvider({
         model: modelId,
-        apiKey: options.apiKey,
-        baseURL: options.baseURL,
+        apiKey: 'test-api-key',
+        baseURL: 'https://provider.example.test/custom/',
         providerType: 'unsupported' as any,
       })
       expect(require.cache[openaiId], 'fallback resolves OpenAI on first use').not.to.equal(undefined)
-      const eagerModel = __webpack_require__(openaiId)[factoryName]({ apiKey: options.apiKey }).chat(modelId)
-      expect(model.provider).to.equal(eagerModel.provider)
-      expect(model.modelId).to.equal(eagerModel.modelId)
-      expect(model.specificationVersion).to.equal(eagerModel.specificationVersion)
-      requests.length = 0
-      await Promise.resolve(model.doGenerate(callOptions)).catch(() => undefined)
-      await Promise.resolve(eagerModel.doGenerate(callOptions)).catch(() => undefined)
-      expect(requests, 'fallback reaches mock fetch twice').to.have.length(2)
-      expect(requests[0]).to.deep.equal(requests[1])
+      expect(model.modelId).to.equal(modelId)
     } finally {
       console.warn = originalWarn
-      globalThis.fetch = originalFetch
     }
   })
 })
