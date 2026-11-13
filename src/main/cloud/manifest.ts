@@ -20,9 +20,11 @@ export function inspect(root: string): CloudManifest {
     manifest.id !== 'emqx.cloud' ||
     manifest.apiVersion !== 1 ||
     manifest.kind !== 'page' ||
-    manifest.entry !== 'index.html'
+    manifest.entry !== 'index.html' ||
+    manifest.backend !== 'backend.cjs'
   )
     throw new CloudError('PACKAGE_INVALID')
-  if (!fs.statSync(path.join(root, manifest.entry)).isFile()) throw new CloudError('PACKAGE_INVALID')
+  if (![manifest.entry, manifest.backend].every((file) => fs.statSync(path.join(root, file)).isFile()))
+    throw new CloudError('PACKAGE_INVALID')
   return manifest
 }

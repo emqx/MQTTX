@@ -34,12 +34,14 @@ describe('Cloud package', () => {
     this.timeout(10000)
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-install-worker-'))
     const files: Record<string, string> = {
+      'backend.cjs': "require('node:worker_threads').parentPort.postMessage({ type: 'ready' })",
       'plugin.json': JSON.stringify({
         id: 'emqx.cloud',
         version: '1.0.0',
         kind: 'page',
         apiVersion: 1,
         entry: 'index.html',
+        backend: 'backend.cjs',
       }),
       'index.html': '<main></main>',
     }
@@ -94,6 +96,7 @@ describe('Cloud package', () => {
     target((root) => {
       const script = 'throw new Error("must never execute while extracting")'
       const data = zip({
+        'backend.cjs': "require('node:worker_threads').parentPort.postMessage({ type: 'ready' })",
         'plugin.json': '{"kind":"page"}',
         'index.html': '<script src="assets/app.js"></script>',
         'assets/app.js': script,
