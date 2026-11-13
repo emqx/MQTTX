@@ -37,6 +37,7 @@ describe('Cloud i18n', () => {
   it('authorization callback uses the login language while the session keeps an error code', async () => {
     let callbackText: string | undefined
     const auth = new CloudAuth({
+      getDeviceId: async () => '550e8400-e29b-41d4-a716-446655440000',
       authURL: 'http://127.0.0.1:43110',
       vault: { load: () => null, save() {}, clear() {} },
       async openExternal(value: string) {

@@ -12,6 +12,7 @@ import { CloudExtension } from './extension'
 import { CredentialStore } from './storage'
 // CloudAuth 处理登录和会话；origin 校验服务地址并提取“协议 + 主机 + 端口”。
 import { CloudAuth, origin } from './auth'
+import { CloudDeviceIdentity } from './device'
 // 检查从页面收到的操作名和参数，不能仅依赖 TypeScript 的编译期类型。
 import { parseCloudRequest } from './requests'
 // 记录用于排查问题的内部日志，避免记录 token 等敏感信息。
@@ -104,8 +105,14 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   const root = path.join(app.getPath('userData'), 'cloud')
   // vault 是凭据存储实例；把服务地址绑定到会话，避免切换环境后复用旧 token。
   const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, cloudURL, client: 'mqttx' }))
+  const deviceIdentity = new CloudDeviceIdentity(path.join(root, 'device.json'))
   // auth 是认证实例；openExternal 回调让认证流程通过系统浏览器打开授权地址。
-  const auth = new CloudAuth({ authURL, vault, openExternal: (url) => shell.openExternal(url) })
+  const auth = new CloudAuth({
+    authURL,
+    vault,
+    getDeviceId: () => deviceIdentity.get(),
+    openExternal: (url) => shell.openExternal(url),
+  })
   // extension 是扩展管理实例；构造时传入运行配置，不代表立即开始下载。
   const extension = new CloudExtension({
     // 开发模式加载 Vite 的页面，正常模式则使用已下载的扩展包。
