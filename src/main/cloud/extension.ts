@@ -33,7 +33,6 @@ interface ExtensionOptions {
   checkInterval?: number
   readyTimeout?: number
   installWorkerPath?: string
-  cloudURL: string
 }
 
 function remoteURL(value: string | URL): URL {
@@ -76,7 +75,6 @@ export class CloudExtension extends EventEmitter {
   private readonly now: () => number
   readonly checkInterval: number
   private readonly readyTimeout: number
-  private readonly cloudURL: string
   private readonly statePath: string
   private readonly releases: string
   private saved: SavedState
@@ -103,13 +101,11 @@ export class CloudExtension extends EventEmitter {
     now = Date.now,
     checkInterval = 3600000,
     readyTimeout = 15000,
-    cloudURL,
     installWorkerPath,
   }: ExtensionOptions) {
     super()
     this.developmentURL = developmentURL
     this.installWorkerPath = installWorkerPath
-    this.cloudURL = cloudURL
     this.root = root
     this.catalogURL = catalogURL
     this.publicKey = publicKey
@@ -214,7 +210,7 @@ export class CloudExtension extends EventEmitter {
           'Cache-Control': 'no-store',
           'X-Content-Type-Options': 'nosniff',
           'Referrer-Policy': 'no-referrer',
-          'Content-Security-Policy': `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ${this.cloudURL}; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'; sandbox allow-scripts`,
+          'Content-Security-Policy': `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'; sandbox allow-scripts`,
         })
         fs.createReadStream(file)
           .on('error', () => res.destroy())
@@ -229,6 +225,10 @@ export class CloudExtension extends EventEmitter {
       this.server!.listen(0, '127.0.0.1', resolve)
     })
     this.origin = `http://127.0.0.1:${(this.server.address() as AddressInfo).port}`
+  }
+  backendFile(id: string): string {
+    if (!this.resolve(id)) throw new CloudError('EXTENSION_STOPPED')
+    return path.join(this.releases, id, 'backend.cjs')
   }
   resolve(id: string): CloudRelease | null {
     const release = [this.active, this.candidate].find((x) => x && x.id === id)

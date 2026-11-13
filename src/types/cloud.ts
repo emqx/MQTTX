@@ -33,6 +33,7 @@ export interface CloudManifest {
   apiVersion: number
   kind: string
   entry: string
+  backend: string
 }
 export interface CloudTheme {
   lang: string
@@ -52,9 +53,7 @@ export interface CloudParams {
   mounting: { id: string }
   ready: { id: string }
   unmount: { id: string }
-  credential: { id: string }
-  validate: { id: string; generation: number }
-  reject: { id: string; generation: number }
+  backend: { id: string; method: string; params?: unknown }
 }
 export interface CloudResults {
   login: CloudState
@@ -69,9 +68,7 @@ export interface CloudResults {
   mounting: CloudState
   ready: CloudState
   unmount: CloudState
-  credential: CloudCredential
-  validate: boolean
-  reject: void
+  backend: unknown
 }
 export type CloudMethod = keyof CloudParams
 export type CloudRequest = { [M in CloudMethod]: { method: M; args: CloudParams[M] } }[CloudMethod]

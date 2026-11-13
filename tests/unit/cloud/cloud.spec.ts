@@ -46,6 +46,7 @@ const close = async (s: http.Server): Promise<void> => {
 function archive(version = '1.0.0', override = {}) {
   return Buffer.from(
     zipSync({
+      'backend.cjs': Buffer.from("require('node:worker_threads').parentPort.postMessage({ type: 'ready' })"),
       'plugin.json': Buffer.from(
         JSON.stringify({
           id: 'emqx.cloud',
@@ -53,6 +54,7 @@ function archive(version = '1.0.0', override = {}) {
           kind: 'page',
           apiVersion: 1,
           entry: 'index.html',
+          backend: 'backend.cjs',
           ...override,
         }),
       ),
@@ -92,7 +94,6 @@ async function delivery(options = {}) {
   })
   base = await listen(server)
   const e = new CloudExtension({
-    cloudURL: 'https://cloud.example.com',
     root: temp(),
     installWorkerPath: workers.installer,
     catalogURL: base + '/catalog.json',
@@ -152,7 +153,6 @@ describe('Cloud cloud', () => {
     const extension = new CloudExtension({
       root,
       catalogURL: 'invalid-catalog-must-not-be-read',
-      cloudURL: 'https://cloud.example.com',
       developmentURL: 'http://127.0.0.1:5173/dev.html',
     })
     try {
@@ -193,7 +193,6 @@ describe('Cloud cloud', () => {
       await settled(d.e)
       assert.strictEqual(d.e.snapshot().active!.version, '1.0.0')
       const other = new CloudExtension({
-        cloudURL: 'https://cloud.example.com',
         installWorkerPath: workers.installer,
         root: d.e.root,
         catalogURL: d.base + '/catalog.json',
@@ -205,7 +204,7 @@ describe('Cloud cloud', () => {
       other.ready(id)
       other.dispose()
       const response = await fetch(d.e.snapshot().active!.url, { headers: { 'Sec-Fetch-Dest': 'iframe' } })
-      assert.match(response.headers.get('content-security-policy') || '', /connect-src https:\/\/cloud\.example\.com;/)
+      assert.match(response.headers.get('content-security-policy') || '', /connect-src 'none';/)
       assert.match(response.headers.get('content-security-policy') || '', /sandbox allow-scripts/)
     } finally {
       await d.stop()
@@ -250,7 +249,6 @@ describe('Cloud cloud', () => {
       assert.strictEqual(d.e.snapshot().candidate, null)
       assert.strictEqual(d.e.snapshot().removed, true)
       const other = new CloudExtension({
-        cloudURL: 'https://cloud.example.com',
         installWorkerPath: workers.installer,
         root: d.e.root,
         catalogURL: d.base + '/catalog.json',
