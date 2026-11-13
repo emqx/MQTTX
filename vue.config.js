@@ -80,7 +80,12 @@ module.exports = {
       // Use CommonJS so json-bigint receives the BigNumber constructor in tests.
       config.resolve.alias.set('bignumber.js$', path.resolve(__dirname, 'node_modules/bignumber.js/bignumber.js'))
       // Keep the native SQLite driver out of the webpack test bundle.
-      config.externals({ sqlite3: 'commonjs sqlite3', vm2: 'commonjs vm2', typescript: 'commonjs typescript' })
+      config.externals({
+        sqlite3: 'commonjs sqlite3',
+        vm2: 'commonjs vm2',
+        typescript: 'commonjs typescript',
+        '@napi-rs/keyring': 'commonjs @napi-rs/keyring',
+      })
     }
   },
   configureWebpack: {
@@ -139,7 +144,7 @@ module.exports = {
       mainProcessWatch: ['src/main/cloud/**/*.ts'],
       // Prevent bundling of certain imported packages and instead retrieve these external dependencies at runtime.
       // In order to connect to websocket.
-      externals: ['mqtt', 'vm2', 'log4js', 'typeorm'],
+      externals: ['mqtt', 'vm2', 'log4js', 'typeorm', '@napi-rs/keyring'],
       chainWebpackMainProcess: (config) => {
         config.entry('cloud-install-worker').add(path.resolve(__dirname, 'src/main/cloud/installer-worker.ts'))
         // The MCP SDK is only reachable through package `exports` subpaths and ships syntax
