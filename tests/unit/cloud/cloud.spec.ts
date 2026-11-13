@@ -313,6 +313,7 @@ describe('Cloud cloud', () => {
     let saved: typeof token | null = token
     let changes = 0
     const auth = new CloudAuth({
+      getDeviceId: async () => '550e8400-e29b-41d4-a716-446655440000',
       authURL: 'http://127.0.0.1:43110',
       openExternal: async () => {},
       vault: {
@@ -341,6 +342,7 @@ describe('Cloud cloud', () => {
   it('publishes session expiry without relying on extension polling', async () => {
     let token: { value: string; expiresAt: number } | null = { value: 'short-lived', expiresAt: Date.now() + 30 }
     const auth = new CloudAuth({
+      getDeviceId: async () => '550e8400-e29b-41d4-a716-446655440000',
       authURL: 'https://auth.example.com',
       openExternal: async () => {},
       vault: {

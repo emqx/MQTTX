@@ -22,6 +22,7 @@ interface AuthOptions {
   authURL: string
   // 凭据存储实例，认证模块通过它读写会话，而不是自行实现加密和文件处理。
   vault: CredentialVault
+  getDeviceId: () => Promise<string>
   // 打开系统浏览器的函数；url 是要访问的授权地址。
   openExternal: (url: string) => Promise<void>
   // 取得当前毫秒时间戳的函数，测试可以传入可控制的时钟。
@@ -58,6 +59,7 @@ export class CloudAuth {
   private readonly authURL: string
   // 凭据存储接口，实际实现负责加密保存。
   private readonly vault: CredentialVault
+  private readonly getDeviceId: () => Promise<string>
   // 由宿主传入的浏览器打开函数。
   private readonly openExternal: (url: string) => Promise<void>
   // 当前时间的获取函数，而不是一个固定时间值。
@@ -81,9 +83,10 @@ export class CloudAuth {
   // 订阅状态变化的回调集合；Set 避免同一个函数重复登记。
   private stateListeners = new Set<() => void>()
   // 解构配置对象并保存依赖；默认使用真实时钟，登录最多等待 300000 毫秒（5 分钟）。
-  constructor({ authURL, vault, openExternal, now = Date.now, timeout = 300000 }: AuthOptions) {
+  constructor({ authURL, vault, openExternal, getDeviceId, now = Date.now, timeout = 300000 }: AuthOptions) {
     this.authURL = origin(authURL)
     this.vault = vault
+    this.getDeviceId = getDeviceId
     this.openExternal = openExternal
     this.now = now
     this.timeout = timeout
@@ -292,11 +295,21 @@ export class CloudAuth {
       },
     }
     try {
+      // 等待超时后主动结束 outcome；不会无限等用户在浏览器中操作。
+      timer = setTimeout(() => settle(new CloudError('AUTH_TIMEOUT')), this.timeout)
+      const deviceID = await Promise.race([
+        this.getDeviceId(),
+        outcome.then(() => {
+          throw new CloudError('AUTH_CANCELLED')
+        }),
+      ])
+      if (settled || run !== this.generation) throw new CloudError('AUTH_CANCELLED')
       // 等监听成功再打开浏览器；端口 0 表示由系统选择一个可用端口，只绑定本机回环地址。
       await new Promise<void>((resolve, reject) => {
         server.once('error', reject)
         server.listen(0, '127.0.0.1', resolve)
       })
+      if (settled || run !== this.generation) throw new CloudError('AUTH_CANCELLED')
       // AddressInfo 是类型断言，用实际分配的端口组成浏览器授权完成后的跳转地址。
       redirectURI = `http://127.0.0.1:${(server.address() as AddressInfo).port}/mqttx/callback`
       // 这个 url 是浏览器要打开的 Auth Center 地址，与回调函数里的本机请求 url 不同。
@@ -305,14 +318,13 @@ export class CloudAuth {
       url.search = new URLSearchParams({
         response_type: 'code',
         client_id: 'mqttx',
+        device_id: deviceID,
         scope: 'deployments:read',
         redirect_uri: redirectURI,
         state: expectedState,
         code_challenge: createHash('sha256').update(verifier).digest('base64url'),
         code_challenge_method: 'S256',
       }).toString()
-      // 等待超时后主动结束 outcome；不会无限等用户在浏览器中操作。
-      timer = setTimeout(() => settle(new CloudError('AUTH_TIMEOUT')), this.timeout)
       // 打开浏览器时的异常也汇入 outcome；浏览器打开成功本身不代表用户已授权。
       Promise.resolve()
         .then(() => this.openExternal(url.href))

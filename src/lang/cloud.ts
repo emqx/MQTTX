@@ -304,6 +304,14 @@ export default {
       hu: 'A Cloud-művelet sikertelen. Próbálja újra.',
       ko: 'Cloud 작업에 실패했습니다. 다시 시도하세요.',
     },
+    DEVICE_ID_UNAVAILABLE: {
+      zh: '暂时无法开始 Cloud 登录，请稍后再试。',
+      en: 'Cannot start Cloud sign-in right now. Please try again later.',
+      ja: '現在 Cloud にログインできません。しばらくしてから再試行してください。',
+      tr: 'Cloud oturumu şu anda başlatılamıyor. Lütfen daha sonra tekrar deneyin.',
+      hu: 'A Cloud-bejelentkezés most nem indítható. Próbálja újra később.',
+      ko: '지금은 Cloud 로그인을 시작할 수 없습니다. 잠시 후 다시 시도하세요.',
+    },
     STORAGE_UNAVAILABLE: {
       zh: '系统安全存储不可用，请解锁钥匙串或配置系统密钥环。',
       en: 'Secure storage is unavailable. Unlock the keychain or configure a system keyring.',
