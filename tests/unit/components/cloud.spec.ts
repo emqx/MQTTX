@@ -136,6 +136,8 @@ describe('Cloud host appearance and interaction', () => {
     listener({}, { ...removed, removed: false, revision: 1 })
     await settle()
     expect(wrapper.find('.cloud-login').exists()).to.equal(true)
+    expect(wrapper.find('.cloud-login-site').exists()).to.equal(false)
+    expect(wrapper.find('.cloud-site-dialog').exists()).to.equal(false)
     expect(wrapper.find('iframe').exists()).to.equal(false)
     const operations: Array<{ method: string; args: unknown }> = []
     ipcRenderer.invoke = async (_channel, method, args) => {

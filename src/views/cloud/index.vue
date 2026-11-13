@@ -67,11 +67,6 @@
               >{{ $t('cloud.login') }}</el-button
             >
           </div>
-          <div v-if="!waiting" class="cloud-login-site">
-            <el-button type="text" :disabled="removing" @click="openSiteDialog">
-              {{ $t('cloud.loginSite', { site: $t(chinaSite ? 'cloud.chinaSite' : 'cloud.internationalSite') }) }}
-            </el-button>
-          </div>
         </section>
       </div>
       <div v-else-if="!state.active" class="cloud-placeholder">
@@ -88,22 +83,6 @@
       </span>
       <span class="cloud-footer-brand">EMQX Cloud</span>
     </footer>
-    <el-dialog
-      class="cloud-site-dialog"
-      :title="$t('cloud.selectSite')"
-      :visible.sync="siteDialogVisible"
-      width="420px"
-      append-to-body
-    >
-      <el-radio-group v-model="pendingChinaSite" class="cloud-site-options">
-        <el-radio :label="true" border>{{ $t('cloud.chinaSite') }}</el-radio>
-        <el-radio :label="false" border>{{ $t('cloud.internationalSite') }}</el-radio>
-      </el-radio-group>
-      <span slot="footer">
-        <el-button @click="siteDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" @click="confirmSite">{{ $t('common.confirm') }}</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -120,18 +99,6 @@ import cloudMessages from '@/lang/cloud'
 export default class Cloud extends Vue {
   // 从 Vuex 读取 MQTTX 当前主题；下面的 @Watch 会在主题切换时通知扩展页面。
   @Getter('currentTheme') private currentTheme!: Theme
-  // 语言只决定初始站点，之后允许用户手动切换；当前两站仍使用同一认证地址。
-  private chinaSite = false
-  private siteDialogVisible = false
-  private pendingChinaSite = false
-  private openSiteDialog(): void {
-    this.pendingChinaSite = this.chinaSite
-    this.siteDialogVisible = true
-  }
-  private confirmSite(): void {
-    this.chinaSite = this.pendingChinaSite
-    this.siteDialogVisible = false
-  }
   // 主进程提供的 Cloud 状态快照，用来决定显示登录、准备中还是扩展业务页面。
   // 这里不保存 token；登录认证和凭据保存由主进程负责。
   private state: CloudState = {
@@ -196,9 +163,6 @@ export default class Cloud extends Vue {
   // 将结构化错误 issue 的错误码和参数转换为当前语言的文案；无错误时返回空字符串。
   private issueText(issue: CloudIssue | null): string {
     return issue ? String(this.$t(cloudErrorKey(issue), issue.params)) : ''
-  }
-  created(): void {
-    this.chinaSite = this.$i18n.locale === 'zh'
   }
   // Vue 生命周期：页面 DOM 已创建，可以取得 ref 容器并开始订阅、加载 Cloud。
   async mounted(): Promise<void> {
@@ -494,42 +458,6 @@ header .el-button {
     &:focus {
       background: var(--color-bg-btn-gradient);
       filter: brightness(1.06);
-    }
-  }
-}
-.cloud-login-site {
-  margin-top: 12px;
-  .el-button {
-    padding: 4px 0;
-    color: var(--color-text-light);
-    font-size: 12px;
-    line-height: 1.6;
-    white-space: normal;
-    &:hover,
-    &:focus-visible {
-      color: var(--color-text-default);
-      text-decoration: underline;
-    }
-  }
-}
-.cloud-site-dialog ::v-deep .el-dialog {
-  max-width: calc(100% - 32px);
-}
-.cloud-site-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  .el-radio.is-bordered {
-    height: auto;
-    margin: 0;
-    padding: 16px;
-    ::v-deep .el-radio__inner {
-      display: none;
-    }
-    ::v-deep .el-radio__label {
-      padding-left: 0;
-      white-space: normal;
     }
   }
 }
