@@ -60,6 +60,7 @@ export class CloudFrameManager {
         if (release.version === 'development') {
           const developmentFrame = frame
           element.addEventListener('load', () => {
+            void invokeCloud('unmount', { id: release.id }).catch(() => {})
             developmentFrame.port?.close()
             developmentFrame.port = null
             developmentFrame.connecting = false
@@ -121,12 +122,8 @@ export class CloudFrameManager {
           this.syncTheme()
           data = { version: this.activeVersion }
         } else if (msg.method === 'theme') data = this.options.theme()
-        else if (frame.ready && msg.method === 'credential') data = await invokeCloud('credential', { id })
-        else if (frame.ready && (msg.method === 'validate' || msg.method === 'reject')) {
-          const generation = msg.params?.generation
-          if (typeof generation !== 'number' || !Number.isSafeInteger(generation))
-            throw new CloudError('OPERATION_DENIED')
-          data = await invokeCloud(msg.method, { id, generation })
+        else if (frame.ready && msg.method === 'backend') {
+          data = await invokeCloud('backend', { id, method: msg.params?.method, params: msg.params?.params })
         } else throw new CloudError('OPERATION_DENIED')
         if (this.alive && this.frames.get(id) === frame && frame.port === port)
           port.postMessage({ seq: msg.seq, ok: true, data })
