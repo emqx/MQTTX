@@ -259,7 +259,7 @@ export default class EmptyPage extends Vue {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    // --color-light-green stays pale in dark themes, so tint from the main green instead
+    // Tint from the accent to keep icon backgrounds subtle in every theme.
     background: color-mix(in srgb, var(--color-main-green) 14%, transparent);
     color: var(--color-main-green);
     font-size: 19px;

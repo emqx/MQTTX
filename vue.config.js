@@ -204,7 +204,8 @@ module.exports = {
           ],
         },
         linux: {
-          icon: './public/icons/512x512.png',
+          // The directory lets electron-builder infer the icon size from its filename.
+          icon: './public/icons',
           target: [
             { target: 'AppImage', arch: ['x64', 'arm64'] },
             { target: 'deb', arch: ['x64', 'arm64'] },
