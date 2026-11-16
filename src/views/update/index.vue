@@ -156,15 +156,11 @@ export default class Update extends Vue {
     if (this.autoCheck) {
       await this.updateCheck(true)
     }
-    window.addEventListener('resize', () => {
-      this.setDialogSize()
-    })
+    window.addEventListener('resize', this.setDialogSize)
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', () => {
-      this.setDialogSize()
-    })
+    window.removeEventListener('resize', this.setDialogSize)
   }
 }
 </script>

@@ -88,11 +88,7 @@ export class StreamDataExporter {
       }
 
       const { messageService } = useServices()
-      let totalMessages = 0
-      for (const conn of connections) {
-        totalMessages += await messageService.countByConnectionId(conn.id!)
-      }
-      this.totalMessages = totalMessages
+      this.totalMessages = await messageService.countByConnectionIds(connections.map((conn) => conn.id!))
       this.processedMessages = 0
       onProgress?.(0)
 

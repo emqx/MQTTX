@@ -29,7 +29,8 @@ export default class TreeVisual extends Vue {
 
   @Getter('currentTheme') private theme!: string
 
-  private chart: echarts.ECharts | null = null
+  // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
+  private chart?: echarts.ECharts
 
   @Watch('data', { deep: true })
   private onDataChanged() {
@@ -276,7 +277,7 @@ export default class TreeVisual extends Vue {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  private handleResize = () => {
+  private handleResize(): void {
     if (this.chart) {
       this.chart.resize()
     }

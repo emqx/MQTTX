@@ -38,7 +38,8 @@ export default class BigNumberChart extends Vue {
   @Prop({ default: () => [] }) public thresholds!: Threshold[]
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
 
-  private myChart: echarts.ECharts | null = null
+  // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
+  private myChart?: echarts.ECharts | null
   private detachResize: (() => void) | null = null
 
   @Getter('currentTheme') private theme!: Theme
