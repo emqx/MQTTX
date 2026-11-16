@@ -80,10 +80,6 @@ import { Getter } from 'vuex-class'
 import fs from 'fs'
 import { dialog } from '@electron/remote'
 import MyDialog from './MyDialog.vue'
-import YAML from 'js-yaml'
-import XMLConvert from 'xml-js'
-import CSVConvert from 'csvtojson'
-import ExcelConvert from 'xlsx'
 import useServices from '@/database/useServices'
 import {
   emptyArray,
@@ -161,7 +157,7 @@ export default class ImportData extends Vue {
         properties: ['openFile'],
         filters: [{ name: '', extensions: [`${extensionName}`] }],
       })
-      .then((res) => {
+      .then(async (res) => {
         const { filePaths } = res
         if (filePaths.length) {
           loading = this.$loading({
@@ -169,7 +165,7 @@ export default class ImportData extends Vue {
             spinner: 'el-icon-loading',
           })
           const filePath = filePaths[0]
-          this.readFilePath(filePath, extensionName)
+          await this.readFilePath(filePath, extensionName)
         }
       })
       .catch(() => {})
@@ -178,9 +174,11 @@ export default class ImportData extends Vue {
       })
   }
 
-  private getExcelContentByXlsx(filePath: string) {
-    let workbook: ExcelConvert.WorkBook
+  private async getExcelContentByXlsx(filePath: string) {
+    let ExcelConvert: typeof import('xlsx')
+    let workbook: import('xlsx').WorkBook
     try {
+      ExcelConvert = (await import('xlsx')).default
       workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
     } catch (err) {
       this.$message.error(`${this.$t('connections.readFileErr')}${(err as Error).message}`)
@@ -221,7 +219,7 @@ export default class ImportData extends Vue {
     this.record.fileName = ''
     this.record.filePath = ''
     if (extensionName === 'xlsx') {
-      this.getExcelContentByXlsx(filePath)
+      await this.getExcelContentByXlsx(filePath)
     } else {
       await this.getFileContentByFs(filePath)
     }
@@ -291,12 +289,14 @@ export default class ImportData extends Vue {
     return fileContent
   }
 
-  private getYAMLData(data: string): ConnectionModel[] {
+  private async getYAMLData(data: string): Promise<ConnectionModel[]> {
+    const { default: YAML } = await import('js-yaml')
     const fileContent = YAML.load(data) as ConnectionModel[]
     return fileContent
   }
 
-  private getXMLData(data: string): ConnectionModel[] {
+  private async getXMLData(data: string): Promise<ConnectionModel[]> {
+    const { default: XMLConvert } = await import('xml-js')
     const removeJsonTextAttribute = (value: string, parentElement: XMLParentElement) => {
       try {
         const nativeType = (key: string, value: string) => {
@@ -366,6 +366,7 @@ export default class ImportData extends Vue {
   }
 
   private async getCSVData(data: string): Promise<ConnectionModel[]> {
+    const { default: CSVConvert } = await import('csvtojson')
     const fileContent: ConnectionModel[] = []
     await CSVConvert()
       .fromString(data)
