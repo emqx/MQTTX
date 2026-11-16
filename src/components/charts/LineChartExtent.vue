@@ -47,7 +47,8 @@ export default class LineChartExtent extends Vue {
     this.updateChart()
   }
 
-  private areaLineChart: echarts.ECharts | null = null
+  // Leave undefined so vue-class-component excludes the mutable instance from reactive data.
+  private areaLineChart?: echarts.ECharts
 
   private generateChartOption() {
     const colors = getChartThemeColors()
