@@ -1,23 +1,4 @@
-import { AIModel, AImodelsOptionsModel, ReasoningEffort } from '@/types/agent'
-import { createOpenAI } from '@ai-sdk/openai'
-import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createXai } from '@ai-sdk/xai'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createAzure } from '@ai-sdk/azure'
-import { createAlibaba } from '@ai-sdk/alibaba'
-import { createMistral } from '@ai-sdk/mistral'
-import { createGroq } from '@ai-sdk/groq'
-import { createCohere } from '@ai-sdk/cohere'
-import { createTogetherAI } from '@ai-sdk/togetherai'
-import { createFireworks } from '@ai-sdk/fireworks'
-import { createDeepInfra } from '@ai-sdk/deepinfra'
-import { createCerebras } from '@ai-sdk/cerebras'
-import { createMoonshotAI } from '@ai-sdk/moonshotai'
-import { createMiniMax } from '@ai-sdk/minimax'
-import { createZai } from '@ai-sdk/zai'
-import { createPerplexity } from '@ai-sdk/perplexity'
-import { createGateway } from '@ai-sdk/gateway'
+import type { AIModel, AImodelsOptionsModel, ReasoningEffort } from '@/types/agent'
 
 import basePrompt from './prompts/base.txt'
 import { renderSkillList } from './agent/skills'
@@ -69,6 +50,14 @@ const OPENAI_MODELS = [
   { value: 'gpt-4.1-mini', label: 'GPT-4.1 mini', reasoning: false, contextWindow: 1047576 },
 ]
 
+// Resolve SDK factories on first use so importing the model list does not evaluate every provider.
+const lazy =
+  (load: () => (...args: any[]) => any) =>
+  (...args: any[]): any =>
+    load()(...args)
+
+const createOpenAI = lazy(() => require('@ai-sdk/openai').createOpenAI)
+
 /**
  * Configuration for available AI models across different providers.
  *
@@ -103,7 +92,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 1000000,
       },
     ],
-    providerCreator: createDeepSeek,
+    providerCreator: lazy(() => require('@ai-sdk/deepseek').createDeepSeek),
   },
   {
     value: 'Anthropic',
@@ -115,7 +104,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5', contextWindow: 200000 },
       { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5', contextWindow: 200000 },
     ],
-    providerCreator: createAnthropic,
+    providerCreator: lazy(() => require('@ai-sdk/anthropic').createAnthropic),
   },
   {
     value: 'xAI' as const,
@@ -127,7 +116,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'grok-4.5', label: 'Grok 4.5', contextWindow: 500000 },
       { value: 'grok-4.3', label: 'Grok 4.3', contextWindow: 1000000 },
     ],
-    providerCreator: createXai,
+    providerCreator: lazy(() => require('@ai-sdk/xai').createXai),
   },
   {
     value: 'Google' as const,
@@ -154,13 +143,13 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', contextWindow: 1048576 },
       { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite', contextWindow: 1048576 },
     ],
-    providerCreator: createGoogleGenerativeAI,
+    providerCreator: lazy(() => require('@ai-sdk/google').createGoogleGenerativeAI),
   },
   {
     value: 'Azure OpenAI' as const,
     // The same models as OpenAI; Azure addresses them by their deployment name
     children: OPENAI_MODELS.map((model) => ({ ...model, value: `deployment-${model.value}` })),
-    providerCreator: createAzure,
+    providerCreator: lazy(() => require('@ai-sdk/azure').createAzure),
   },
   {
     value: 'SiliconFlow' as const,
@@ -200,7 +189,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus', vision: false, contextWindow: 1048576 },
       { value: 'qwen3-235b-a22b', label: 'Qwen3 235B A22B', vision: false, contextWindow: 131072 },
     ],
-    providerCreator: createAlibaba,
+    providerCreator: lazy(() => require('@ai-sdk/alibaba').createAlibaba),
   },
   {
     value: 'Mistral',
@@ -223,7 +212,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'codestral-latest', label: 'Codestral', vision: false, reasoning: false, contextWindow: 256000 },
       { value: 'ministral-8b-latest', label: 'Ministral 8B', vision: false, reasoning: false, contextWindow: 262144 },
     ],
-    providerCreator: createMistral,
+    providerCreator: lazy(() => require('@ai-sdk/mistral').createMistral),
   },
   {
     value: 'Groq',
@@ -263,7 +252,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 131072,
       },
     ],
-    providerCreator: createGroq,
+    providerCreator: lazy(() => require('@ai-sdk/groq').createGroq),
   },
   {
     value: 'Cohere',
@@ -274,7 +263,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'command-r7b-12-2024', label: 'Command R7B', vision: false, reasoning: false, contextWindow: 128000 },
       { value: 'command-r-plus', label: 'Command R+', vision: false, reasoning: false },
     ],
-    providerCreator: createCohere,
+    providerCreator: lazy(() => require('@ai-sdk/cohere').createCohere),
   },
   {
     value: 'Together AI',
@@ -319,7 +308,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 131072,
       },
     ],
-    providerCreator: createTogetherAI,
+    providerCreator: lazy(() => require('@ai-sdk/togetherai').createTogetherAI),
   },
   {
     value: 'Fireworks',
@@ -363,7 +352,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 512000,
       },
     ],
-    providerCreator: createFireworks,
+    providerCreator: lazy(() => require('@ai-sdk/fireworks').createFireworks),
   },
   {
     value: 'DeepInfra',
@@ -406,7 +395,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         contextWindow: 262144,
       },
     ],
-    providerCreator: createDeepInfra,
+    providerCreator: lazy(() => require('@ai-sdk/deepinfra').createDeepInfra),
   },
   {
     value: 'Cerebras',
@@ -420,7 +409,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       },
       { value: 'qwen-3.8-27b', label: 'Qwen 3.8 27B', reasoningEfforts: COMPATIBLE_EFFORTS, contextWindow: 131072 },
     ],
-    providerCreator: createCerebras,
+    providerCreator: lazy(() => require('@ai-sdk/cerebras').createCerebras),
   },
   {
     value: 'Moonshot AI',
@@ -444,7 +433,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'moonshot-v1-128k', label: 'Moonshot v1 128K', vision: false, reasoning: false },
       { value: 'moonshot-v1-8k-vision-preview', label: 'Moonshot v1 8K Vision', reasoning: false },
     ],
-    providerCreator: createMoonshotAI,
+    providerCreator: lazy(() => require('@ai-sdk/moonshotai').createMoonshotAI),
   },
   {
     value: 'MiniMax',
@@ -455,7 +444,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'minimax-m2.1', label: 'MiniMax M2.1', vision: false, contextWindow: 204800 },
       { value: 'minimax-m2', label: 'MiniMax M2', vision: false, contextWindow: 204800 },
     ],
-    providerCreator: createMiniMax,
+    providerCreator: lazy(() => require('@ai-sdk/minimax').createMiniMax),
   },
   {
     value: 'Z.AI',
@@ -467,7 +456,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'glm-4.6', label: 'GLM-4.6', vision: false, reasoningEfforts: ON_OFF_EFFORTS, contextWindow: 204800 },
       { value: 'glm-4.6v', label: 'GLM-4.6V', reasoningEfforts: ON_OFF_EFFORTS, contextWindow: 128000 },
     ],
-    providerCreator: createZai,
+    providerCreator: lazy(() => require('@ai-sdk/zai').createZai),
   },
   {
     value: 'Perplexity',
@@ -485,7 +474,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'high', label: 'Perplexity Agent (high)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
       { value: 'xhigh', label: 'Perplexity Agent (xhigh)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
     ],
-    providerCreator: createPerplexity,
+    providerCreator: lazy(() => require('@ai-sdk/perplexity').createPerplexity),
   },
   {
     value: 'Vercel AI Gateway',
@@ -497,7 +486,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'deepseek/deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash', contextWindow: 1048576 },
       { value: 'meta/llama-4-maverick', label: 'Llama 4 Maverick', reasoning: false, contextWindow: 128000 },
     ],
-    providerCreator: createGateway,
+    providerCreator: lazy(() => require('@ai-sdk/gateway').createGateway),
   },
 ]
 

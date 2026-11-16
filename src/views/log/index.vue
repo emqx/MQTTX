@@ -50,6 +50,7 @@ export default class Logs extends Vue {
 
   private logValue = ''
   private selectedLogLevel: LogLevel = 'info'
+  private stopLogWatcher?: () => void
 
   get editorTheme(): 'editor-log' | 'editor-log-dark' | 'editor-log-night' {
     switch (this.theme) {
@@ -115,7 +116,7 @@ export default class Logs extends Vue {
   private mounted() {
     const LOG_DIR = getOrCreateLogDir()
     const LOG_PATH = path.join(LOG_DIR, 'log')
-    watchFileAppender(LOG_PATH, this.onLogReadDataHandle, this.onLogReadErrorHandle)
+    this.stopLogWatcher = watchFileAppender(LOG_PATH, this.onLogReadDataHandle, this.onLogReadErrorHandle)
 
     const timer = setTimeout(() => {
       this.$nextTick(() => {
@@ -123,6 +124,10 @@ export default class Logs extends Vue {
       })
       clearTimeout(timer)
     }, 100)
+  }
+
+  private beforeDestroy() {
+    this.stopLogWatcher?.()
   }
 }
 </script>
