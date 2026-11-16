@@ -1,9 +1,9 @@
-import { createOpenAI } from '@ai-sdk/openai'
-import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createXai } from '@ai-sdk/xai'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createAzure } from '@ai-sdk/azure'
+import type { createOpenAI } from '@ai-sdk/openai'
+import type { createDeepSeek } from '@ai-sdk/deepseek'
+import type { createAnthropic } from '@ai-sdk/anthropic'
+import type { createXai } from '@ai-sdk/xai'
+import type { createGoogleGenerativeAI } from '@ai-sdk/google'
+import type { createAzure } from '@ai-sdk/azure'
 import type { LanguageModelV4CallOptions } from '@ai-sdk/provider'
 
 /**
