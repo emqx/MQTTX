@@ -35,6 +35,21 @@ export function origin(value: string): string {
     throw new CloudError('INVALID_SERVICE_URL')
   return u.origin
 }
+
+// Read only the display claim; Cloud remains responsible for token validation.
+function tokenEmail(token: string): string | null {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const claims: unknown = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'))
+    if (!claims || typeof claims !== 'object' || !('email' in claims)) return null
+    return typeof claims.email === 'string' && claims.email.trim() && claims.email.length <= 254 ? claims.email : null
+  } catch {
+    // Missing or malformed display metadata must not prevent sign-in.
+    return null
+  }
+}
+
 export class CloudAuth {
   private readonly authURL: string
   private readonly vault: CredentialVault
@@ -80,7 +95,12 @@ export class CloudAuth {
       }
     }
     if (this.token && this.token.expiresAt <= this.now()) this.invalidate(cloudIssue(new CloudError('AUTH_EXPIRED')))
-    return { status: this.status, message: this.message, expiresAt: this.token ? this.token.expiresAt : null }
+    return {
+      status: this.status,
+      message: this.message,
+      expiresAt: this.token ? this.token.expiresAt : null,
+      email: this.token ? tokenEmail(this.token.value) : null,
+    }
   }
   private scheduleExpiry(): void {
     clearTimeout(this.expiryTimer)

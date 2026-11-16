@@ -101,7 +101,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   let timer: ReturnType<typeof setInterval> | undefined
   const snapshot = (): CloudState => {
     const session: CloudSession = extension.removed
-      ? { status: 'signed-out', message: null, expiresAt: null }
+      ? { status: 'signed-out', message: null, expiresAt: null, email: null }
       : auth.state()
     return { ...extension.snapshot(), revision, session }
   }

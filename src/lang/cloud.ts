@@ -1,4 +1,12 @@
 export default {
+  account: {
+    zh: '账号菜单',
+    en: 'Account menu',
+    ja: 'アカウントメニュー',
+    tr: 'Hesap menüsü',
+    hu: 'Fiókmenü',
+    ko: '계정 메뉴',
+  },
   remaining: {
     zh: '授权剩余',
     en: 'Authorization remaining',

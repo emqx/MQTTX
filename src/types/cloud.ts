@@ -7,6 +7,7 @@ export interface CloudSession {
   status: CloudSessionStatus
   message: CloudIssue | null
   expiresAt: number | null
+  email: string | null
 }
 export interface CloudRelease {
   id: string
