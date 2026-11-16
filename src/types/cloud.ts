@@ -40,7 +40,15 @@ export interface CloudTheme {
   messages: Record<string, string>
   tokens: Record<string, string>
 }
+export interface CloudConnectionDraft {
+  name: string
+  host: string
+  port: number
+  protocol: 'mqtt' | 'mqtts' | 'ws' | 'wss'
+}
 export interface CloudParams {
+  createConnection: { id: string; connection: CloudConnectionDraft }
+  copyConnection: { id: string; connection: CloudConnectionDraft }
   login: { locale: string }
   logout: Record<string, never>
   cancel: Record<string, never>
@@ -56,6 +64,8 @@ export interface CloudParams {
   backend: { id: string; method: string; params?: unknown }
 }
 export interface CloudResults {
+  createConnection: CloudConnectionDraft
+  copyConnection: void
   login: CloudState
   logout: CloudState
   cancel: CloudState

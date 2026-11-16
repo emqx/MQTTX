@@ -1,7 +1,7 @@
 import { assert } from 'chai'
 import { ipcRenderer } from 'electron'
 import { CloudFrameManager } from '../../../src/utils/cloudFrameManager'
-import type { CloudState, CloudTheme } from '../../../src/types/cloud'
+import type { CloudState, CloudTheme, CloudConnectionDraft } from '../../../src/types/cloud'
 
 class TestPort {
   messages: any[] = []
@@ -28,6 +28,7 @@ describe('Cloud frame lifecycle and bridge', () => {
   let manager: CloudFrameManager
   let channels: Array<{ port1: TestPort; port2: TestPort }>
   let calls: string[]
+  let opened: CloudConnectionDraft[]
   const theme: CloudTheme = { lang: 'en', messages: {}, tokens: { '--color-bg-normal': '#fff' } }
 
   function hello(element: HTMLIFrameElement, origin = 'null', source = element.contentWindow): void {
@@ -37,6 +38,7 @@ describe('Cloud frame lifecycle and bridge', () => {
   beforeEach(() => {
     channels = []
     calls = []
+    opened = []
     Object.defineProperty(global, 'MessageChannel', {
       configurable: true,
       value: class {
@@ -64,7 +66,14 @@ describe('Cloud frame lifecycle and bridge', () => {
       if (method === 'ready') state = { ...state, revision: 2, active: second, candidate: null }
       return { ok: true, data: state }
     }
-    manager = new CloudFrameManager({ container, theme: () => theme, onState: (next) => manager.sync(next) })
+    manager = new CloudFrameManager({
+      container,
+      theme: () => theme,
+      onState: (next) => manager.sync(next),
+      onCreateConnection: (connection) => {
+        opened.push(connection)
+      },
+    })
   })
   afterEach(() => {
     manager.dispose()
@@ -106,6 +115,37 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.include(calls, 'backend')
     manager.syncTheme()
     assert.deepInclude(port.messages, { event: 'theme', data: theme })
+  })
+
+  it('opens a connection form only after host validation and frame readiness', async () => {
+    await manager.sync(state)
+    hello(container.querySelectorAll('iframe')[1])
+    const port = channels[0].port1
+    const connection: CloudConnectionDraft = {
+      name: 'Cloud',
+      host: 'broker.example.com',
+      port: 8883,
+      protocol: 'mqtts',
+    }
+    await port.request({ seq: 1, method: 'createConnection', params: connection })
+    assert.strictEqual(port.messages[0].error.code, 'OPERATION_DENIED')
+    assert.lengthOf(opened, 0)
+    await port.request({ seq: 2, method: 'ready' })
+    ipcRenderer.invoke = async (_channel, method, args) => {
+      calls.push(method)
+      assert.strictEqual(args.id, second.id)
+      assert.deepEqual(args.connection, connection)
+      return { ok: true, data: method === 'createConnection' ? connection : undefined }
+    }
+    await port.request({ seq: 3, method: 'createConnection', params: connection })
+    assert.deepEqual(opened, [connection])
+    await port.request({ seq: 4, method: 'copyConnection', params: connection })
+    assert.include(calls, 'copyConnection')
+    assert.lengthOf(opened, 1)
+    ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_DENIED', params: {} } })
+    await port.request({ seq: 5, method: 'createConnection', params: connection })
+    assert.lengthOf(opened, 1)
+    assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
   })
 
   it('closes channels on disposal and discards a pending reply from a retired frame', async () => {

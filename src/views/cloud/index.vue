@@ -146,6 +146,12 @@ export default class Cloud extends Vue {
       container: this.$refs.frames as HTMLElement,
       theme: () => this.theme(),
       onState: (state) => this.applyState(state),
+      onCreateConnection: (connection) => {
+        this.$router.push({
+          path: '/recent_connections/0',
+          query: { oper: 'create', cloudConnection: JSON.stringify(connection) },
+        })
+      },
     })
     this.unwatch = watchCloudState((state) => {
       this.applyState(state).catch((error) => {

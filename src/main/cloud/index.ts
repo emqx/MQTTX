@@ -1,5 +1,6 @@
 import { CloudError, cloudIssue } from '../../utils/cloudErrors'
-import { app, ipcMain, safeStorage, shell } from 'electron'
+import { cloudConnectionURL } from '../../utils/cloudConnection'
+import { app, clipboard, ipcMain, safeStorage, shell } from 'electron'
 import type { WebContents } from 'electron'
 import path from 'path'
 import fs from 'fs'
@@ -256,6 +257,18 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       stopBackend(id)
       extension.unmount(id)
       return snapshot()
+    },
+    createConnection: ({ id, connection }, sender) => {
+      requireActive(id)
+      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      auth.credential()
+      return connection
+    },
+    copyConnection: ({ id, connection }, sender) => {
+      requireActive(id)
+      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      auth.credential()
+      clipboard.writeText(cloudConnectionURL(connection))
     },
     // MQTTX only routes business calls; API paths and response handling belong to the extension.
     backend: async ({ id, method, params }, sender) => {

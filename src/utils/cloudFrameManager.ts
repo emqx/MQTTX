@@ -1,6 +1,6 @@
 import { invokeCloud } from './cloudClient'
 import { CloudError, cloudIssue } from './cloudErrors'
-import type { CloudState, CloudTheme } from '../types/cloud'
+import type { CloudState, CloudTheme, CloudConnectionDraft } from '../types/cloud'
 
 interface Frame {
   element: HTMLIFrameElement
@@ -12,6 +12,7 @@ interface FrameManagerOptions {
   container: HTMLElement
   theme: () => CloudTheme
   onState: (state: CloudState) => Promise<void>
+  onCreateConnection: (connection: CloudConnectionDraft) => void
 }
 
 // Owns renderer-side extension frames and their message channels, independently of Vue.
@@ -124,6 +125,12 @@ export class CloudFrameManager {
         } else if (msg.method === 'theme') data = this.options.theme()
         else if (frame.ready && msg.method === 'backend') {
           data = await invokeCloud('backend', { id, method: msg.params?.method, params: msg.params?.params })
+        } else if (frame.ready && msg.method === 'createConnection') {
+          const connection = await invokeCloud('createConnection', { id, connection: msg.params })
+          if (!this.alive || this.frames.get(id) !== frame || frame.port !== port) return
+          this.options.onCreateConnection(connection)
+        } else if (frame.ready && msg.method === 'copyConnection') {
+          await invokeCloud('copyConnection', { id, connection: msg.params })
         } else throw new CloudError('OPERATION_DENIED')
         if (this.alive && this.frames.get(id) === frame && frame.port === port)
           port.postMessage({ seq: msg.seq, ok: true, data })

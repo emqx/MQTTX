@@ -673,6 +673,7 @@ import { payloadTypeOptions, payloadTypeToEditorLang, validatePayloadByType } fr
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import { LeftValues } from '@/utils/styles'
+import { parseCloudConnection } from '@/utils/cloudConnection'
 import { sortConnectionTree } from '@/utils/connections'
 
 @Component({
@@ -1021,6 +1022,16 @@ export default class ConnectionForm extends Vue {
     if (this.oper === 'create') {
       this.record = _.cloneDeep(this.defaultRecord)
       this.handleDefaultCollectionChange()
+      const { cloudConnection } = this.$route.query
+      if (typeof cloudConnection === 'string') {
+        try {
+          const connection = parseCloudConnection(JSON.parse(cloudConnection))
+          Object.assign(this.record, connection)
+          this.handleProtocol(connection.protocol)
+        } catch {
+          this.$message.error(String(this.$t('cloud.errors.OPERATION_DENIED')))
+        }
+      }
     } else if (this.oper === 'edit' && id !== '0') {
       await this.loadDetail(id)
     }
