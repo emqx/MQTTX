@@ -148,6 +148,30 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
   })
 
+  it('forwards clipboard text only after frame readiness and preserves host errors', async () => {
+    await manager.sync(state)
+    hello(container.querySelectorAll('iframe')[1])
+    const port = channels[0].port1
+    const text = 'broker.example.com'
+    await port.request({ seq: 1, method: 'copyText', params: { text } })
+    assert.strictEqual(port.messages[0].error.code, 'OPERATION_DENIED')
+    assert.notInclude(calls, 'copyText')
+    await port.request({ seq: 2, method: 'ready' })
+    ipcRenderer.invoke = async (_channel, method, args) => {
+      assert.strictEqual(method, 'copyText')
+      assert.deepEqual(args, { id: second.id, text })
+      calls.push(method)
+      return { ok: true, data: undefined }
+    }
+    await port.request({ seq: 3, method: 'copyText', params: { text } })
+    assert.include(calls, 'copyText')
+    assert.deepInclude(port.messages, { seq: 3, ok: true, data: undefined })
+    ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_DENIED', params: {} } })
+    await port.request({ seq: 4, method: 'copyText', params: { text } })
+    assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
+    assert.lengthOf(opened, 0)
+  })
+
   it('closes channels on disposal and discards a pending reply from a retired frame', async () => {
     await manager.sync(state)
     hello(container.querySelectorAll('iframe')[1])

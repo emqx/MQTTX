@@ -48,6 +48,7 @@ export interface CloudConnectionDraft {
   protocol: 'mqtt' | 'mqtts' | 'ws' | 'wss'
 }
 export interface CloudParams {
+  copyText: { id: string; text: string }
   createConnection: { id: string; connection: CloudConnectionDraft }
   copyConnection: { id: string; connection: CloudConnectionDraft }
   login: { locale: string }
@@ -65,6 +66,7 @@ export interface CloudParams {
   backend: { id: string; method: string; params?: unknown }
 }
 export interface CloudResults {
+  copyText: void
   createConnection: CloudConnectionDraft
   copyConnection: void
   login: CloudState

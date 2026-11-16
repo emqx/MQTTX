@@ -271,6 +271,12 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       auth.credential()
       return connection
     },
+    copyText: ({ id, text }, sender) => {
+      requireActive(id)
+      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      auth.credential()
+      clipboard.writeText(text)
+    },
     copyConnection: ({ id, connection }, sender) => {
       requireActive(id)
       if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')

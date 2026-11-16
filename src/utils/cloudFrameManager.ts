@@ -129,6 +129,8 @@ export class CloudFrameManager {
           const connection = await invokeCloud('createConnection', { id, connection: msg.params })
           if (!this.alive || this.frames.get(id) !== frame || frame.port !== port) return
           this.options.onCreateConnection(connection)
+        } else if (frame.ready && msg.method === 'copyText') {
+          await invokeCloud('copyText', { id, text: msg.params?.text })
         } else if (frame.ready && msg.method === 'copyConnection') {
           await invokeCloud('copyConnection', { id, connection: msg.params })
         } else throw new CloudError('OPERATION_DENIED')

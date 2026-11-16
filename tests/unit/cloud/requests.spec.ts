@@ -47,6 +47,17 @@ describe('Cloud contracts and diagnostics', () => {
       expectError(() => parseCloudRequest(method, { connection }), { code: 'OPERATION_DENIED' })
     }
   })
+  it('accepts bounded clipboard text only from a release-scoped request', () => {
+    const id = 'r-12345678-1234-1234-1234-123456789abc'
+    const text = 'broker.example.com'
+    assert.deepEqual(parseCloudRequest('copyText', { id, text, extra: 'ignored' }), {
+      method: 'copyText',
+      args: { id, text },
+    })
+    for (const invalid of [undefined, null, 42, '', 'x'.repeat(4097)])
+      expectError(() => parseCloudRequest('copyText', { id, text: invalid }), { code: 'OPERATION_DENIED' })
+    expectError(() => parseCloudRequest('copyText', { text }), { code: 'OPERATION_DENIED' })
+  })
   it('copies WebSocket URLs with the Cloud MQTT path and keeps TCP URLs unchanged', () => {
     for (const protocol of ['mqtt', 'mqtts', 'ws', 'wss'] as const) {
       const expected = {
