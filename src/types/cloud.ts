@@ -97,7 +97,6 @@ export interface CloudCredential {
   value: string
   expiresAt: number
   generation: number
-  cloudURL: string
 }
 export interface InstallRequest {
   bytes: Uint8Array

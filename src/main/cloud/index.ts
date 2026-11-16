@@ -59,7 +59,6 @@ export function initializeCloud(
 
 function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   const authURL = origin(environment.MQTTX_CLOUD_AUTH_URL || 'https://accounts.mqttce.com')
-  const cloudURL = origin(environment.MQTTX_CLOUD_API_URL || 'https://cloud-intl.dev.en.consoleassets.mqttce.com')
   const developmentOrigin =
     !app.isPackaged && environment.WEBPACK_DEV_SERVER_URL && environment.MQTTX_CLOUD_DEV_URL
       ? origin(environment.MQTTX_CLOUD_DEV_URL)
@@ -71,7 +70,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   )
     throw new CloudError('INVALID_SERVICE_URL')
   const root = path.join(app.getPath('userData'), 'cloud')
-  const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, cloudURL, client: 'mqttx' }))
+  const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, client: 'mqttx' }))
   const deviceIdentity = new CloudDeviceIdentity(path.join(root, 'device.json'))
   const auth = new CloudAuth({
     authURL,
@@ -237,7 +236,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
         const runtime = new CloudBackend(file, (method, params) => {
           requireActive(id)
           if (backends.get(id)?.runtime !== runtime) throw new CloudError('EXTENSION_STOPPED')
-          if (method === 'credential') return { ...auth.credential(), cloudURL }
+          if (method === 'credential') return auth.credential()
           if (method === 'validate' || method === 'reject') {
             const generation = (params as { generation?: unknown } | null)?.generation
             if (typeof generation !== 'number' || !Number.isSafeInteger(generation))

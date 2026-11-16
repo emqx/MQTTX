@@ -3,15 +3,6 @@
     <header class="titlebar">
       <h1>EMQX Cloud</h1>
       <div class="cloud-actions">
-        <el-button
-          v-if="!state.removed"
-          class="cloud-remove"
-          size="mini"
-          icon="el-icon-delete"
-          :disabled="removing"
-          @click="remove"
-          >{{ $t('cloud.remove') }}</el-button
-        >
         <el-dropdown v-if="signedIn" class="cloud-account-menu" trigger="click" @command="authenticate('logout')">
           <button
             type="button"
@@ -98,6 +89,9 @@
       <div ref="frames" v-show="signedIn" class="cloud-frames"></div>
     </main>
     <footer class="cloud-footer">
+      <button v-if="!state.removed" type="button" class="cloud-remove" :disabled="removing" @click="remove">
+        {{ $t('cloud.remove') }}
+      </button>
       <span class="cloud-footer-brand">EMQX Cloud</span>
     </footer>
   </div>
@@ -274,9 +268,6 @@ export default class Cloud extends Vue {
   padding: 16px;
   border-bottom: 1px solid var(--color-border-default);
 }
-header .el-button {
-  -webkit-app-region: no-drag;
-}
 .cloud-actions {
   display: flex;
   align-items: center;
@@ -337,7 +328,24 @@ header .el-button {
   white-space: nowrap;
 }
 .cloud-remove {
+  padding: 0;
+  border: 0;
   background: transparent;
+  color: var(--color-text-light);
+  font: inherit;
+  cursor: pointer;
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    color: var(--color-minor-red);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
 .cloud-body {
   display: flex;
