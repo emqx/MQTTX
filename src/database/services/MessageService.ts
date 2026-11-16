@@ -129,9 +129,16 @@ export default class MessageService {
     const { page, limit, msgType, preserveOrder } = { ...defaultOpts, ...options }
     const { topic } = { ...defaultOpts, ...options }
 
-    const total = await this.messageRepository.count({ connectionId })
-    const publishedTotal = await this.messageRepository.count({ connectionId, out: true })
-    const receivedTotal = await this.messageRepository.count({ connectionId, out: false })
+    const counts = await this.messageRepository
+      .createQueryBuilder('msg')
+      .select('COUNT(*)', 'total')
+      .addSelect('SUM(msg.out)', 'publishedTotal')
+      .where('msg.connectionId = :connection', { connection: connectionId })
+      .getRawOne()
+    const total = Number(counts.total)
+    // SUM returns null for an empty connection, and Number(null) is 0.
+    const publishedTotal = Number(counts.publishedTotal)
+    const receivedTotal = total - publishedTotal
 
     let query = this.messageRepository
       .createQueryBuilder('msg')
