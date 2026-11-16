@@ -10,6 +10,12 @@ import { CloudAuth } from '../../../src/main/cloud/auth'
 import { CloudDeviceIdentity } from '../../../src/main/cloud/device'
 import { CloudError } from '../../../src/utils/cloudErrors'
 
+function displayToken(claims: unknown): string {
+  return `${Buffer.from('{}').toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString(
+    'base64url',
+  )}.signature`
+}
+
 describe('Cloud authorization contract', () => {
   it('sends a stable device UUID to authorize and exchanges the code with the MQTTX callback and User-Agent', async () => {
     let tokenRequest: { url?: string; method?: string; headers: http.IncomingHttpHeaders; body: string } | undefined
@@ -20,7 +26,7 @@ describe('Cloud authorization contract', () => {
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end(
         JSON.stringify({
-          access_token: 'test-access-token',
+          access_token: displayToken({ email: 'reader@example.com' }),
           token_type: 'Bearer',
           expires_in: 3600,
           scope: 'deployments:read',
@@ -66,6 +72,8 @@ describe('Cloud authorization contract', () => {
     try {
       const state = await auth.login()
       assert.strictEqual(state.status, 'signed-in')
+      assert.strictEqual(state.email, 'reader@example.com')
+      assert.notInclude(JSON.stringify(state), 'signature')
       assert.strictEqual(authorization!.searchParams.get('device_id'), await identity.get())
       assert.notInclude(authorization!.href, '550e8400e29b41d4a716446655440000')
       assert.strictEqual(oldPathStatus, 404)
@@ -89,6 +97,59 @@ describe('Cloud authorization contract', () => {
       server.closeAllConnections()
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
       fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('restores the display email and clears it on logout, expiry or token rejection', () => {
+    for (const action of ['logout', 'expiry', 'rejection']) {
+      let now = Date.now()
+      const auth = new CloudAuth({
+        authURL: 'https://auth.example.com',
+        now: () => now,
+        vault: {
+          load: () => ({ value: displayToken({ email: 'reader@example.com' }), expiresAt: now + 60000 }),
+          save() {},
+          clear() {},
+        },
+        getDeviceId: async () => 'unused',
+        openExternal: async () => {},
+      })
+      try {
+        assert.strictEqual(auth.state().email, 'reader@example.com')
+        if (action === 'logout') auth.invalidate()
+        else if (action === 'expiry') now += 60001
+        else auth.reject(auth.generation)
+        assert.isNull(auth.state().email)
+        assert.notStrictEqual(auth.state().status, 'signed-in')
+      } finally {
+        auth.dispose()
+      }
+    }
+  })
+
+  it('keeps sessions usable when display metadata is absent or malformed', () => {
+    for (const value of [
+      'opaque-token',
+      'header.invalid-json.signature',
+      displayToken(null),
+      displayToken({}),
+      displayToken({ email: 123 }),
+      displayToken({ email: '   ' }),
+      displayToken({ email: 'a'.repeat(255) }),
+    ]) {
+      const auth = new CloudAuth({
+        authURL: 'https://auth.example.com',
+        vault: { load: () => ({ value, expiresAt: Date.now() + 60000 }), save() {}, clear() {} },
+        getDeviceId: async () => 'unused',
+        openExternal: async () => {},
+      })
+      try {
+        assert.strictEqual(auth.state().status, 'signed-in')
+        assert.isNull(auth.state().email)
+        assert.strictEqual(auth.credential().value, value)
+      } finally {
+        auth.dispose()
+      }
     }
   })
 

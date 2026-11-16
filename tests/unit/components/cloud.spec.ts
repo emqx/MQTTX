@@ -3,18 +3,22 @@ import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import type { CloudState } from '@/types/cloud'
 import VueI18n from 'vue-i18n'
-import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils'
+import { createLocalVue, mount, Wrapper } from '@vue/test-utils'
 import { ipcRenderer } from 'electron'
 import Cloud from '@/views/cloud/index.vue'
 import Lang from '@/lang'
+import { Dropdown, DropdownMenu, DropdownItem } from 'element-ui'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(VueI18n)
+localVue.component('el-dropdown', Dropdown)
+localVue.component('el-dropdown-menu', DropdownMenu)
+localVue.component('el-dropdown-item', DropdownItem)
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 const removed: CloudState = {
   revision: 0,
-  session: { status: 'signed-out', message: null, expiresAt: null },
+  session: { status: 'signed-out', message: null, expiresAt: null, email: null },
   removed: true,
   busy: false,
   active: null,
@@ -78,7 +82,13 @@ describe('Cloud host appearance and interaction', () => {
       },
     })
     i18n = new VueI18n({ locale: 'en', messages: Lang })
-    wrapper = shallowMount(Cloud, { localVue, store, i18n, sync: false, stubs: ['el-button', 'el-alert'] })
+    wrapper = mount(Cloud, {
+      localVue,
+      store,
+      i18n,
+      sync: false,
+      stubs: ['el-button', 'el-alert'],
+    })
     vm = wrapper.vm
     await settle()
   })
@@ -132,6 +142,58 @@ describe('Cloud host appearance and interaction', () => {
     await new Promise((resolve) => setTimeout(resolve, 650))
     expect(calls).to.equal(before)
   })
+  it('shows an email avatar and signs out through the account dropdown', async () => {
+    expect(wrapper.find('.cloud-account').exists()).to.equal(false)
+    listener(
+      {},
+      {
+        ...removed,
+        removed: false,
+        revision: 1,
+        session: { status: 'signed-in', message: null, expiresAt: Date.now() + 60000, email: 'reader@example.com' },
+      },
+    )
+    await settle()
+    const account = wrapper.find('.cloud-actions .cloud-account')
+    expect(account.find('.cloud-account-avatar').text()).to.equal('R')
+    expect(account.find('.cloud-account-email').text()).to.equal('reader@example.com')
+    expect(account.attributes('title')).to.equal('reader@example.com')
+    expect(wrapper.find('.cloud-actions > el-button-stub[type="text"]').exists()).to.equal(false)
+    expect(wrapper.find(DropdownMenu).isVisible()).to.equal(false)
+    await account.trigger('click')
+    await settle()
+    expect(wrapper.find(DropdownMenu).isVisible()).to.equal(true)
+    let operation: string | undefined
+    ipcRenderer.invoke = async (_channel, method) => {
+      operation = method
+      return { ok: true, data: { ...removed, revision: 2 } }
+    }
+    const logout = wrapper.find(DropdownItem)
+    expect(logout.text()).to.equal('Sign out')
+    await logout.trigger('click')
+    await settle()
+    expect(operation).to.equal('logout')
+    expect(wrapper.find('.cloud-account-menu').exists()).to.equal(false)
+  })
+  it('keeps the account menu available when an existing session has no email', async () => {
+    listener(
+      {},
+      {
+        ...removed,
+        removed: false,
+        revision: 1,
+        session: { status: 'signed-in', message: null, expiresAt: Date.now() + 60000, email: null },
+      },
+    )
+    await settle()
+    const account = wrapper.find('.cloud-account')
+    expect(account.attributes('aria-label')).to.equal('Account menu')
+    expect(account.find('.el-icon-user').exists()).to.equal(true)
+    expect(account.find('.cloud-account-email').exists()).to.equal(false)
+    await account.trigger('click')
+    await settle()
+    expect(wrapper.find(DropdownItem).text()).to.equal('Sign out')
+  })
   it('owns login and cancellation UI without loading an extension while signed out', async () => {
     listener({}, { ...removed, removed: false, revision: 1 })
     await settle()
@@ -148,7 +210,7 @@ describe('Cloud host appearance and interaction', () => {
           ...removed,
           removed: false,
           revision: 2,
-          session: { status: 'authorizing', message: null, expiresAt: null },
+          session: { status: 'authorizing', message: null, expiresAt: null, email: null },
         },
       }
     }

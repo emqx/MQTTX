@@ -3,7 +3,6 @@
     <header class="titlebar">
       <h1>EMQX Cloud</h1>
       <div class="cloud-actions">
-        <el-button v-if="signedIn" type="text" @click="authenticate('logout')">{{ $t('cloud.logout') }}</el-button>
         <el-button
           v-if="!state.removed"
           class="cloud-remove"
@@ -13,6 +12,25 @@
           @click="remove"
           >{{ $t('cloud.remove') }}</el-button
         >
+        <el-dropdown v-if="signedIn" class="cloud-account-menu" trigger="click" @command="authenticate('logout')">
+          <button
+            type="button"
+            class="cloud-account"
+            :title="state.session.email"
+            :aria-label="state.session.email || $t('cloud.account')"
+            @keydown.enter.prevent
+          >
+            <span class="cloud-account-avatar" aria-hidden="true">
+              <template v-if="accountInitial">{{ accountInitial }}</template>
+              <i v-else class="el-icon-user"></i>
+            </span>
+            <span v-if="state.session.email" class="cloud-account-email">{{ state.session.email }}</span>
+            <i class="el-icon-arrow-down" aria-hidden="true"></i>
+          </button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="logout">{{ $t('cloud.logout') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </header>
     <main class="cloud-body">
@@ -100,7 +118,7 @@ export default class Cloud extends Vue {
   @Getter('currentTheme') private currentTheme!: Theme
   private state: CloudState = {
     revision: -1,
-    session: { status: 'signed-out', message: null, expiresAt: null },
+    session: { status: 'signed-out', message: null, expiresAt: null, email: null },
     removed: false,
     busy: false,
     active: null,
@@ -112,6 +130,9 @@ export default class Cloud extends Vue {
   private clock: ReturnType<typeof setInterval> | undefined
   private get signedIn(): boolean {
     return this.state.session.status === 'signed-in'
+  }
+  private get accountInitial(): string {
+    return this.state.session.email?.charAt(0).toUpperCase() || ''
   }
   private get waiting(): boolean {
     return ['authorizing', 'exchanging'].includes(this.state.session.status)
@@ -270,6 +291,60 @@ header .el-button {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
+  > .el-button {
+    flex-shrink: 0;
+  }
+}
+.cloud-account-menu {
+  min-width: 0;
+  -webkit-app-region: no-drag;
+}
+.cloud-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-default);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  &:hover,
+  &:focus-visible {
+    background: var(--color-bg-primary);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 2px;
+  }
+  > .el-icon-arrow-down {
+    flex-shrink: 0;
+    color: var(--color-text-light);
+    font-size: 12px;
+  }
+}
+.cloud-account-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-main-green) 20%, var(--color-bg-normal));
+  color: var(--color-main-green);
+  font-weight: 600;
+}
+.cloud-account-email {
+  min-width: 0;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cloud-remove {
   background: transparent;

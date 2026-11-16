@@ -59,7 +59,7 @@ describe('Cloud frame lifecycle and bridge', () => {
       candidate: second,
       error: null,
       updateError: null,
-      session: { status: 'signed-in', message: null, expiresAt: null },
+      session: { status: 'signed-in', message: null, expiresAt: null, email: null },
     }
     ipcRenderer.invoke = async (_channel, method) => {
       calls.push(method)
@@ -202,7 +202,7 @@ describe('Cloud frame lifecycle and bridge', () => {
   it('unmounts business frames when the host session ends and keeps login outside the extension', async () => {
     await manager.sync(state)
     assert.lengthOf(container.querySelectorAll('iframe'), 2)
-    await manager.sync({ ...state, session: { status: 'signed-out', message: null, expiresAt: null } })
+    await manager.sync({ ...state, session: { status: 'signed-out', message: null, expiresAt: null, email: null } })
     assert.lengthOf(container.querySelectorAll('iframe'), 0)
     assert.include(calls, 'unmount')
   })
