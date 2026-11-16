@@ -102,6 +102,12 @@ describe('Desktop format-specific import parsers', () => {
           $tc: (key: string) => key,
         }
         await form.readFilePath(file, sample.extension)
+        // xlsx stores dates as fractional days, so createAt can come back 1 ms off in some time zones.
+        for (const connection of form.record.fileContent) {
+          if (connection.createAt instanceof Date) {
+            connection.createAt.setTime(Math.round(connection.createAt.getTime() / 1000) * 1000)
+          }
+        }
         expect({
           fileContent: JSON.parse(JSON.stringify(form.record.fileContent)),
           fileName: form.record.fileName,
