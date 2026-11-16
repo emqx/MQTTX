@@ -66,6 +66,7 @@
             </svg>
           </div>
           <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
+          <p v-if="!waiting" class="cloud-login-tagline">{{ $t('cloud.tagline') }}</p>
           <el-alert
             v-if="state.session.message"
             class="cloud-session-alert"
@@ -85,6 +86,7 @@
               >{{ $t('cloud.login') }}</el-button
             >
           </div>
+          <p v-if="!waiting" class="cloud-login-note">{{ $t('cloud.intlOnly') }}</p>
         </section>
       </div>
       <div v-else-if="!state.active" class="cloud-placeholder">
@@ -364,7 +366,7 @@ header .el-button {
 .cloud-footer-brand {
   margin-left: auto;
 }
-.cloud-placeholder p,
+.cloud-placeholder > p,
 .cloud-updating {
   color: var(--color-text-light);
 }
@@ -382,7 +384,7 @@ header .el-button {
     font-size: 18px;
     font-weight: 600;
   }
-  p {
+  > p {
     margin: 0 auto 24px;
     max-width: 420px;
     line-height: 1.7;
@@ -404,21 +406,14 @@ header .el-button {
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 500px;
+  max-width: 540px;
   flex-shrink: 0;
   margin: auto;
-  padding: 40px 40px 28px;
+  padding: 40px;
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
   background: var(--color-bg-normal);
   box-shadow: 0 8px 28px -16px var(--color-shadow-card);
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto;
-    height: 4px;
-    background: var(--color-bg-btn-gradient);
-  }
   h2 {
     margin: 24px 0 12px;
     color: var(--color-text-title);
@@ -427,6 +422,13 @@ header .el-button {
     line-height: 1.4;
   }
 }
+.cloud-login-tagline {
+  margin: 0 auto;
+  max-width: 420px;
+  color: var(--color-text-light);
+  font-size: 13px;
+  line-height: 1.7;
+}
 .cloud-login-mark {
   display: flex;
   align-items: center;
@@ -434,7 +436,7 @@ header .el-button {
   width: 64px;
   height: 64px;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--color-bg-card-gradient);
   color: var(--color-main-green);
   font-size: 30px;
@@ -468,14 +470,19 @@ header .el-button {
   }
   .el-button--primary {
     border: 0;
-    background: var(--color-bg-btn-gradient);
-    box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--color-main-green) 65%, transparent);
+    background: var(--color-main-green);
     &:hover,
     &:focus {
-      background: var(--color-bg-btn-gradient);
-      filter: brightness(1.06);
+      background: var(--color-minor-green);
     }
   }
+}
+.cloud-login-note {
+  margin: 24px auto 0;
+  max-width: 360px;
+  color: var(--color-text-light);
+  font-size: 11px;
+  line-height: 1.6;
 }
 .cloud-updating {
   flex-shrink: 0;
