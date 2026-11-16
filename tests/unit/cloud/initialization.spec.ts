@@ -71,7 +71,6 @@ describe('Cloud initialization isolation', function () {
       } as unknown as Electron.IpcMainInvokeEvent
       const environment = {
         MQTTX_CLOUD_AUTH_URL: 'https://auth.example.com',
-        MQTTX_CLOUD_API_URL: 'https://cloud.example.com',
         MQTTX_CLOUD_DEV_URL: 'https://untrusted.example.com',
       }
       Object.defineProperty(app, 'isPackaged', { configurable: true, value: false })
@@ -150,7 +149,6 @@ describe('Cloud initialization isolation', function () {
           })
         initializeCloud({
           MQTTX_CLOUD_AUTH_URL: 'https://auth.example.com',
-          MQTTX_CLOUD_API_URL: 'https://cloud.example.com',
         })
         const request = handler(event, 'login', { locale: 'en' })
         assert.deepEqual(actions, [])
@@ -185,25 +183,19 @@ describe('Cloud initialization isolation', function () {
         handler = listener
       }
       console.error = () => {}
-      for (const [auth, cloud] of [
-        ['invalid-auth-url', 'https://cloud.example.com'],
-        ['https://auth.example.com', 'invalid-cloud-url'],
-      ]) {
-        handler = undefined
-        let startupContinued = false
-        assert.doesNotThrow(() => {
-          initializeCloud({ MQTTX_CLOUD_AUTH_URL: auth, MQTTX_CLOUD_API_URL: cloud })
-          startupContinued = true
-        })
-        assert.isTrue(startupContinued)
-        assert.isFunction(handler)
-        const frame = { url: 'app://./index.html' }
-        const event = { senderFrame: frame, sender: { mainFrame: frame } } as Electron.IpcMainInvokeEvent
-        const response = await handler!(event, 'enter', {})
-        assert.deepEqual(response, { ok: false, error: { code: 'INVALID_SERVICE_URL', params: {} } })
-        const denied = await handler!({ ...event, senderFrame: null }, 'enter', {})
-        assert.strictEqual(denied.error.code, 'OPERATION_DENIED')
-      }
+      let startupContinued = false
+      assert.doesNotThrow(() => {
+        initializeCloud({ MQTTX_CLOUD_AUTH_URL: 'invalid-auth-url' })
+        startupContinued = true
+      })
+      assert.isTrue(startupContinued)
+      assert.isFunction(handler)
+      const frame = { url: 'app://./index.html' }
+      const event = { senderFrame: frame, sender: { mainFrame: frame } } as Electron.IpcMainInvokeEvent
+      const response = await handler!(event, 'enter', {})
+      assert.deepEqual(response, { ok: false, error: { code: 'INVALID_SERVICE_URL', params: {} } })
+      const denied = await handler!({ ...event, senderFrame: null }, 'enter', {})
+      assert.strictEqual(denied.error.code, 'OPERATION_DENIED')
     } finally {
       ipcMain.handle = originalHandle
       console.error = originalLog
