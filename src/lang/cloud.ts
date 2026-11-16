@@ -7,22 +7,6 @@ export default {
     hu: 'Fiókmenü',
     ko: '계정 메뉴',
   },
-  remaining: {
-    zh: '授权剩余',
-    en: 'Authorization remaining',
-    ja: '認証の残り時間',
-    tr: 'Kalan yetkilendirme süresi',
-    hu: 'Hátralévő engedélyezési idő',
-    ko: '남은 인증 시간',
-  },
-  minutes: {
-    zh: '{count} 分钟',
-    en: '{count} min',
-    ja: '{count} 分',
-    tr: '{count} dk',
-    hu: '{count} perc',
-    ko: '{count}분',
-  },
   logout: {
     zh: '退出登录',
     en: 'Sign out',
