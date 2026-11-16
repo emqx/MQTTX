@@ -101,6 +101,27 @@ describe('Subscription completion', () => {
     await completion
   })
 
+  it('emits a rejected grant error before subscribe resolves', async () => {
+    const { context, callbacks } = createContext()
+    context.handleSubError = methods.handleSubError
+    context.$t = (key: string) => key
+    const order: string[] = []
+    context.$emit = (...args: unknown[]) => {
+      if (args[0] === 'onSubError') {
+        order.push('error')
+      }
+    }
+    const completion = methods.subscribe.call(context, context.subRecord).then(() => {
+      order.push('resolved')
+    })
+    await Promise.resolve()
+
+    await callbacks[0](null, [{ topic: 'test/topic', qos: 128 }])
+    await completion
+    expect(order).to.deep.equal(['error', 'resolved'])
+    expect(context.subsList).to.have.length(0)
+  })
+
   it('resubscribes enabled topics in order as each callback finishes without waiting for timers', async () => {
     const { context, callbacks, topics } = createContext()
     context.subsList = [

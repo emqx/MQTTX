@@ -548,7 +548,12 @@ export default class SubscriptionsList extends Vue {
           })
         }
         if (!successSubscriptions.length) {
-          finish()
+          // Rejected grants report their error on a timer; callers expect the error before subscribe() resolves
+          if (granted?.length) {
+            setTimeout(finish, 0)
+          } else {
+            finish()
+          }
           return false
         }
         if (enable) {
