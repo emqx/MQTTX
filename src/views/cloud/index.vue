@@ -96,9 +96,6 @@
       <div ref="frames" v-show="signedIn" class="cloud-frames"></div>
     </main>
     <footer class="cloud-footer">
-      <span v-if="signedIn" class="cloud-session-remaining">
-        {{ $t('cloud.remaining') }} {{ $t('cloud.minutes', { count: minutes }) }}
-      </span>
       <span class="cloud-footer-brand">EMQX Cloud</span>
     </footer>
   </div>
@@ -126,8 +123,6 @@ export default class Cloud extends Vue {
     error: null,
     updateError: null,
   }
-  private now = Date.now()
-  private clock: ReturnType<typeof setInterval> | undefined
   private get signedIn(): boolean {
     return this.state.session.status === 'signed-in'
   }
@@ -136,9 +131,6 @@ export default class Cloud extends Vue {
   }
   private get waiting(): boolean {
     return ['authorizing', 'exchanging'].includes(this.state.session.status)
-  }
-  private get minutes(): number {
-    return Math.max(0, Math.ceil(((this.state.session.expiresAt || this.now) - this.now) / 60000))
   }
   private async authenticate(method: 'login' | 'logout' | 'cancel'): Promise<void> {
     this.failure = null
@@ -160,9 +152,6 @@ export default class Cloud extends Vue {
     return issue ? String(this.$t(cloudErrorKey(issue), issue.params)) : ''
   }
   async mounted(): Promise<void> {
-    this.clock = setInterval(() => {
-      this.now = Date.now()
-    }, 1000)
     this.frameManager = new CloudFrameManager({
       container: this.$refs.frames as HTMLElement,
       theme: () => this.theme(),
@@ -259,7 +248,6 @@ export default class Cloud extends Vue {
   }
   beforeDestroy(): void {
     this.alive = false
-    clearInterval(this.clock)
     this.unwatch?.()
     this.frameManager?.dispose()
     this.frameManager = null
@@ -372,9 +360,6 @@ header .el-button {
   color: var(--color-text-light);
   font-size: 12px;
   line-height: 1.6;
-}
-.cloud-session-remaining {
-  color: var(--color-main-green);
 }
 .cloud-footer-brand {
   margin-left: auto;
