@@ -2445,9 +2445,7 @@ export default class ConnectionsDetail extends Vue {
     this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
     this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
     this.setMessageListHeight()
-    window.addEventListener('resize', () => {
-      this.setMessageListHeight()
-    })
+    window.addEventListener('resize', this.setMessageListHeight)
   }
 
   private beforeDestroy() {
@@ -2464,9 +2462,7 @@ export default class ConnectionsDetail extends Vue {
     // messages. The next page instance rebinds them (see onMessageArrived).
     this.stopTimedSend()
     this.forceStopToReconnect()
-    window.removeEventListener('resize', () => {
-      this.setMessageListHeight()
-    })
+    window.removeEventListener('resize', this.setMessageListHeight)
   }
 
   get activeSearchTerms() {
