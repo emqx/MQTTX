@@ -37,10 +37,27 @@
         type="info"
         :closable="false"
       />
-      <div v-if="state.removed" class="cloud-placeholder">
-        <h2>{{ $t('cloud.removed') }}</h2>
-        <p>{{ $t('cloud.addHint') }}</p>
-        <el-button type="primary" :disabled="removing" @click="prepare('add')">{{ $t('cloud.add') }}</el-button>
+      <div v-if="state.removed" class="cloud-placeholder cloud-login">
+        <section class="cloud-login-card" aria-labelledby="cloud-removed-title">
+          <div class="cloud-login-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path
+                d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <h2 id="cloud-removed-title">{{ $t('cloud.removed') }}</h2>
+          <p class="cloud-login-tagline">{{ $t('cloud.addHint') }}</p>
+          <div class="cloud-login-actions">
+            <el-button type="primary" icon="el-icon-plus" :disabled="removing" @click="prepare('add')">
+              {{ $t('cloud.add') }}
+            </el-button>
+          </div>
+        </section>
       </div>
       <div v-else-if="!signedIn" class="cloud-placeholder cloud-login">
         <section class="cloud-login-card" aria-labelledby="cloud-login-title">

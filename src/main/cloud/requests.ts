@@ -18,6 +18,7 @@ const methods: CloudMethod[] = [
   'backend',
   'createConnection',
   'copyConnection',
+  'copyText',
 ]
 export function parseCloudRequest(method: unknown, value: unknown = {}): CloudRequest {
   if (
@@ -30,7 +31,7 @@ export function parseCloudRequest(method: unknown, value: unknown = {}): CloudRe
     throw new CloudError('OPERATION_DENIED')
   const args = value as Record<string, unknown>
   if (
-    ['mounting', 'ready', 'unmount', 'backend', 'createConnection', 'copyConnection'].includes(method) &&
+    ['mounting', 'ready', 'unmount', 'backend', 'createConnection', 'copyConnection', 'copyText'].includes(method) &&
     (typeof args.id !== 'string' || !/^r-[a-f0-9-]{36}$/.test(args.id))
   )
     throw new CloudError('OPERATION_DENIED')
@@ -38,6 +39,10 @@ export function parseCloudRequest(method: unknown, value: unknown = {}): CloudRe
     throw new CloudError('OPERATION_DENIED')
   if (method === 'backend' && (typeof args.method !== 'string' || !/^[a-zA-Z][a-zA-Z0-9]{0,63}$/.test(args.method)))
     throw new CloudError('OPERATION_DENIED')
+  if (method === 'copyText') {
+    if (typeof args.text !== 'string' || !args.text || args.text.length > 4096) throw new CloudError('OPERATION_DENIED')
+    return { method, args: { id: args.id as string, text: args.text } }
+  }
   if (method === 'createConnection' || method === 'copyConnection')
     return { method, args: { id: args.id as string, connection: parseCloudConnection(args.connection) } }
   return { method, args } as CloudRequest
