@@ -276,7 +276,7 @@ export default class TreeVisual extends Vue {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  private handleResize = () => {
+  private handleResize(): void {
     if (this.chart) {
       this.chart.resize()
     }
