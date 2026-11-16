@@ -23,6 +23,22 @@ export default {
     hu: 'EMQX Cloud csatlakoztatása',
     ko: 'EMQX Cloud 연결',
   },
+  tagline: {
+    zh: '在 MQTTX 中直接查看 EMQX Cloud 部署，一键创建连接。',
+    en: 'Browse your EMQX Cloud deployments in MQTTX and create a connection in one click.',
+    ja: 'MQTTX から EMQX Cloud のデプロイを確認し、ワンクリックで接続を作成できます。',
+    tr: 'EMQX Cloud dağıtımlarınıza MQTTX içinden göz atın; tek tıkla bağlantı oluşturun.',
+    hu: 'Böngéssze EMQX Cloud-telepítéseit az MQTTX-ben, és hozzon létre kapcsolatot egyetlen kattintással.',
+    ko: 'MQTTX에서 EMQX Cloud 배포를 확인하고 클릭 한 번으로 연결을 만들 수 있습니다.',
+  },
+  intlOnly: {
+    zh: '目前仅支持 EMQX Cloud 国际站账号登录，暂不支持中文站（cloud.emqx.com）账号。',
+    en: 'Sign-in currently supports only EMQX Cloud international accounts, not Chinese-site (cloud.emqx.com) accounts.',
+    ja: '現在、EMQX Cloud 国際版のアカウントでのみログインできます。中国版（cloud.emqx.com）のアカウントはまだ対応していません。',
+    tr: 'Şu anda yalnızca EMQX Cloud uluslararası hesaplarıyla giriş desteklenmektedir; Çince site (cloud.emqx.com) hesapları henüz desteklenmemektedir.',
+    hu: 'Jelenleg csak nemzetközi EMQX Cloud-fiókkal lehet bejelentkezni; a kínai oldal (cloud.emqx.com) fiókjai még nem támogatottak.',
+    ko: '현재 EMQX Cloud 국제 사이트 계정으로만 로그인할 수 있으며, 중국 사이트(cloud.emqx.com) 계정은 아직 지원하지 않습니다.',
+  },
   authorize: {
     zh: '请完成浏览器授权',
     en: 'Complete browser authorization',
