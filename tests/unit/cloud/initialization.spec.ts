@@ -1,9 +1,11 @@
 import { assert } from 'chai'
-import { app, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { initializeCloud } from '../../../src/main/cloud'
+import { CloudAuth } from '../../../src/main/cloud/auth'
+import type { CloudSession } from '../../../src/types/cloud'
 
 describe('Cloud initialization isolation', function () {
   // Expected failures format stack traces against the full webpack bundle's source map.
@@ -96,6 +98,81 @@ describe('Cloud initialization isolation', function () {
       console.error = log
       if (packaged) Object.defineProperty(app, 'isPackaged', packaged)
       else Reflect.deleteProperty(app, 'isPackaged')
+      fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
+  it('activates only the initiating window after successful login and restores it when minimized', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-cloud-focus-'))
+    const handle = ipcMain.handle,
+      getPath = app.getPath,
+      once = app.once,
+      login = CloudAuth.prototype.login,
+      fromWebContents = BrowserWindow.fromWebContents
+    const cleanup: Array<() => void> = []
+    let handler!: Parameters<typeof ipcMain.handle>[1]
+    try {
+      app.getPath = () => root
+      app.once = ((_event: string, listener: () => void) => {
+        cleanup.push(listener)
+        return app
+      }) as typeof app.once
+      ipcMain.handle = (_channel, listener) => {
+        handler = listener
+      }
+      for (const outcome of [
+        'success',
+        'minimized',
+        'failed',
+        'cancelled',
+        'closed-sender',
+        'closed-window',
+        'missing-window',
+      ]) {
+        const actions: string[] = []
+        const frame = { url: 'app://./index.html' }
+        const sender = { mainFrame: frame, isDestroyed: () => outcome === 'closed-sender' }
+        const event = { sender, senderFrame: frame } as unknown as Electron.IpcMainInvokeEvent
+        const window = {
+          isDestroyed: () => outcome === 'closed-window',
+          isMinimized: () => outcome === 'minimized',
+          restore: () => actions.push('restore'),
+          show: () => actions.push('show'),
+          focus: () => actions.push('focus'),
+        } as unknown as BrowserWindow
+        BrowserWindow.fromWebContents = (contents) => {
+          assert.strictEqual(contents, sender)
+          return outcome === 'missing-window' ? null : window
+        }
+        let complete!: (session: CloudSession) => void
+        CloudAuth.prototype.login = () =>
+          new Promise((resolve) => {
+            complete = resolve
+          })
+        initializeCloud({
+          MQTTX_CLOUD_AUTH_URL: 'https://auth.example.com',
+          MQTTX_CLOUD_API_URL: 'https://cloud.example.com',
+        })
+        const request = handler(event, 'login', { locale: 'en' })
+        assert.deepEqual(actions, [])
+        complete({
+          status: outcome === 'failed' || outcome === 'cancelled' ? 'signed-out' : 'signed-in',
+          message: null,
+          expiresAt: null,
+          email: null,
+        })
+        assert.isTrue((await request).ok)
+        assert.deepEqual(
+          actions,
+          outcome === 'success' ? ['show', 'focus'] : outcome === 'minimized' ? ['restore', 'show', 'focus'] : [],
+        )
+      }
+    } finally {
+      for (const dispose of cleanup) dispose()
+      ipcMain.handle = handle
+      app.getPath = getPath
+      app.once = once
+      CloudAuth.prototype.login = login
+      BrowserWindow.fromWebContents = fromWebContents
       fs.rmSync(root, { recursive: true, force: true })
     }
   })

@@ -1,5 +1,8 @@
 // Simple Electron mock for testing environment
 module.exports = {
+  BrowserWindow: {
+    fromWebContents: () => null,
+  },
   getGlobal: () => ({}),
   nativeTheme: {
     shouldUseDarkColors: false,

@@ -1,6 +1,6 @@
 import { CloudError, cloudIssue } from '../../utils/cloudErrors'
 import { cloudConnectionURL } from '../../utils/cloudConnection'
-import { app, clipboard, ipcMain, safeStorage, shell } from 'electron'
+import { app, BrowserWindow, clipboard, ipcMain, safeStorage, shell } from 'electron'
 import type { WebContents } from 'electron'
 import path from 'path'
 import fs from 'fs'
@@ -153,9 +153,17 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
     return snapshot()
   }
   const handlers: Handlers = {
-    login: async ({ locale }) => {
+    login: async ({ locale }, sender) => {
       if (extension.removed) throw new CloudError('EXTENSION_STOPPED')
-      await auth.login(locale)
+      const session = await auth.login(locale)
+      if (session.status === 'signed-in' && !sender.isDestroyed()) {
+        const window = BrowserWindow.fromWebContents(sender)
+        if (window && !window.isDestroyed()) {
+          if (window.isMinimized()) window.restore()
+          window.show()
+          window.focus()
+        }
+      }
       return snapshot()
     },
     logout: () => {
