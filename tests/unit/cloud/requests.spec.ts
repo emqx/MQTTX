@@ -1,4 +1,5 @@
 import { assert } from 'chai'
+import { cloudConnectionURL } from '../../../src/utils/cloudConnection'
 import { parseCloudRequest } from '../../../src/main/cloud/requests'
 import { cloudDiagnostic, logCloudFailure } from '../../../src/main/cloud/diagnostics'
 import { releaseVersion } from '../../../src/main/cloud/manifest'
@@ -22,6 +23,42 @@ describe('Cloud contracts and diagnostics', () => {
       ['status', []],
     ]) {
       expectError(() => parseCloudRequest(method, value), { code: 'OPERATION_DENIED' })
+    }
+  })
+  it('accepts only a bounded connection preset and drops unrelated fields', () => {
+    const connection = { name: 'Cloud', host: 'broker.example.com', port: 8883, protocol: 'mqtts' as const }
+    const id = 'r-12345678-1234-1234-1234-123456789abc'
+    for (const method of ['createConnection', 'copyConnection'] as const) {
+      assert.deepEqual(parseCloudRequest(method, { id, connection: { ...connection, password: 'ignored' } }), {
+        method,
+        args: { id, connection },
+      })
+      for (const invalid of [
+        null,
+        { ...connection, host: 'broker.example.com/path' },
+        { ...connection, host: 'user@broker.example.com' },
+        { ...connection, protocol: 'file' },
+        { ...connection, port: 0 },
+        { ...connection, port: 65536 },
+        { ...connection, port: '8883' },
+        { ...connection, name: '' },
+      ])
+        expectError(() => parseCloudRequest(method, { id, connection: invalid }), { code: 'OPERATION_DENIED' })
+      expectError(() => parseCloudRequest(method, { connection }), { code: 'OPERATION_DENIED' })
+    }
+  })
+  it('copies WebSocket URLs with the Cloud MQTT path and keeps TCP URLs unchanged', () => {
+    for (const protocol of ['mqtt', 'mqtts', 'ws', 'wss'] as const) {
+      const expected = {
+        mqtt: 'mqtt://broker.example.com:12345',
+        mqtts: 'mqtts://broker.example.com:12345',
+        ws: 'ws://broker.example.com:12345/mqtt',
+        wss: 'wss://broker.example.com:12345/mqtt',
+      }
+      assert.strictEqual(
+        cloudConnectionURL({ name: 'Cloud', host: 'broker.example.com', port: 12345, protocol }),
+        expected[protocol],
+      )
     }
   })
   it('rejects prerelease versions under the stable-release publication rule', () => {
