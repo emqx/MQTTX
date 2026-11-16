@@ -2,7 +2,9 @@
   <DatabaseError v-if="connectDatabaseFailMessage" />
   <div class="home-view" v-else>
     <Leftbar />
-    <RouterView />
+    <!-- Keep the iframe attached: removing it would reload the extension on return. -->
+    <Cloud v-if="cloudVisited" v-show="$route.name === 'Cloud'" />
+    <RouterView v-if="$route.name !== 'Cloud'" />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
     <AgentPanel ref="agent" v-if="enableAgent" />
@@ -10,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { nativeTheme } from '@electron/remote'
 import Ipc from '@/components/Ipc.vue'
@@ -22,6 +24,7 @@ import AgentPanel from '@/components/agent/AgentPanel.vue'
   components: {
     Ipc,
     Leftbar,
+    Cloud: () => import('@/views/cloud/index.vue'),
     Update: () => import('@/views/update/index.vue'),
     DatabaseError,
     AgentPanel,
@@ -36,6 +39,12 @@ export default class Home extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   private updateActive = false
+  private cloudVisited = false
+
+  @Watch('$route.name', { immediate: true })
+  private onRouteChanged(): void {
+    if (this.$route.name === 'Cloud') this.cloudVisited = true
+  }
 
   private setTheme(theme: Theme): void {
     const { shouldUseDarkColors } = nativeTheme
