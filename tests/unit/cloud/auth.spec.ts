@@ -2,9 +2,6 @@ import { assert } from 'chai'
 import http from 'http'
 import type { AddressInfo } from 'net'
 import { createHash } from 'crypto'
-import fs from 'fs'
-import os from 'os'
-import path from 'path'
 import version from '../../../src/version'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import { CloudDeviceIdentity } from '../../../src/main/cloud/device'
@@ -35,9 +32,7 @@ describe('Cloud authorization contract', () => {
       )
     })
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-auth-device-'))
     const identity = new CloudDeviceIdentity(
-      path.join(root, 'device.json'),
       async () => '550e8400e29b41d4a716446655440000',
       () => ({
         getPassword: async () => null,
@@ -97,7 +92,6 @@ describe('Cloud authorization contract', () => {
       auth.dispose()
       server.closeAllConnections()
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
-      fs.rmSync(root, { recursive: true, force: true })
     }
   })
 
