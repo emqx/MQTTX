@@ -156,6 +156,7 @@ module.exports = {
         ])
       },
       builderOptions: {
+        beforePack: require('./scripts/prepare-keyring'),
         productName: 'MQTTX',
         publish: [
           {
@@ -172,6 +173,7 @@ module.exports = {
           artifactName: 'MQTTX-Setup-${version}-${arch}.${ext}',
         },
         win: {
+          files: ['!node_modules/@napi-rs/keyring-!(win32-${arch}-msvc)/**/*'],
           artifactName: 'MQTTX-${version}-${arch}-win.${ext}',
           icon: './public/icons/app.ico',
           target: [
@@ -192,6 +194,7 @@ module.exports = {
           ],
         },
         mac: {
+          files: ['!node_modules/@napi-rs/keyring-!(darwin-${arch})/**/*'],
           icon: './public/icons/mac/Icon.icns',
           target: [
             {
@@ -211,6 +214,7 @@ module.exports = {
           ],
         },
         linux: {
+          files: ['!node_modules/@napi-rs/keyring-!(linux-${arch}-gnu)/**/*'],
           // The directory lets electron-builder infer the icon size from its filename.
           icon: './public/icons',
           target: [

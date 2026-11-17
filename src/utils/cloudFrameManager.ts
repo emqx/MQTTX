@@ -108,15 +108,15 @@ export class CloudFrameManager {
     const channel = new MessageChannel()
     const port = channel.port1
     frame.port = port
+    const isCurrent = (): boolean => this.alive && this.frames.get(id) === frame && frame.port === port
     port.onmessage = async (incoming: MessageEvent) => {
       const msg = incoming.data
-      if (!this.alive || this.frames.get(id) !== frame || frame.port !== port || !msg || !Number.isSafeInteger(msg.seq))
-        return
+      if (!isCurrent() || !msg || !Number.isSafeInteger(msg.seq)) return
       try {
         let data
         if (msg.method === 'ready') {
           await this.options.onState(await invokeCloud('ready', { id }))
-          if (!this.alive || this.frames.get(id) !== frame || frame.port !== port) return
+          if (!isCurrent()) return
           frame.ready = true
           this.syncTheme()
         } else if (msg.method === 'theme') data = this.options.theme()
@@ -124,18 +124,16 @@ export class CloudFrameManager {
           data = await invokeCloud('backend', { id, method: msg.params?.method, params: msg.params?.params })
         } else if (frame.ready && msg.method === 'createConnection') {
           const connection = await invokeCloud('createConnection', { id, connection: msg.params })
-          if (!this.alive || this.frames.get(id) !== frame || frame.port !== port) return
+          if (!isCurrent()) return
           this.options.onCreateConnection(connection)
         } else if (frame.ready && msg.method === 'copyText') {
           await invokeCloud('copyText', { id, text: msg.params?.text })
         } else if (frame.ready && msg.method === 'copyConnection') {
           await invokeCloud('copyConnection', { id, connection: msg.params })
         } else throw new CloudError('OPERATION_DENIED')
-        if (this.alive && this.frames.get(id) === frame && frame.port === port)
-          port.postMessage({ seq: msg.seq, ok: true, data })
+        if (isCurrent()) port.postMessage({ seq: msg.seq, ok: true, data })
       } catch (error) {
-        if (this.alive && this.frames.get(id) === frame && frame.port === port)
-          port.postMessage({ seq: msg.seq, ok: false, error: cloudIssue(error) })
+        if (isCurrent()) port.postMessage({ seq: msg.seq, ok: false, error: cloudIssue(error) })
       }
     }
     frame.element.contentWindow?.postMessage({ type: 'mqttx-cloud:connect' }, '*', [channel.port2])

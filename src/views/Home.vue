@@ -4,7 +4,7 @@
     <Leftbar />
     <!-- Keep the iframe attached: removing it would reload the extension on return. -->
     <Cloud v-if="cloudVisited" v-show="$route.name === 'Cloud'" />
-    <RouterView v-if="$route.name !== 'Cloud'" />
+    <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
     <AgentPanel ref="agent" v-if="enableAgent" />
