@@ -1,4 +1,8 @@
-<img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-logo.png" />
+  <img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+</picture>
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![Support Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
@@ -15,7 +19,11 @@
 
 > [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
 
-![mqttx-preview](./assets/mqttx-preview.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-preview-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-preview.png" />
+  <img src="./assets/mqttx-preview.png" alt="複数のトピックでメッセージを送受信する MQTTX" />
+</picture>
 
 ## 機能
 

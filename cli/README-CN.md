@@ -1,4 +1,8 @@
-<img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" />
+  <img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+</picture>
 
 # MQTTX 命令行工具
 

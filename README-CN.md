@@ -1,4 +1,8 @@
-<img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-logo.png" />
+  <img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+</picture>
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![Support Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
@@ -15,7 +19,11 @@
 
 > [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
-![mqttx-preview](./assets/mqttx-preview.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-preview-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-preview.png" />
+  <img src="./assets/mqttx-preview.png" alt="MQTTX 多主题订阅及消息收发界面" />
+</picture>
 
 ## 功能特性
 

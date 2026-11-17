@@ -1,4 +1,8 @@
-<img src="../assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../assets/mqttx-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="../assets/mqttx-logo.png" />
+  <img src="../assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+</picture>
 
 # MQTTX Web
 
