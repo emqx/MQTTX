@@ -145,11 +145,13 @@ export class CloudAuth {
     let timer: ReturnType<typeof setTimeout> | undefined
     let settled = false
     let settle!: (error?: Error) => void
+    let callbackReply: ((status: number, code: string) => void) | undefined
     const abort = new AbortController()
     const outcome = new Promise<void>((resolve, reject) => {
       settle = (error) => {
         if (settled) return
         settled = true
+        callbackReply?.(error ? 500 : 200, error ? cloudIssue(error).code : 'AUTH_COMPLETE')
         error ? reject(error) : resolve()
       }
     })
@@ -185,7 +187,7 @@ export class CloudAuth {
       }
       this.status = 'exchanging'
       this.notify()
-      reply(200, 'AUTH_COMPLETE')
+      callbackReply = reply
       server.close()
       try {
         const response = await fetch(`${this.authURL}/api/v2/oauth/token`, {
@@ -218,7 +220,7 @@ export class CloudAuth {
           data.scope !== 'deployments:read'
         )
           throw new CloudError('AUTH_RESULT_INVALID')
-        if (run !== this.generation) throw new CloudError('AUTH_CANCELLED')
+        if (settled || run !== this.generation) throw new CloudError('AUTH_CANCELLED')
         const token = { value: data.access_token, expiresAt: this.now() + data.expires_in * 1000 }
         // Persist successfully before exposing the new session in memory.
         this.vault.save(token)

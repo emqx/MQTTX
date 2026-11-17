@@ -37,7 +37,7 @@
         type="info"
         :closable="false"
       />
-      <div v-if="state.removed" class="cloud-placeholder cloud-login">
+      <div v-if="state.removed" class="cloud-login">
         <section class="cloud-login-card" aria-labelledby="cloud-removed-title">
           <div class="cloud-login-mark" aria-hidden="true">
             <i class="iconfont icon-cloud-logo"></i>
@@ -51,7 +51,7 @@
           </div>
         </section>
       </div>
-      <div v-else-if="!signedIn" class="cloud-placeholder cloud-login">
+      <div v-else-if="!signedIn" class="cloud-login">
         <section class="cloud-login-card" aria-labelledby="cloud-login-title">
           <div class="cloud-login-mark" aria-hidden="true">
             <i v-if="waiting" class="el-icon-loading"></i>
@@ -81,13 +81,23 @@
           <p v-if="!waiting" class="cloud-login-note">{{ $t('cloud.intlOnly') }}</p>
         </section>
       </div>
-      <div v-else-if="!state.active" class="cloud-placeholder">
-        <h2>{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
-        <p>{{ $t('cloud.prepareHint') }}</p>
-        <el-button v-if="state.error || failure" @click="prepare('retry')">{{ $t('cloud.retry') }}</el-button>
+      <div v-else-if="!state.active" class="cloud-login">
+        <section class="cloud-login-card" role="status" aria-labelledby="cloud-preparing-title">
+          <div class="cloud-login-mark" aria-hidden="true">
+            <i v-if="state.error || failure" class="iconfont icon-cloud-logo"></i>
+            <i v-else class="el-icon-loading"></i>
+          </div>
+          <h2 id="cloud-preparing-title">{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
+          <p class="cloud-login-tagline">{{ $t('cloud.prepareHint') }}</p>
+          <div v-if="state.error || failure" class="cloud-login-actions">
+            <el-button type="primary" icon="el-icon-refresh" @click="prepare('retry')">
+              {{ $t('cloud.retry') }}
+            </el-button>
+          </div>
+        </section>
       </div>
       <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
-      <div ref="frames" v-show="signedIn" class="cloud-frames"></div>
+      <div ref="frames" v-show="signedIn && state.active" class="cloud-frames"></div>
     </main>
     <footer class="cloud-footer">
       <button v-if="!state.removed" type="button" class="cloud-remove" :disabled="removing" @click="remove">
@@ -375,29 +385,8 @@ export default class Cloud extends Vue {
 .cloud-footer-brand {
   margin-left: auto;
 }
-.cloud-placeholder > p,
 .cloud-updating {
   color: var(--color-text-light);
-}
-.cloud-placeholder {
-  text-align: center;
-  padding: 70px 24px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 12px;
-  margin: 24px 16px 0;
-  background: var(--color-bg-normal);
-  box-shadow: 0 8px 28px -16px var(--color-shadow-card);
-  h2 {
-    margin: 0 0 8px;
-    color: var(--color-text-title);
-    font-size: 18px;
-    font-weight: 600;
-  }
-  > p {
-    margin: 0 auto 24px;
-    max-width: 420px;
-    line-height: 1.7;
-  }
 }
 .cloud-login {
   flex: 1;
@@ -405,11 +394,7 @@ export default class Cloud extends Vue {
   display: flex;
   overflow-y: auto;
   padding: 32px 16px 64px;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  text-align: center;
 }
 .cloud-login-card {
   position: relative;

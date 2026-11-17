@@ -83,6 +83,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
     root,
     catalogURL: environment.MQTTX_CLOUD_CATALOG_URL || 'http://127.0.0.1:43112/catalog.json',
     publicKey: environment.MQTTX_CLOUD_PUBLIC_KEY || '',
+    allowUnsignedLocal: !app.isPackaged,
     checkInterval: environment.MQTTX_CLOUD_CATALOG_URL?.startsWith('http://127.0.0.1:')
       ? Math.max(2000, Number(environment.MQTTX_CLOUD_UPDATE_INTERVAL_MS) || 3600000)
       : 3600000,

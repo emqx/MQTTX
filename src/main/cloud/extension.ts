@@ -29,6 +29,7 @@ interface ExtensionOptions {
   root: string
   catalogURL: string
   publicKey?: string | KeyObject
+  allowUnsignedLocal?: boolean
   now?: () => number
   checkInterval?: number
   readyTimeout?: number
@@ -72,6 +73,7 @@ export class CloudExtension extends EventEmitter {
   readonly root: string
   readonly catalogURL: string
   private readonly publicKey: string | KeyObject
+  private readonly allowUnsignedLocal: boolean
   private readonly now: () => number
   readonly checkInterval: number
   private readonly readyTimeout: number
@@ -98,17 +100,23 @@ export class CloudExtension extends EventEmitter {
     root,
     catalogURL,
     publicKey = '',
+    allowUnsignedLocal = false,
     now = Date.now,
     checkInterval = 3600000,
     readyTimeout = 15000,
     installWorkerPath,
   }: ExtensionOptions) {
     super()
+    if (!allowUnsignedLocal) {
+      if (remoteURL(catalogURL).protocol !== 'https:') throw new CloudError('INVALID_SERVICE_URL')
+      if (!publicKey) throw new CloudError('SIGNATURE_INVALID')
+    }
     this.developmentURL = developmentURL
     this.installWorkerPath = installWorkerPath
     this.root = root
     this.catalogURL = catalogURL
     this.publicKey = publicKey
+    this.allowUnsignedLocal = allowUnsignedLocal
     this.now = now
     this.checkInterval = checkInterval
     this.readyTimeout = readyTimeout
@@ -118,10 +126,22 @@ export class CloudExtension extends EventEmitter {
     try {
       if (!developmentURL && fs.existsSync(this.statePath))
         this.saved = JSON.parse(fs.readFileSync(this.statePath, 'utf8'))
-    } catch {
-      this.saved = { removed: true, active: null }
+    } catch (error) {
+      logCloudFailure('extension state', error)
+      this.saved = { removed: false, active: null }
     }
     if (this.saved.active && !/^r-[a-f0-9-]{36}$/.test(this.saved.active.id)) this.saved.active = null
+    // Previous frames and Workers have exited; only the persisted release is still needed.
+    try {
+      if (!developmentURL && fs.existsSync(this.releases)) {
+        for (const entry of fs.readdirSync(this.releases, { withFileTypes: true })) {
+          if (entry.isDirectory() && entry.name !== this.saved.active?.id)
+            fs.rmSync(path.join(this.releases, entry.name), { recursive: true, force: true })
+        }
+      }
+    } catch (error) {
+      logCloudFailure('release cleanup', error)
+    }
     this.active = null
     this.candidate = null
     this.busy = false
@@ -311,7 +331,7 @@ export class CloudExtension extends EventEmitter {
     if (!/^[a-f0-9]{64}$/.test(release.sha256)) throw new CloudError('PACKAGE_INVALID')
     const url = remoteURL(release.url)
     const local = remoteURL(this.catalogURL).hostname === '127.0.0.1' && url.hostname === '127.0.0.1'
-    if (!local || this.publicKey) {
+    if (!this.allowUnsignedLocal || !local || this.publicKey) {
       const payload = JSON.stringify({
         id: release.id,
         version: release.version,

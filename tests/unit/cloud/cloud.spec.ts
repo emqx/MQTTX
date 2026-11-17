@@ -8,7 +8,15 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import http from 'http'
-import { randomBytes, createCipheriv, createDecipheriv, createHash, generateKeyPairSync, sign } from 'crypto'
+import {
+  randomUUID,
+  randomBytes,
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  generateKeyPairSync,
+  sign,
+} from 'crypto'
 import { zipSync } from 'fflate'
 import { extractCloudZip } from '../../../src/main/cloud/package'
 import { CredentialStore } from '../../../src/main/cloud/storage'
@@ -97,6 +105,7 @@ async function delivery(options = {}) {
     root: temp(),
     installWorkerPath: workers.installer,
     catalogURL: base + '/catalog.json',
+    allowUnsignedLocal: true,
     checkInterval: 0,
     readyTimeout: 30,
     ...options,
@@ -154,6 +163,7 @@ describe('Cloud cloud', () => {
       root,
       catalogURL: 'invalid-catalog-must-not-be-read',
       developmentURL: 'http://127.0.0.1:5173/dev.html',
+      allowUnsignedLocal: true,
     })
     try {
       await extension.enter()
@@ -196,6 +206,7 @@ describe('Cloud cloud', () => {
         installWorkerPath: workers.installer,
         root: d.e.root,
         catalogURL: d.base + '/catalog.json',
+        allowUnsignedLocal: true,
       })
       const before = d.count()
       await other.enter()
@@ -210,6 +221,66 @@ describe('Cloud cloud', () => {
       await d.stop()
     }
   })
+  it('keeps old releases until restart, then removes old and interrupted installs while retaining the active release', async () => {
+    const d = await delivery()
+    let restarted: CloudExtension | undefined
+    try {
+      await d.e.enter()
+      await settled(d.e)
+      const old = d.e.snapshot().candidate!.id
+      d.e.ready(old)
+      await settled(d.e)
+      d.update('1.0.1')
+      d.e.check()
+      await settled(d.e)
+      const active = d.e.snapshot().candidate!.id
+      d.e.ready(active)
+      await settled(d.e)
+      const releases = path.join(d.e.root, 'releases')
+      assert.isTrue(fs.existsSync(path.join(releases, old)))
+      d.update('1.0.2')
+      d.e.check()
+      await settled(d.e)
+      assert.isOk(d.e.snapshot().candidate)
+      fs.mkdirSync(path.join(releases, `r-${randomUUID()}`))
+      d.e.dispose()
+      const requests = d.count()
+      restarted = new CloudExtension({
+        root: d.e.root,
+        catalogURL: d.base + '/catalog.json',
+        allowUnsignedLocal: true,
+      })
+      assert.deepEqual(fs.readdirSync(releases), [active])
+      await restarted.enter()
+      assert.strictEqual(restarted.snapshot().candidate!.version, '1.0.1')
+      assert.strictEqual(d.count(), requests)
+    } finally {
+      restarted?.dispose()
+      await d.stop()
+      fs.rmSync(d.e.root, { recursive: true, force: true })
+    }
+  })
+  for (const unreadable of [false, true]) {
+    it(`does not mark the extension as removed when its state is ${unreadable ? 'unreadable' : 'malformed'}`, () => {
+      const root = temp()
+      const file = path.join(root, 'extension.json')
+      if (unreadable) fs.mkdirSync(file)
+      else fs.writeFileSync(file, '{')
+      const extension = new CloudExtension({
+        root,
+        catalogURL: 'http://127.0.0.1:43112/catalog.json',
+        allowUnsignedLocal: true,
+      })
+      try {
+        assert.isFalse(extension.removed)
+        assert.isNull(extension.snapshot().active)
+        assert.isNull(extension.snapshot().candidate)
+      } finally {
+        extension.dispose()
+        fs.rmSync(root, { recursive: true, force: true })
+      }
+    })
+  }
   it('bad hash and incompatible release leave old working version; failed trial rolls back without restart', async () => {
     const d = await delivery()
     try {
@@ -252,6 +323,7 @@ describe('Cloud cloud', () => {
         installWorkerPath: workers.installer,
         root: d.e.root,
         catalogURL: d.base + '/catalog.json',
+        allowUnsignedLocal: true,
       })
       const count = d.count()
       await other.enter()
@@ -304,6 +376,70 @@ describe('Cloud cloud', () => {
       assert.throws(() => extractCloudZip(zip, folder), /Unsafe/)
     } finally {
       await d.stop()
+    }
+  })
+  it('requires an HTTPS catalog and public key unless local development is explicitly enabled', () => {
+    const { publicKey } = generateKeyPairSync('ed25519')
+    const root = temp()
+    try {
+      expectError(() => new CloudExtension({ root, catalogURL: 'http://127.0.0.1:43112/catalog.json', publicKey }), {
+        code: 'INVALID_SERVICE_URL',
+      })
+      expectError(() => new CloudExtension({ root, catalogURL: 'https://extensions.example.com/catalog.json' }), {
+        code: 'SIGNATURE_INVALID',
+      })
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
+  it('rejects unsigned or tampered production releases and installs a correctly signed release', async () => {
+    const { publicKey, privateKey } = generateKeyPairSync('ed25519')
+    const originalFetch = globalThis.fetch
+    const root = temp()
+    const catalogURL = 'https://extensions.example.com/catalog.json'
+    const bytes = archive()
+    const metadata = {
+      id: 'emqx.cloud',
+      version: '1.0.0',
+      apiVersion: 1,
+      url: 'https://extensions.example.com/package.zip',
+      sha256: createHash('sha256').update(bytes).digest('hex'),
+    }
+    const signature = sign(null, Buffer.from(JSON.stringify(metadata)), privateKey).toString('base64')
+    let mode = 'unsigned'
+    let packages = 0
+    globalThis.fetch = async (url) => {
+      if (String(url) === catalogURL) {
+        const release = {
+          ...metadata,
+          version: mode === 'tampered' ? '1.0.1' : metadata.version,
+          ...(mode === 'unsigned' ? {} : { signature }),
+        }
+        return new Response(JSON.stringify({ schema: 1, releases: [release] }))
+      }
+      assert.strictEqual(String(url), metadata.url)
+      packages++
+      return new Response(bytes)
+    }
+    const extension = new CloudExtension({ root, catalogURL, publicKey, installWorkerPath: workers.installer })
+    try {
+      await extension.enter()
+      await settled(extension)
+      assert.strictEqual(extension.snapshot().error!.code, 'SIGNATURE_INVALID')
+      mode = 'tampered'
+      extension.check()
+      await settled(extension)
+      assert.strictEqual(extension.snapshot().error!.code, 'SIGNATURE_INVALID')
+      assert.strictEqual(packages, 0)
+      mode = 'signed'
+      extension.check()
+      await settled(extension)
+      assert.strictEqual(extension.snapshot().candidate!.version, '1.0.0')
+      assert.strictEqual(packages, 1)
+    } finally {
+      extension.dispose()
+      globalThis.fetch = originalFetch
+      fs.rmSync(root, { recursive: true, force: true })
     }
   })
   it('auth supplies credentials only through its internal API and rejects stale invalidation', () => {
