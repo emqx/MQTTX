@@ -1,4 +1,8 @@
-<img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-logo.png" />
+  <img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+</picture>
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
@@ -20,7 +24,11 @@
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
-![mqttx-preview](./assets/mqttx-preview.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-preview-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-preview.png" />
+  <img src="./assets/mqttx-preview.png" alt="MQTTX publishing and receiving messages across colorful topic subscriptions" />
+</picture>
 
 ## Features
 
