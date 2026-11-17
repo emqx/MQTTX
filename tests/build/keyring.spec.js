@@ -21,15 +21,21 @@ const targets = [
 describe('keyring cross-architecture packaging', function () {
   this.timeout(30000)
   let directory
+  let sources
   let dependencies
   let appDir
 
   before(async () => {
-    directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-keyring-test-'))
+    // Canonical paths keep macOS temporary-directory aliases from hiding lockfile mismatches.
+    const temporaryRoot = fs.realpathSync(os.tmpdir())
+    directory = fs.mkdtempSync(path.join(temporaryRoot, 'mqttx-keyring-test-'))
+    // Yarn makes file: dependencies relative to the install directory. Keep the
+    // sources beside both install directories so the copied lockfile stays valid.
+    sources = fs.mkdtempSync(path.join(temporaryRoot, 'mqttx-keyring-sources-'))
     const optionalDependencies = {}
     for (const [, , platform, arch, target] of targets) {
       const name = `@napi-rs/keyring-${target}`
-      const source = path.join(directory, 'sources', target)
+      const source = path.join(sources, target)
       fs.ensureDirSync(source)
       fs.writeJsonSync(path.join(source, 'package.json'), {
         name,
@@ -41,7 +47,7 @@ describe('keyring cross-architecture packaging', function () {
       fs.writeFileSync(path.join(source, `keyring.${target}.node`), target)
       optionalDependencies[name] = `file:${source}`
     }
-    const wrapper = path.join(directory, 'sources', 'keyring')
+    const wrapper = path.join(sources, 'keyring')
     fs.ensureDirSync(wrapper)
     fs.writeJsonSync(path.join(wrapper, 'package.json'), {
       name: '@napi-rs/keyring',
@@ -72,6 +78,7 @@ describe('keyring cross-architecture packaging', function () {
 
   after(() => {
     if (directory) fs.removeSync(directory)
+    if (sources) fs.removeSync(sources)
   })
 
   for (const [key, platform, , arch, target] of targets) {
