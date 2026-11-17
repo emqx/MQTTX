@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import { generateKeyPairSync } from 'crypto'
 import { initializeCloud } from '../../../src/main/cloud'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import type { CloudSession } from '../../../src/types/cloud'
@@ -80,6 +81,18 @@ describe('Cloud initialization isolation', function () {
       assert.isTrue((await handler(event, 'status', {})).ok)
       Object.defineProperty(app, 'isPackaged', { configurable: true, value: true })
       initializeCloud({ ...environment, WEBPACK_DEV_SERVER_URL: 'http://localhost:8080' })
+      assert.strictEqual((await handler(event, 'status', {})).error.code, 'INVALID_SERVICE_URL')
+      const catalog = { MQTTX_CLOUD_CATALOG_URL: 'https://extensions.example.com/catalog.json' }
+      initializeCloud({ ...environment, ...catalog })
+      assert.strictEqual((await handler(event, 'status', {})).error.code, 'SIGNATURE_INVALID')
+      initializeCloud({
+        ...environment,
+        ...catalog,
+        WEBPACK_DEV_SERVER_URL: 'http://localhost:8080',
+        MQTTX_CLOUD_PUBLIC_KEY: generateKeyPairSync('ed25519')
+          .publicKey.export({ type: 'spki', format: 'pem' })
+          .toString(),
+      })
       assert.isTrue((await handler(event, 'status', {})).ok)
       Object.defineProperty(app, 'isPackaged', { configurable: true, value: false })
       initializeCloud({

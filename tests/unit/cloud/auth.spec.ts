@@ -9,6 +9,7 @@ import version from '../../../src/version'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import { CloudDeviceIdentity } from '../../../src/main/cloud/device'
 import { CloudError } from '../../../src/utils/cloudErrors'
+import { cloudCallbackText } from '../../../src/utils/cloudI18n'
 
 function displayToken(claims: unknown): string {
   return `${Buffer.from('{}').toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString(
@@ -126,6 +127,83 @@ describe('Cloud authorization contract', () => {
       }
     }
   })
+
+  for (const [outcome, code] of [
+    ['success', 'AUTH_COMPLETE'],
+    ['exchange-failure', 'AUTH_RESULT_INVALID'],
+    ['storage-failure', 'STORAGE_UNAVAILABLE'],
+    ['cancel', 'AUTH_CANCELLED'],
+    ['timeout', 'AUTH_TIMEOUT'],
+  ]) {
+    it(`finishes the browser callback with the actual login result after ${outcome}`, async () => {
+      let releaseToken!: () => void
+      const tokenGate = new Promise<void>((resolve) => {
+        releaseToken = resolve
+      })
+      let exchanging!: () => void
+      const tokenRequested = new Promise<void>((resolve) => {
+        exchanging = resolve
+      })
+      const server = http.createServer(async (_request, response) => {
+        exchanging()
+        await tokenGate
+        response.writeHead(outcome === 'exchange-failure' ? 400 : 200, { 'Content-Type': 'application/json' })
+        response.end(
+          JSON.stringify({ access_token: 'token', token_type: 'Bearer', expires_in: 3600, scope: 'deployments:read' }),
+        )
+      })
+      await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+      let callbackResponse!: Promise<Response>
+      let responseReceived = false
+      let saved = false
+      const auth = new CloudAuth({
+        authURL: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+        timeout: outcome === 'timeout' ? 300 : 2000,
+        getDeviceId: async () => 'device-id',
+        vault: {
+          load: () => null,
+          save() {
+            assert.isFalse(responseReceived)
+            if (outcome === 'storage-failure') throw new CloudError('STORAGE_UNAVAILABLE')
+            saved = true
+          },
+          clear() {},
+        },
+        async openExternal(value) {
+          const authorization = new URL(value)
+          const callback = new URL(authorization.searchParams.get('redirect_uri')!)
+          callback.search = new URLSearchParams({
+            state: authorization.searchParams.get('state')!,
+            code: 'test-code',
+          }).toString()
+          callbackResponse = fetch(callback).then((response) => {
+            responseReceived = true
+            return response
+          })
+          await callbackResponse
+        },
+      })
+      try {
+        const login = auth.login('en')
+        await tokenRequested
+        await new Promise<void>((resolve) => setImmediate(resolve))
+        assert.isFalse(responseReceived)
+        if (outcome === 'cancel') auth.invalidate()
+        if (outcome !== 'timeout') releaseToken()
+        const state = await login
+        const response = await callbackResponse
+        assert.strictEqual(response.status, outcome === 'success' ? 200 : 500)
+        assert.strictEqual(await response.text(), cloudCallbackText(code, 'en'))
+        assert.strictEqual(state.status, outcome === 'success' ? 'signed-in' : 'signed-out')
+        assert.strictEqual(saved, outcome === 'success')
+      } finally {
+        auth.dispose()
+        releaseToken()
+        server.closeAllConnections()
+        await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+      }
+    })
+  }
 
   it('keeps sessions usable when display metadata is absent or malformed', () => {
     for (const value of [
