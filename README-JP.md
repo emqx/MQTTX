@@ -19,11 +19,7 @@
 
 > [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-preview-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-preview.png" />
-  <img src="./assets/mqttx-preview.png" alt="複数のトピックでメッセージを送受信する MQTTX" />
-</picture>
+![mqttx-preview](./assets/mqttx-preview.png)
 
 ## 機能
 
