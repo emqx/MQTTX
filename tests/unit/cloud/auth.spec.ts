@@ -127,6 +127,8 @@ describe('Cloud authorization contract', function () {
   for (const [outcome, code] of [
     ['success', 'AUTH_COMPLETE'],
     ['exchange-failure', 'AUTH_RESULT_INVALID'],
+    ['invalid-json', 'OPERATION_FAILED'],
+    ['storage-json-failure', 'OPERATION_FAILED'],
     ['storage-failure', 'STORAGE_UNAVAILABLE'],
     ['cancel', 'AUTH_CANCELLED'],
     ['timeout', 'AUTH_TIMEOUT'],
@@ -143,6 +145,11 @@ describe('Cloud authorization contract', function () {
       const server = http.createServer(async (_request, response) => {
         exchanging()
         await tokenGate
+        if (outcome === 'invalid-json') {
+          response.writeHead(502, { 'Content-Type': 'text/html' })
+          response.end('<html>synthetic-private-response</html>')
+          return
+        }
         response.writeHead(outcome === 'exchange-failure' ? 400 : 200, { 'Content-Type': 'application/json' })
         response.end(
           JSON.stringify({ access_token: 'token', token_type: 'Bearer', expires_in: 3600, scope: 'deployments:read' }),
@@ -161,6 +168,7 @@ describe('Cloud authorization contract', function () {
           save() {
             assert.isFalse(responseReceived)
             if (outcome === 'storage-failure') throw new CloudError('STORAGE_UNAVAILABLE')
+            if (outcome === 'storage-json-failure') throw new SyntaxError('synthetic-private-session')
             saved = true
           },
           clear() {},
@@ -179,7 +187,11 @@ describe('Cloud authorization contract', function () {
           await callbackResponse
         },
       })
+      const originalLog = console.error
+      const records: unknown[][] = []
       try {
+        if (outcome === 'invalid-json' || outcome === 'storage-json-failure')
+          console.error = (...values: unknown[]) => records.push(values)
         const login = auth.login('en')
         await tokenRequested
         await new Promise<void>((resolve) => setImmediate(resolve))
@@ -192,7 +204,19 @@ describe('Cloud authorization contract', function () {
         assert.strictEqual(await response.text(), cloudCallbackText(code, 'en'))
         assert.strictEqual(state.status, outcome === 'success' ? 'signed-in' : 'signed-out')
         assert.strictEqual(saved, outcome === 'success')
+        if (outcome === 'invalid-json' || outcome === 'storage-json-failure') {
+          const diagnostic = JSON.stringify(records)
+          assert.include(
+            diagnostic,
+            outcome === 'invalid-json'
+              ? 'token response parsing (HTTP 502, JSON false)'
+              : 'session storage (HTTP 200, JSON true)',
+          )
+          assert.include(diagnostic, 'SyntaxError')
+          assert.notMatch(diagnostic, /synthetic-private-response|synthetic-private-session/)
+        }
       } finally {
+        console.error = originalLog
         auth.dispose()
         releaseToken()
         server.closeAllConnections()

@@ -1,7 +1,7 @@
 <template>
   <div class="cloud-view rightbar">
     <header class="titlebar">
-      <h1>EMQX Cloud</h1>
+      <h1><i class="iconfont icon-cloud-logo" aria-hidden="true"></i>EMQX Cloud</h1>
       <div class="cloud-actions">
         <el-dropdown v-if="signedIn" class="cloud-account-menu" trigger="click" @command="authenticate('logout')">
           <button
@@ -20,6 +20,20 @@
           </button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="logout">{{ $t('cloud.logout') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-dropdown v-else-if="!state.removed" class="cloud-more-menu" trigger="click" @command="remove">
+          <button
+            type="button"
+            class="cloud-more"
+            :title="$t('cloud.remove')"
+            :aria-label="$t('cloud.remove')"
+            :disabled="removing"
+          >
+            <i class="iconfont icon-more" aria-hidden="true"></i>
+          </button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="remove">{{ $t('cloud.remove') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -53,34 +67,68 @@
           </div>
         </section>
       </div>
-      <div v-else-if="!signedIn" class="cloud-login">
-        <section class="cloud-login-card" aria-labelledby="cloud-login-title">
-          <div class="cloud-login-mark" aria-hidden="true">
-            <i v-if="waiting" class="el-icon-loading"></i>
-            <i v-else class="iconfont icon-cloud-logo"></i>
+      <div v-else-if="!signedIn" class="cloud-login cloud-signin-layout">
+        <section class="cloud-intro">
+          <div class="cloud-intro-body">
+            <h2>{{ $t('cloud.introTitle') }}</h2>
+            <p>{{ $t('cloud.introSubtitle') }}</p>
+            <ul class="cloud-perks">
+              <li v-for="perk in perks" :key="perk.key">
+                <span class="cloud-perk-tile" aria-hidden="true"><CloudIcon :name="perk.icon" /></span>
+                <p>{{ $t(`cloud.${perk.key}`) }}</p>
+              </li>
+            </ul>
           </div>
-          <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
-          <p v-if="!waiting" class="cloud-login-tagline">{{ $t('cloud.tagline') }}</p>
-          <el-alert
-            v-if="state.session.message"
-            class="cloud-session-alert"
-            :title="issueText(state.session.message)"
-            :type="waiting ? 'info' : 'warning'"
-            :closable="false"
-            show-icon
-          />
-          <div class="cloud-login-actions">
-            <el-button v-if="waiting" @click="authenticate('cancel')">{{ $t('common.cancel') }}</el-button>
-            <el-button
-              v-else
-              type="primary"
-              icon="el-icon-top-right"
-              :disabled="removing"
-              @click="authenticate('login')"
-              >{{ $t('cloud.login') }}</el-button
-            >
+        </section>
+        <section class="cloud-signin-panel" :class="{ waiting }" aria-labelledby="cloud-login-title">
+          <div class="cloud-signin-wrap">
+            <div class="cloud-bridge" aria-hidden="true">
+              <span class="cloud-node">
+                <span class="cloud-node-tile"><img src="@/assets/images/app-logo.png" alt="" /></span>MQTTX
+              </span>
+              <CloudWire />
+              <span class="cloud-node">
+                <span class="cloud-node-tile">
+                  <i class="iconfont icon-cloud-logo"></i>
+                  <span v-if="waiting" class="cloud-node-busy"></span>
+                </span>
+                EMQX Cloud
+              </span>
+            </div>
+            <div class="cloud-signin">
+              <h2 id="cloud-login-title" class="cloud-signin-title">
+                {{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}
+              </h2>
+              <p>{{ $t(waiting ? 'cloud.authorizeHint' : 'cloud.tagline') }}</p>
+              <el-alert
+                v-if="state.session.message"
+                class="cloud-session-alert"
+                :title="issueText(state.session.message)"
+                :type="waiting ? 'info' : 'warning'"
+                :closable="false"
+                show-icon
+              />
+              <template v-if="waiting">
+                <el-button class="cloud-signin-button" :disabled="removing" @click="authenticate('login')">
+                  {{ $t('cloud.reopen') }}<CloudIcon name="external" :size="15" />
+                </el-button>
+                <el-button type="text" class="cloud-signin-cancel" @click="authenticate('cancel')">
+                  {{ $t('common.cancel') }}
+                </el-button>
+              </template>
+              <template v-else>
+                <el-button
+                  type="primary"
+                  class="cloud-signin-button"
+                  :disabled="removing"
+                  @click="authenticate('login')"
+                >
+                  {{ $t('cloud.login') }}<CloudIcon name="external" :size="15" />
+                </el-button>
+                <p class="cloud-login-note"><CloudIcon name="info" :size="14" />{{ $t('cloud.intlOnly') }}</p>
+              </template>
+            </div>
           </div>
-          <p v-if="!waiting" class="cloud-login-note">{{ $t('cloud.intlOnly') }}</p>
         </section>
       </div>
       <div v-else-if="!state.active" class="cloud-login">
@@ -101,12 +149,6 @@
       <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
       <div ref="frames" v-show="signedIn && state.active" class="cloud-frames"></div>
     </main>
-    <footer class="cloud-footer">
-      <button v-if="!state.removed" type="button" class="cloud-remove" :disabled="removing" @click="remove">
-        {{ $t('cloud.remove') }}
-      </button>
-      <span class="cloud-footer-brand">EMQX Cloud</span>
-    </footer>
   </div>
 </template>
 <script lang="ts">
@@ -118,10 +160,20 @@ import { cloudIssue } from '@/utils/cloudErrors'
 import { CloudFrameManager } from '@/utils/cloudFrameManager'
 import { cloudErrorKey } from '@/utils/cloudI18n'
 import cloudMessages from '@/lang/cloud'
+import CloudIcon from './CloudIcon.vue'
+import type { CloudIconName } from './CloudIcon.vue'
+import CloudWire from './CloudWire.vue'
 
-@Component
+@Component({ components: { CloudIcon, CloudWire } })
 export default class Cloud extends Vue {
   @Getter('currentTheme') private currentTheme!: Theme
+  /** Why EMQX Cloud is worth signing in to, shown beside the sign-in panel. */
+  private readonly perks: Array<{ key: string; icon: CloudIconName }> = [
+    { key: 'perkFree', icon: 'zap' },
+    { key: 'perkPrefill', icon: 'plus' },
+    { key: 'perkRegion', icon: 'globe' },
+    { key: 'perkScale', icon: 'layers' },
+  ]
   private state: CloudState = {
     revision: -1,
     session: { status: 'signed-out', message: null, expiresAt: null, email: null },
@@ -281,6 +333,18 @@ export default class Cloud extends Vue {
   margin: 0;
   padding: 16px;
   border-bottom: 1px solid var(--color-border-default);
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    white-space: nowrap;
+  }
+  h1 .iconfont {
+    font-size: 22px;
+    font-weight: normal;
+    color: var(--color-emqx);
+  }
 }
 .cloud-actions {
   display: flex;
@@ -293,6 +357,10 @@ export default class Cloud extends Vue {
 }
 .cloud-account-menu {
   min-width: 0;
+  -webkit-app-region: no-drag;
+}
+.cloud-more-menu {
+  flex-shrink: 0;
   -webkit-app-region: no-drag;
 }
 .cloud-account {
@@ -341,16 +409,22 @@ export default class Cloud extends Vue {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cloud-remove {
+.cloud-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
+  border-radius: 8px;
   background: transparent;
-  color: var(--color-text-light);
-  font: inherit;
+  color: var(--color-text-default);
+  font-size: 16px;
   cursor: pointer;
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
-    color: var(--color-minor-red);
+    background: var(--color-bg-primary);
   }
   &:focus-visible {
     outline: 2px solid var(--color-main-green);
@@ -371,22 +445,6 @@ export default class Cloud extends Vue {
     flex-shrink: 0;
     border-radius: 0;
   }
-}
-.cloud-footer {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 16px;
-  min-height: 32px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--color-border-default);
-  background: var(--color-bg-normal);
-  color: var(--color-text-light);
-  font-size: 12px;
-  line-height: 1.6;
-}
-.cloud-footer-brand {
-  margin-left: auto;
 }
 .cloud-updating {
   color: var(--color-text-light);
@@ -438,7 +496,7 @@ export default class Cloud extends Vue {
   color: var(--color-main-green);
   font-size: 30px;
   .icon-cloud-logo {
-    color: #5e4eff;
+    color: var(--color-emqx);
     font-size: 40px;
     line-height: 1;
   }
@@ -476,15 +534,214 @@ export default class Cloud extends Vue {
   }
 }
 .cloud-login-note {
-  margin: 24px auto 0;
-  max-width: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 20px auto 0;
   color: var(--color-text-light);
-  font-size: 11px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Sign-in: the pitch on the left, the actual sign-in on the right */
+.cloud-signin-layout {
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+}
+.cloud-intro,
+.cloud-signin-panel {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 48px 56px;
+  overflow-y: auto;
+}
+.cloud-intro-body {
+  width: 560px;
+  max-width: 100%;
+  h2 {
+    margin: 0;
+    color: var(--color-text-title);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.36;
+  }
+  > p {
+    margin: 12px 0 0;
+    color: var(--color-text-default);
+    font-size: 15px;
+    line-height: 1.67;
+  }
+}
+.cloud-perks {
+  margin: 36px 0 0;
+  padding: 0;
+  list-style: none;
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    + li {
+      margin-top: 18px;
+    }
+  }
+  p {
+    margin: 5px 0 0;
+    color: var(--color-text-default);
+    font-size: 14px;
+    line-height: 1.57;
+  }
+}
+.cloud-perk-tile {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background: var(--color-bg-normal);
+  color: var(--color-main-green);
+}
+.cloud-signin-panel {
+  border-left: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-normal);
+  background-image: radial-gradient(var(--color-border-default) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+.cloud-signin-wrap {
+  width: 360px;
+  max-width: 100%;
+}
+.cloud-bridge {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.cloud-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 1.34;
+}
+.cloud-node-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background: var(--color-bg-normal);
+  box-shadow: 0 6px 20px var(--color-shadow-card);
+  img {
+    width: 36px;
+    height: 36px;
+  }
+  .icon-cloud-logo {
+    color: var(--color-emqx);
+    font-size: 30px;
+    line-height: 1;
+  }
+}
+.cloud-node-busy {
+  position: absolute;
+  inset: -12px;
+  border: 2px solid var(--color-border-default);
+  border-top-color: var(--color-emqx);
+  border-radius: 50%;
+  animation: cloud-spin 1.1s linear infinite;
+}
+@keyframes cloud-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cloud-signin {
+  text-align: center;
+  > p {
+    margin: 8px 0 0;
+    color: var(--color-text-default);
+    font-size: 13px;
+    line-height: 1.62;
+  }
+}
+.cloud-signin-title {
+  margin: 12px 0 0;
+  color: var(--color-text-title);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.cloud-signin-button.el-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+  margin: 28px 0 0;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+  &.el-button--primary {
+    border: 0;
+    background: var(--color-main-green);
+    &:hover,
+    &:focus {
+      background: var(--color-minor-green);
+    }
+  }
+}
+.cloud-signin-cancel.el-button {
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 0;
+  color: var(--color-text-default);
+  font-size: 13px;
+  &:hover,
+  &:focus {
+    color: var(--color-main-green);
+  }
 }
 .cloud-updating {
   flex-shrink: 0;
   margin: 10px 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cloud-node-busy {
+    animation: none;
+  }
+}
+@media (max-width: 960px) {
+  .cloud-signin-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .cloud-intro,
+  .cloud-signin-panel {
+    flex: none;
+    padding: 32px 24px;
+    overflow: visible;
+  }
+  .cloud-signin-panel {
+    border-left: 0;
+    border-top: 1px solid var(--color-border-default);
+  }
 }
 @media (max-width: 640px) {
   .cloud-view > .titlebar {
@@ -503,6 +760,9 @@ export default class Cloud extends Vue {
     h2 {
       font-size: 20px;
     }
+  }
+  .cloud-intro-body h2 {
+    font-size: 22px;
   }
 }
 .cloud-frames {

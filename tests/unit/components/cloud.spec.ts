@@ -35,6 +35,8 @@ describe('Cloud host appearance and interaction', () => {
   let colors: Record<string, string>
   let originalAsync: boolean
   const styleReader = global.getComputedStyle
+  // jsdom has no canvas; the sign-in animation only needs getContext to return nothing.
+  const contextReader = HTMLCanvasElement.prototype.getContext
   let listener: (event: unknown, state: CloudState) => void
   let calls = 0
   const on = ipcRenderer.on
@@ -42,6 +44,7 @@ describe('Cloud host appearance and interaction', () => {
 
   beforeEach(async () => {
     originalAsync = Vue.config.async
+    HTMLCanvasElement.prototype.getContext = () => null
     colors = {
       '--color-text-default': '#123456',
       '--color-text-light': '#abcdef',
@@ -98,6 +101,7 @@ describe('Cloud host appearance and interaction', () => {
     ipcRenderer.invoke = invoke
     ipcRenderer.on = on
     global.getComputedStyle = styleReader
+    HTMLCanvasElement.prototype.getContext = contextReader
   })
 
   it('reads theme colors defined on the body', () => {
@@ -262,6 +266,28 @@ describe('Cloud host appearance and interaction', () => {
     await settle()
     expect(wrapper.find(DropdownItem).text()).to.equal('Sign out')
   })
+  it('offers removal from the titlebar menu while signed out, and hides it once removed', async () => {
+    listener({}, { ...removed, removed: false, revision: 1 })
+    await settle()
+    expect(wrapper.find('.cloud-account-menu').exists()).to.equal(false)
+    const more = wrapper.find('.cloud-more')
+    expect(more.attributes('aria-label')).to.equal('Remove Cloud extension')
+    let operation = ''
+    vm.$confirm = async () => undefined
+    ipcRenderer.invoke = async (_channel, method) => {
+      operation = method
+      return { ok: true, data: { ...removed, revision: 2 } }
+    }
+    await more.trigger('click')
+    await settle()
+    const item = wrapper.find(DropdownItem)
+    expect(item.text()).to.equal('Remove Cloud extension')
+    await item.trigger('click')
+    await settle()
+    expect(operation).to.equal('remove')
+    // The extension is gone, so the menu's only action no longer applies.
+    expect(wrapper.find('.cloud-more').exists()).to.equal(false)
+  })
   it('owns login and cancellation UI without loading an extension while signed out', async () => {
     listener({}, { ...removed, removed: false, revision: 1 })
     await settle()
@@ -282,13 +308,13 @@ describe('Cloud host appearance and interaction', () => {
     }
     await vm.authenticate('login')
     expect(operations[0]).to.deep.equal({ method: 'login', args: { locale: 'en' } })
-    expect(wrapper.find('.cloud-login h2').text()).to.equal('Complete browser authorization')
+    expect(wrapper.find('#cloud-login-title').text()).to.equal('Complete browser authorization')
     ipcRenderer.invoke = async (_channel, method, args) => {
       operations.push({ method, args })
       return { ok: true, data: { ...removed, removed: false, revision: 3 } }
     }
     await vm.authenticate('cancel')
     expect(operations[1].method).to.equal('cancel')
-    expect(wrapper.find('.cloud-login h2').text()).to.equal('Connect your EMQX Cloud')
+    expect(wrapper.find('#cloud-login-title').text()).to.equal('Sign in to EMQX Cloud')
   })
 })
