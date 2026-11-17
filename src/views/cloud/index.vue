@@ -40,15 +40,7 @@
       <div v-if="state.removed" class="cloud-placeholder cloud-login">
         <section class="cloud-login-card" aria-labelledby="cloud-removed-title">
           <div class="cloud-login-mark" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none">
-              <path
-                d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
-                stroke="currentColor"
-                stroke-width="2.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <i class="iconfont icon-cloud-logo"></i>
           </div>
           <h2 id="cloud-removed-title">{{ $t('cloud.removed') }}</h2>
           <p class="cloud-login-tagline">{{ $t('cloud.addHint') }}</p>
@@ -63,15 +55,7 @@
         <section class="cloud-login-card" aria-labelledby="cloud-login-title">
           <div class="cloud-login-mark" aria-hidden="true">
             <i v-if="waiting" class="el-icon-loading"></i>
-            <svg v-else viewBox="0 0 48 48" fill="none">
-              <path
-                d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
-                stroke="currentColor"
-                stroke-width="2.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <i v-else class="iconfont icon-cloud-logo"></i>
           </div>
           <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
           <p v-if="!waiting" class="cloud-login-tagline">{{ $t('cloud.tagline') }}</p>
@@ -465,9 +449,10 @@ export default class Cloud extends Vue {
   background: var(--color-bg-card-gradient);
   color: var(--color-main-green);
   font-size: 30px;
-  svg {
-    width: 40px;
-    height: 40px;
+  .icon-cloud-logo {
+    color: #5e4eff;
+    font-size: 40px;
+    line-height: 1;
   }
 }
 .cloud-session-alert {
