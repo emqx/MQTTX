@@ -15,6 +15,7 @@ import { AddressInfo } from 'net'
 interface SavedState {
   removed: boolean
   active: CloudRelease | null
+  rejected: string[]
 }
 interface CatalogRelease {
   id: string
@@ -30,7 +31,6 @@ interface ExtensionOptions {
   catalogURL: string
   publicKey?: string | KeyObject
   allowUnsignedLocal?: boolean
-  now?: () => number
   checkInterval?: number
   readyTimeout?: number
   installWorkerPath?: string
@@ -74,7 +74,6 @@ export class CloudExtension extends EventEmitter {
   readonly catalogURL: string
   private readonly publicKey: string | KeyObject
   private readonly allowUnsignedLocal: boolean
-  private readonly now: () => number
   readonly checkInterval: number
   private readonly readyTimeout: number
   private readonly statePath: string
@@ -94,14 +93,12 @@ export class CloudExtension extends EventEmitter {
   private origin = ''
   private timer: ReturnType<typeof setTimeout> | undefined
   private mountStarted = false
-  private readonly rejected: Set<string>
   constructor({
     developmentURL,
     root,
     catalogURL,
     publicKey = '',
     allowUnsignedLocal = false,
-    now = Date.now,
     checkInterval = 3600000,
     readyTimeout = 15000,
     installWorkerPath,
@@ -117,18 +114,20 @@ export class CloudExtension extends EventEmitter {
     this.catalogURL = catalogURL
     this.publicKey = publicKey
     this.allowUnsignedLocal = allowUnsignedLocal
-    this.now = now
     this.checkInterval = checkInterval
     this.readyTimeout = readyTimeout
     this.statePath = path.join(root, 'extension.json')
     this.releases = path.join(root, 'releases')
-    this.saved = { removed: false, active: null }
+    this.saved = { removed: false, active: null, rejected: [] }
     try {
-      if (!developmentURL && fs.existsSync(this.statePath))
-        this.saved = JSON.parse(fs.readFileSync(this.statePath, 'utf8'))
+      if (!developmentURL && fs.existsSync(this.statePath)) {
+        this.saved = { ...this.saved, ...JSON.parse(fs.readFileSync(this.statePath, 'utf8')) }
+        if (!Array.isArray(this.saved.rejected) || this.saved.rejected.some((version) => typeof version !== 'string'))
+          throw new Error('Invalid rejected releases')
+      }
     } catch (error) {
       logCloudFailure('extension state', error)
-      this.saved = { removed: false, active: null }
+      this.saved = { removed: false, active: null, rejected: [] }
     }
     if (this.saved.active && !/^r-[a-f0-9-]{36}$/.test(this.saved.active.id)) this.saved.active = null
     // Previous frames and Workers have exited; only the persisted release is still needed.
@@ -154,7 +153,6 @@ export class CloudExtension extends EventEmitter {
     this.server = null
     this.secret = randomBytes(24).toString('hex')
     this.timer = undefined
-    this.rejected = new Set<string>()
   }
   private persist(): void {
     if (!this.developmentURL) atomicJSON(this.statePath, this.saved)
@@ -166,8 +164,11 @@ export class CloudExtension extends EventEmitter {
     return this.active?.id === id
   }
   async retry(): Promise<ExtensionSnapshot> {
-    this.rejected.clear()
     if (!this.removed) {
+      if (this.saved.rejected.length) {
+        this.saved.rejected = []
+        this.persist()
+      }
       await this.enter()
       this.check()
     }
@@ -282,7 +283,7 @@ export class CloudExtension extends EventEmitter {
     }
     this.emit('change')
     if (this.candidate || this.busy) return this.snapshot()
-    if (!this.active || this.now() - this.lastCheck >= this.checkInterval) this.check()
+    if (!this.active || Date.now() - this.lastCheck >= this.checkInterval) this.check()
     return this.snapshot()
   }
   check(): void {
@@ -290,7 +291,7 @@ export class CloudExtension extends EventEmitter {
     this.busy = true
     this.emit('change')
     this.error = null
-    this.lastCheck = this.now()
+    this.lastCheck = Date.now()
     const run = this.epoch,
       abort = new AbortController()
     this.abort = abort
@@ -326,7 +327,12 @@ export class CloudExtension extends EventEmitter {
       .sort((a: CatalogRelease, b: CatalogRelease) => compareVersions(b.version, a.version))
     const release = compatible[0]
     if (!release) throw new CloudError('NO_COMPATIBLE_VERSION')
-    if (this.rejected.has(release.version)) return
+    if (this.saved.rejected.includes(release.version)) {
+      const issue = cloudIssue(new CloudError('OPERATION_FAILED'))
+      if (this.active) this.updateError = issue
+      else this.error = issue
+      return
+    }
     if (this.active && !newer(release.version, this.active.version)) return
     if (!/^[a-f0-9]{64}$/.test(release.sha256)) throw new CloudError('PACKAGE_INVALID')
     const url = remoteURL(release.url)
@@ -387,12 +393,12 @@ export class CloudExtension extends EventEmitter {
   }
   ready(id: string): ExtensionSnapshot {
     if (!this.candidate || this.candidate.id !== id || this.saved.removed) {
-      if (this.isActive(id) && this.now() - this.lastCheck >= this.checkInterval) this.check()
+      if (this.isActive(id) && Date.now() - this.lastCheck >= this.checkInterval) this.check()
       return this.snapshot()
     }
     clearTimeout(this.timer)
     const candidate = this.candidate
-    const next = { removed: false, active: { ...candidate } }
+    const next = { ...this.saved, removed: false, active: { ...candidate } }
     if (!this.developmentURL) atomicJSON(this.statePath, next)
     this.saved = next
     this.active = candidate
@@ -401,18 +407,20 @@ export class CloudExtension extends EventEmitter {
     this.updateError = null
     // Keep previous files until renderer has removed its old frame, then garbage collect on next launch/removal.
     this.emit('change')
-    if (this.now() - this.lastCheck >= this.checkInterval) this.check()
+    if (Date.now() - this.lastCheck >= this.checkInterval) this.check()
     return this.snapshot()
   }
   failed(id: string, message: CloudIssue): ExtensionSnapshot {
     if (!this.candidate || this.candidate.id !== id) return this.snapshot()
     clearTimeout(this.timer)
-    this.rejected.add(this.candidate.version)
+    if (!this.saved.rejected.includes(this.candidate.version)) this.saved.rejected.push(this.candidate.version)
     const dir = path.join(this.releases, id)
     this.candidate = null
-    if (this.saved.active && this.saved.active.id === id) {
-      this.saved.active = null
+    if (this.saved.active && this.saved.active.id === id) this.saved.active = null
+    try {
       this.persist()
+    } catch (error) {
+      logCloudFailure('rejected release persistence', error)
     }
     if (!this.developmentURL)
       void fs.promises
@@ -424,7 +432,7 @@ export class CloudExtension extends EventEmitter {
     return this.snapshot()
   }
   async remove(): Promise<ExtensionSnapshot> {
-    this.saved = { removed: true, active: null }
+    this.saved = { removed: true, active: null, rejected: [] }
     this.persist()
     this.epoch++
     clearTimeout(this.timer)

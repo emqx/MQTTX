@@ -71,7 +71,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
     throw new CloudError('INVALID_SERVICE_URL')
   const root = path.join(app.getPath('userData'), 'cloud')
   const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, client: 'mqttx' }))
-  const deviceIdentity = new CloudDeviceIdentity(path.join(root, 'device.json'))
+  const deviceIdentity = new CloudDeviceIdentity()
   const auth = new CloudAuth({
     authURL,
     vault,

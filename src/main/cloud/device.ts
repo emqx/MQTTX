@@ -60,7 +60,6 @@ export class CloudDeviceIdentity {
   private pending: Promise<string> | undefined
 
   constructor(
-    private readonly legacyFile: string,
     private readonly readMachineId = readSystemMachineId,
     private readonly getCredential = createDeviceCredential,
   ) {}
@@ -82,26 +81,7 @@ export class CloudDeviceIdentity {
       const stored = await credential.getPassword()
       if (stored !== null) {
         this.validateDeviceId(stored)
-        await this.removeLegacyFile()
         return stored
-      }
-
-      let legacy: string | undefined
-      try {
-        legacy = await fs.promises.readFile(this.legacyFile, 'utf8')
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-      }
-      if (legacy !== undefined) {
-        const data: unknown = JSON.parse(legacy)
-        if (typeof data !== 'object' || data === null || !('deviceID' in data))
-          throw new Error('Invalid legacy device identity')
-        const deviceID = data.deviceID
-        this.validateDeviceId(deviceID)
-        // Persist the same identity before deleting the old file, including after a failed migration.
-        await credential.setPassword(deviceID)
-        await this.removeLegacyFile()
-        return deviceID
       }
 
       let machineId: string
@@ -124,14 +104,5 @@ export class CloudDeviceIdentity {
 
   private validateDeviceId(value: unknown): asserts value is string {
     if (typeof value !== 'string' || !UUID_PATTERN.test(value)) throw new Error('Invalid device identity')
-  }
-
-  private async removeLegacyFile(): Promise<void> {
-    try {
-      await fs.promises.unlink(this.legacyFile)
-    } catch (error) {
-      // Credentials are already durable; a cleanup failure must not discard their identity.
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') logCloudFailure('legacy device identity cleanup', error)
-    }
   }
 }

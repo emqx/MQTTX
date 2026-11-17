@@ -142,6 +142,74 @@ describe('Cloud host appearance and interaction', () => {
     await new Promise((resolve) => setTimeout(resolve, 650))
     expect(calls).to.equal(before)
   })
+  it('clears an overlapping login error when the pending login succeeds', async () => {
+    let complete!: (response: unknown) => void
+    let requests = 0
+    vm.frameManager.sync = async () => {}
+    ipcRenderer.invoke = () => {
+      if (++requests === 1)
+        return new Promise((resolve) => {
+          complete = resolve
+        })
+      return Promise.resolve({ ok: false, error: { code: 'AUTH_PENDING', params: {} } })
+    }
+    const pending = vm.authenticate('login')
+    await vm.authenticate('login')
+    expect(vm.failure.code).to.equal('AUTH_PENDING')
+    expect(wrapper.find('el-alert-stub[type="error"]').exists()).to.equal(true)
+    const success = {
+      ...removed,
+      removed: false,
+      revision: 1,
+      session: { status: 'signed-in' as const, message: null, expiresAt: Date.now() + 60000, email: null },
+    }
+    listener({}, success)
+    await settle()
+    expect(vm.failure).to.equal(null)
+    expect(wrapper.find('el-alert-stub[type="error"]').exists()).to.equal(false)
+    complete({ ok: true, data: success })
+    await pending
+  })
+  it('preserves current errors on stale snapshots and clears them on successful state recovery', async () => {
+    ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_FAILED', params: {} } })
+    await vm.prepare('retry')
+    listener({}, { ...removed })
+    await settle()
+    expect(vm.failure.code).to.equal('OPERATION_FAILED')
+    vm.frameManager.sync = async () => {
+      throw new Error('Cannot mount')
+    }
+    listener({}, { ...removed, revision: 1 })
+    await settle()
+    expect(vm.failure).not.to.equal(null)
+    vm.frameManager.sync = async () => {}
+    listener({}, { ...removed, revision: 2 })
+    await settle()
+    expect(vm.failure).to.equal(null)
+  })
+  it('offers explicit retry when an update fails while the active extension remains available', async () => {
+    vm.frameManager.sync = async () => {}
+    const state = {
+      ...removed,
+      removed: false,
+      revision: 1,
+      active: { id: 'r-12345678-1234-1234-1234-123456789abc', version: '1.0.0', url: 'https://example.com' },
+      updateError: { code: 'PAGE_START_TIMEOUT', params: {} },
+      session: { status: 'signed-in' as const, message: null, expiresAt: Date.now() + 60000, email: null },
+    }
+    listener({}, state)
+    await settle()
+    const retry = wrapper.find('el-alert-stub[type="info"] el-button-stub')
+    expect(retry.text()).to.equal('Retry')
+    let operation: string | undefined
+    ipcRenderer.invoke = async (_channel, method) => {
+      operation = method
+      return { ok: true, data: { ...state, revision: 2, updateError: null } }
+    }
+    retry.vm.$emit('click')
+    await settle()
+    expect(operation).to.equal('retry')
+  })
   it('shows an email avatar and signs out through the account dropdown', async () => {
     expect(wrapper.find('.cloud-account').exists()).to.equal(false)
     listener(

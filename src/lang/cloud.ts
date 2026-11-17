@@ -216,14 +216,6 @@ export default {
       hu: 'A Cloud-oldal indítása túllépte az időkorlátot. Próbálja újra.',
       ko: 'Cloud 페이지 시작 시간이 초과되었습니다. 다시 시도하세요.',
     },
-    PAGE_START_FAILED: {
-      zh: 'Cloud 页面启动失败，请重试。',
-      en: 'Cloud page failed to start. Retry.',
-      ja: 'Cloud ページを起動できません。再試行してください。',
-      tr: 'Cloud sayfası başlatılamadı. Yeniden deneyin.',
-      hu: 'A Cloud-oldal nem indítható. Próbálja újra.',
-      ko: 'Cloud 페이지를 시작하지 못했습니다. 다시 시도하세요.',
-    },
     EXTENSION_STOPPED: {
       zh: 'Cloud 扩展已停止。',
       en: 'The Cloud extension has stopped.',

@@ -36,7 +36,9 @@
         :title="issueText(state.updateError)"
         type="info"
         :closable="false"
-      />
+      >
+        <el-button type="text" :disabled="state.busy" @click="prepare('retry')">{{ $t('cloud.retry') }}</el-button>
+      </el-alert>
       <div v-if="state.removed" class="cloud-login">
         <section class="cloud-login-card" aria-labelledby="cloud-removed-title">
           <div class="cloud-login-mark" aria-hidden="true">
@@ -195,6 +197,7 @@ export default class Cloud extends Vue {
         if (!this.alive || next.revision <= this.state.revision) return
         this.state = next
         await this.frameManager?.sync(next)
+        this.failure = null
       })
     return this.syncTask
   }

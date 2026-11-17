@@ -345,7 +345,7 @@ describe('Cloud cloud', () => {
       const release = d.e.resolve(id)!
       release.version = '99.0.0'
       assert.strictEqual(d.e.snapshot().candidate!.version, '1.0.0')
-      d.e.failed(id, { code: 'PAGE_START_FAILED', params: {} })
+      d.e.failed(id, { code: 'PAGE_START_TIMEOUT', params: {} })
       d.e.check()
       await settled(d.e)
       assert.isNull(d.e.snapshot().candidate)
@@ -359,6 +359,119 @@ describe('Cloud cloud', () => {
       assert.isTrue(d.e.removed)
     } finally {
       await d.stop()
+    }
+  })
+  for (const existing of [false, true]) {
+    it(`remembers a failed ${
+      existing ? 'update' : 'first install'
+    } across restart and permits explicit retry`, async () => {
+      const d = await delivery()
+      let restarted: CloudExtension | undefined
+      try {
+        await d.e.enter()
+        await settled(d.e)
+        if (existing) {
+          d.e.ready(d.e.snapshot().candidate!.id)
+          await settled(d.e)
+          d.update('1.0.1')
+          d.e.check()
+          await settled(d.e)
+        }
+        const failed = d.e.snapshot().candidate!
+        d.e.failed(failed.id, { code: 'PAGE_START_TIMEOUT', params: {} })
+        const stateFile = path.join(d.e.root, 'extension.json')
+        assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8')).rejected, [failed.version])
+        d.e.dispose()
+        restarted = new CloudExtension({
+          root: d.e.root,
+          catalogURL: d.base + '/catalog.json',
+          installWorkerPath: workers.installer,
+          allowUnsignedLocal: true,
+          checkInterval: 0,
+        })
+        const before = d.count()
+        await restarted.enter()
+        if (existing) restarted.ready(restarted.snapshot().candidate!.id)
+        await settled(restarted)
+        assert.strictEqual(d.count(), before + 1)
+        assert.isNull(restarted.snapshot().candidate)
+        assert.strictEqual(restarted.snapshot().active?.version ?? null, existing ? '1.0.0' : null)
+        assert.isOk(existing ? restarted.snapshot().updateError : restarted.snapshot().error)
+        await restarted.retry()
+        await settled(restarted)
+        assert.strictEqual(restarted.snapshot().candidate!.version, failed.version)
+        assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8')).rejected, [])
+        restarted.ready(restarted.snapshot().candidate!.id)
+        await settled(restarted)
+        d.update('1.0.2')
+        restarted.check()
+        await settled(restarted)
+        restarted.failed(restarted.snapshot().candidate!.id, { code: 'OPERATION_FAILED', params: {} })
+        d.update('1.0.3')
+        restarted.check()
+        await settled(restarted)
+        assert.strictEqual(restarted.snapshot().candidate!.version, '1.0.3')
+        restarted.ready(restarted.snapshot().candidate!.id)
+        await settled(restarted)
+        assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8')).rejected, ['1.0.2'])
+        await restarted.remove()
+        assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8')).rejected, [])
+      } finally {
+        restarted?.dispose()
+        await d.stop()
+        fs.rmSync(d.e.root, { recursive: true, force: true })
+      }
+    })
+  }
+  it('retries a failed download after restart without rejecting its release version', async () => {
+    const originalFetch = globalThis.fetch
+    const d = await delivery()
+    let restarted: CloudExtension | undefined
+    try {
+      globalThis.fetch = async () => {
+        throw new Error('Offline')
+      }
+      await d.e.enter()
+      await settled(d.e)
+      assert.isOk(d.e.snapshot().error)
+      d.e.dispose()
+      globalThis.fetch = originalFetch
+      restarted = new CloudExtension({
+        root: d.e.root,
+        catalogURL: d.base + '/catalog.json',
+        installWorkerPath: workers.installer,
+        allowUnsignedLocal: true,
+      })
+      await restarted.enter()
+      await settled(restarted)
+      assert.strictEqual(restarted.snapshot().candidate!.version, '1.0.0')
+    } finally {
+      globalThis.fetch = originalFetch
+      restarted?.dispose()
+      await d.stop()
+      fs.rmSync(d.e.root, { recursive: true, force: true })
+    }
+  })
+  it('keeps rollback usable if saving a rejected release fails', async () => {
+    const d = await delivery()
+    try {
+      await d.e.enter()
+      await settled(d.e)
+      d.e.ready(d.e.snapshot().candidate!.id)
+      await settled(d.e)
+      d.update('1.0.1')
+      d.e.check()
+      await settled(d.e)
+      const stateFile = path.join(d.e.root, 'extension.json')
+      fs.unlinkSync(stateFile)
+      fs.mkdirSync(stateFile)
+      assert.doesNotThrow(() => d.e.failed(d.e.snapshot().candidate!.id, { code: 'PAGE_START_TIMEOUT', params: {} }))
+      assert.strictEqual(d.e.snapshot().active!.version, '1.0.0')
+      assert.isNull(d.e.snapshot().candidate)
+      assert.strictEqual(d.e.snapshot().updateError!.code, 'PAGE_START_TIMEOUT')
+    } finally {
+      await d.stop()
+      fs.rmSync(d.e.root, { recursive: true, force: true })
     }
   })
   it('signed catalog verifies release metadata; package traversal and unsupported entries rejected', async () => {
