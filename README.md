@@ -24,11 +24,7 @@
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/mqttx-preview-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./assets/mqttx-preview.png" />
-  <img src="./assets/mqttx-preview.png" alt="MQTTX publishing and receiving messages across colorful topic subscriptions" />
-</picture>
+![mqttx-preview](./assets/mqttx-preview.png)
 
 ## Features
 
