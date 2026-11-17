@@ -95,11 +95,6 @@ export interface CloudDiagnostic {
   file?: string
   frames: string[]
 }
-export interface CloudCredential {
-  value: string
-  expiresAt: number
-  generation: number
-}
 export interface InstallRequest {
   bytes: Uint8Array
   directory: string

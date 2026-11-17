@@ -103,7 +103,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.lengthOf(container.querySelectorAll('iframe'), 1)
     assert.strictEqual(container.querySelector('iframe')!.dataset.release, second.id)
     assert.strictEqual(container.querySelector('iframe')!.style.display, 'block')
-    assert.deepInclude(port.messages, { seq: 2, ok: true, data: { version: second.version } })
+    assert.deepInclude(port.messages, { seq: 2, ok: true, data: undefined })
     await port.request({ seq: 3, method: 'deployments' })
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
     await port.request({ seq: 4, method: 'validate', params: { generation: '1' } })

@@ -125,15 +125,16 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       timer = undefined
     }
   }
+  const releaseViewer = (sender: WebContents): void => {
+    viewers.delete(sender)
+    for (const [id, backend] of backends) if (backend.owner === sender) stopBackend(id)
+    schedule()
+  }
   const watch = (sender: WebContents): void => {
     viewers.add(sender)
     if (!tracked.has(sender)) {
       tracked.add(sender)
-      sender.once('destroyed', () => {
-        viewers.delete(sender)
-        for (const [id, backend] of backends) if (backend.owner === sender) stopBackend(id)
-        schedule()
-      })
+      sender.once('destroyed', () => releaseViewer(sender))
     }
     schedule()
   }
@@ -182,11 +183,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       await extension.retry()
       return snapshot()
     },
-    leave: (_args, sender) => {
-      viewers.delete(sender)
-      for (const [id, backend] of backends) if (backend.owner === sender) stopBackend(id)
-      schedule()
-    },
+    leave: (_args, sender) => releaseViewer(sender),
     remove: async () => {
       removing = true
       try {

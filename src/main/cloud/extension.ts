@@ -163,7 +163,7 @@ export class CloudExtension extends EventEmitter {
   isActive(id: string): boolean {
     return this.active?.id === id
   }
-  async retry(): Promise<ExtensionSnapshot> {
+  async retry(): Promise<void> {
     if (!this.removed) {
       if (this.saved.rejected.length) {
         this.saved.rejected = []
@@ -172,7 +172,6 @@ export class CloudExtension extends EventEmitter {
       await this.enter()
       this.check()
     }
-    return this.snapshot()
   }
   snapshot(): ExtensionSnapshot {
     const info = (item: CloudRelease | null): CloudReleaseInfo | null =>
@@ -255,8 +254,8 @@ export class CloudExtension extends EventEmitter {
     const release = [this.active, this.candidate].find((x) => x && x.id === id)
     return release ? { ...release } : null
   }
-  async enter(explicit = false): Promise<ExtensionSnapshot> {
-    if (this.saved.removed && !explicit) return this.snapshot()
+  async enter(explicit = false): Promise<void> {
+    if (this.saved.removed && !explicit) return
     if (explicit) {
       this.saved.removed = false
       this.persist()
@@ -267,7 +266,7 @@ export class CloudExtension extends EventEmitter {
         this.arm()
       }
       this.emit('change')
-      return this.snapshot()
+      return
     }
     await this.serve()
     if (!this.active && this.saved.active) {
@@ -282,9 +281,8 @@ export class CloudExtension extends EventEmitter {
       }
     }
     this.emit('change')
-    if (this.candidate || this.busy) return this.snapshot()
+    if (this.candidate || this.busy) return
     if (!this.active || Date.now() - this.lastCheck >= this.checkInterval) this.check()
-    return this.snapshot()
   }
   check(): void {
     if (this.developmentURL || this.busy || this.saved.removed || this.candidate) return
@@ -391,10 +389,10 @@ export class CloudExtension extends EventEmitter {
       this.mountStarted = false
     }
   }
-  ready(id: string): ExtensionSnapshot {
+  ready(id: string): void {
     if (!this.candidate || this.candidate.id !== id || this.saved.removed) {
       if (this.isActive(id) && Date.now() - this.lastCheck >= this.checkInterval) this.check()
-      return this.snapshot()
+      return
     }
     clearTimeout(this.timer)
     const candidate = this.candidate
@@ -408,10 +406,9 @@ export class CloudExtension extends EventEmitter {
     // Keep previous files until renderer has removed its old frame, then garbage collect on next launch/removal.
     this.emit('change')
     if (Date.now() - this.lastCheck >= this.checkInterval) this.check()
-    return this.snapshot()
   }
-  failed(id: string, message: CloudIssue): ExtensionSnapshot {
-    if (!this.candidate || this.candidate.id !== id) return this.snapshot()
+  failed(id: string, message: CloudIssue): void {
+    if (!this.candidate || this.candidate.id !== id) return
     clearTimeout(this.timer)
     if (!this.saved.rejected.includes(this.candidate.version)) this.saved.rejected.push(this.candidate.version)
     const dir = path.join(this.releases, id)
@@ -429,9 +426,8 @@ export class CloudExtension extends EventEmitter {
     if (this.active) this.updateError = message
     else this.error = message
     this.emit('change')
-    return this.snapshot()
   }
-  async remove(): Promise<ExtensionSnapshot> {
+  async remove(): Promise<void> {
     this.saved = { removed: true, active: null, rejected: [] }
     this.persist()
     this.epoch++
@@ -445,7 +441,6 @@ export class CloudExtension extends EventEmitter {
     if (this.job) await this.job.catch(() => {})
     if (!this.developmentURL) await fs.promises.rm(this.releases, { recursive: true, force: true })
     this.emit('change')
-    return this.snapshot()
   }
   dispose(): void {
     this.epoch++
