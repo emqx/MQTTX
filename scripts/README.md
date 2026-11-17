@@ -45,6 +45,12 @@ Fixes clipboard functionality in Monaco Editor when running in Electron.
 - Changes the condition `if (!result && platform.isWeb)` to `if (!result)` in Monaco's clipboard implementation
 - Adds comments explaining the patch for future reference
 
+### prepare-keyring.js
+
+An electron-builder `beforePack` hook that installs the keyring binaries for the supported desktop targets using the existing `yarn.lock`. Its isolated Yarn install ignores CPU/OS restrictions and skips lifecycle scripts, without changing the project's manifest or lockfile. All binaries are prepared before dependency collection is cached; platform file filters include only the target binary in each package.
+
+Run `yarn test:build` to check dependency preparation and file collection for macOS x64/ARM64, Windows x64/ia32, and Linux x64/ARM64. The tests use local package fixtures and require no registry downloads.
+
 ## How to Use
 
 Most scripts run automatically at appropriate times through npm/yarn scripts in package.json.

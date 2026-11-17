@@ -9,6 +9,7 @@ import { ipcRenderer } from 'electron'
 import type { CloudState } from '@/types/cloud'
 import Home from '@/views/Home.vue'
 import Cloud from '@/views/cloud/index.vue'
+import CloudRoute from '@/views/cloud/Route.vue'
 import Lang from '@/lang'
 
 const localVue = createLocalVue()
@@ -61,7 +62,7 @@ describe('Cloud navigation persistence', () => {
           path: '/',
           component: RoutedHome,
           children: [
-            { path: '/cloud', name: 'Cloud', component: Cloud },
+            { path: '/cloud', name: 'Cloud', component: CloudRoute },
             {
               path: '/recent_connections/0',
               name: 'ConnectionDetails',
@@ -115,6 +116,8 @@ describe('Cloud navigation persistence', () => {
     expect(calls).not.to.include('enter')
     await router.push('/cloud')
     await settle()
+    expect(wrapper.findAll('.cloud-view').length).to.equal(1)
+    expect(wrapper.find('.cloud-route').exists()).to.equal(true)
     const frame = wrapper.find('iframe').element
     const window = (frame as HTMLIFrameElement).contentWindow
     expect(document.body.contains(frame)).to.equal(true)

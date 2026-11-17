@@ -18,6 +18,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Install Dependencies
         run: yarn install
+      - name: Test Native Dependency Packaging
+        run: yarn test:build
       - name: Build Linux Package
         run: yarn electron:build-linux
       - name: Configure AWS Credentials
@@ -54,6 +56,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Install Dependencies
         run: yarn install --network-timeout 1000000
+      - name: Test Native Dependency Packaging
+        run: yarn test:build
       - name: Build Windows Package
         run: yarn electron:build-win
       - name: Configure AWS Credentials
@@ -128,5 +132,7 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Install Dependencies
         run: yarn install
+      - name: Test Native Dependency Packaging
+        run: yarn test:build
       - name: Build macOS Package
         run: yarn electron:build-mac
