@@ -189,6 +189,9 @@ export class CloudAuth {
       this.notify()
       callbackReply = reply
       server.close()
+      let phase = 'token request'
+      let responseStatus: number | undefined
+      let jsonResponse: boolean | undefined
       try {
         const response = await fetch(`${this.authURL}/api/v2/oauth/token`, {
           method: 'POST',
@@ -206,7 +209,11 @@ export class CloudAuth {
           }),
           signal: AbortSignal.any([abort.signal, AbortSignal.timeout(10000)]),
         })
+        responseStatus = response.status
+        jsonResponse = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() === 'application/json'
+        phase = 'token response parsing'
         const data = await response.json()
+        phase = 'token response validation'
         if (
           !response.ok ||
           typeof data.access_token !== 'string' ||
@@ -223,7 +230,9 @@ export class CloudAuth {
         if (settled || run !== this.generation) throw new CloudError('AUTH_CANCELLED')
         const token = { value: data.access_token, expiresAt: this.now() + data.expires_in * 1000 }
         // Persist successfully before exposing the new session in memory.
+        phase = 'session storage'
         this.vault.save(token)
+        phase = 'session activation'
         this.token = token
         this.status = 'signed-in'
         this.scheduleExpiry()
@@ -231,6 +240,12 @@ export class CloudAuth {
         this.notify()
         settle()
       } catch (e) {
+        logCloudFailure(
+          `authorization callback: ${phase} (HTTP ${responseStatus ?? 'unavailable'}, JSON ${
+            jsonResponse ?? 'unknown'
+          })`,
+          e,
+        )
         settle(e as Error)
       }
     })
