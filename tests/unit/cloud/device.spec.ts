@@ -7,7 +7,9 @@ import { CloudDeviceIdentity, readSystemMachineId } from '../../../src/main/clou
 import { CredentialStore } from '../../../src/main/cloud/storage'
 import { expectRejection } from './assertions'
 
-describe('Cloud device identity', () => {
+describe('Cloud device identity', function () {
+  // Expected failures format stack traces against the full webpack bundle's source map.
+  this.timeout(10000)
   let root: string
   let saved: string | null
   let credential: { getPassword(): Promise<string | null>; setPassword(value: string): Promise<void> }

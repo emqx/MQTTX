@@ -131,7 +131,9 @@ async function delivery(options = {}) {
     },
   }
 }
-describe('Cloud cloud', () => {
+describe('Cloud cloud', function () {
+  // These flows run real installer Workers and format failures against the webpack source map.
+  this.timeout(10000)
   before(() => {
     workers = buildCloudTestWorkers()
   })

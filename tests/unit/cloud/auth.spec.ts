@@ -14,7 +14,9 @@ function displayToken(claims: unknown): string {
   )}.signature`
 }
 
-describe('Cloud authorization contract', () => {
+describe('Cloud authorization contract', function () {
+  // Real HTTP callbacks and fetch aborts can exceed Mocha's default timeout on CI.
+  this.timeout(10000)
   it('sends a stable device UUID to authorize and exchanges the code with the MQTTX callback and User-Agent', async () => {
     let tokenRequest: { url?: string; method?: string; headers: http.IncomingHttpHeaders; body: string } | undefined
     const server = http.createServer(async (request, response) => {

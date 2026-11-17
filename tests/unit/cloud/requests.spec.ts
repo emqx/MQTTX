@@ -79,12 +79,24 @@ describe('Cloud contracts and diagnostics', () => {
     const error = Object.assign(
       new Error('Bearer sensitive-token code_verifier=secret password=hidden https://example.com?token=secret'),
       {
-        cause: Object.assign(new Error('connection refused'), { code: 'ECONNREFUSED' }),
+        // Fixed frames exercise sanitization without repeatedly mapping the entire test bundle.
+        stack: [
+          'Error: Bearer sensitive-token',
+          '    at download (/private/sensitive-token/download.ts:10:2)',
+          '    at request (C:\\private\\secret\\request.js:20:3)',
+          '    at run (/private/password/worker.cjs:30:4)',
+          '    at start (/private/hidden/main.mjs:40:5)',
+          '    at omitted (/private/secret/extra.ts:50:6)',
+        ].join('\n'),
+        cause: Object.assign(new Error('connection refused'), {
+          code: 'ECONNREFUSED',
+          stack: 'Error: connection refused\n    at connect (/private/secret/socket.js:1:2)',
+        }),
       },
     )
     const diagnostic = cloudDiagnostic(error)
     assert.strictEqual(diagnostic.code, 'ECONNREFUSED')
-    assert.isNotEmpty(diagnostic.frames)
+    assert.deepEqual(diagnostic.frames, ['download.ts:10:2', 'request.js:20:3', 'worker.cjs:30:4', 'main.mjs:40:5'])
     let record: unknown[] = []
     const original = console.error
     try {
