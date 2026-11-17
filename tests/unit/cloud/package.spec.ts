@@ -36,7 +36,6 @@ describe('Cloud package', () => {
     const files: Record<string, string> = {
       'backend.cjs': "require('node:worker_threads').parentPort.postMessage({ type: 'ready' })",
       'plugin.json': JSON.stringify({
-        id: 'emqx.cloud',
         version: '1.0.0',
         kind: 'page',
         apiVersion: 1,

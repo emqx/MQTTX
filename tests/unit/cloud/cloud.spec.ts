@@ -57,7 +57,6 @@ function archive(version = '1.0.0', override = {}) {
       'backend.cjs': Buffer.from("require('node:worker_threads').parentPort.postMessage({ type: 'ready' })"),
       'plugin.json': Buffer.from(
         JSON.stringify({
-          id: 'emqx.cloud',
           version,
           kind: 'page',
           apiVersion: 1,
@@ -89,7 +88,6 @@ async function delivery(options = {}) {
           schema: 1,
           releases: [
             {
-              id: 'emqx.cloud',
               version,
               apiVersion: badAPI ? 9 : 1,
               url: base + '/package.zip',
@@ -514,7 +512,6 @@ describe('Cloud cloud', function () {
     const catalogURL = 'https://extensions.example.com/catalog.json'
     const bytes = archive()
     const metadata = {
-      id: 'emqx.cloud',
       version: '1.0.0',
       apiVersion: 1,
       url: 'https://extensions.example.com/package.zip',
