@@ -18,7 +18,6 @@ interface FrameManagerOptions {
 // Owns renderer-side extension frames and their message channels, independently of Vue.
 export class CloudFrameManager {
   private readonly frames = new Map<string, Frame>()
-  private activeVersion: string | undefined
   private alive = true
   private generation = 0
 
@@ -33,7 +32,6 @@ export class CloudFrameManager {
       this.clear()
       return
     }
-    this.activeVersion = state.active?.version
     const generation = this.generation
     const releases = [state.active, state.candidate].filter((release): release is NonNullable<typeof release> =>
       Boolean(release),
@@ -121,7 +119,6 @@ export class CloudFrameManager {
           if (!this.alive || this.frames.get(id) !== frame || frame.port !== port) return
           frame.ready = true
           this.syncTheme()
-          data = { version: this.activeVersion }
         } else if (msg.method === 'theme') data = this.options.theme()
         else if (frame.ready && msg.method === 'backend') {
           data = await invokeCloud('backend', { id, method: msg.params?.method, params: msg.params?.params })
