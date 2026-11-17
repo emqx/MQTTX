@@ -18,7 +18,6 @@ interface SavedState {
   rejected: string[]
 }
 interface CatalogRelease {
-  id: string
   version: string
   apiVersion: number
   url: string
@@ -317,7 +316,7 @@ export class CloudExtension extends EventEmitter {
       .filter((r: CatalogRelease) => {
         try {
           releaseVersion(r.version)
-          return r.id === 'emqx.cloud' && r.apiVersion === 1
+          return r.apiVersion === 1
         } catch {
           return false
         }
@@ -337,7 +336,6 @@ export class CloudExtension extends EventEmitter {
     const local = remoteURL(this.catalogURL).hostname === '127.0.0.1' && url.hostname === '127.0.0.1'
     if (!this.allowUnsignedLocal || !local || this.publicKey) {
       const payload = JSON.stringify({
-        id: release.id,
         version: release.version,
         apiVersion: release.apiVersion,
         url: release.url,

@@ -17,7 +17,6 @@ export function inspect(root: string): CloudManifest {
   const manifest: CloudManifest = JSON.parse(fs.readFileSync(path.join(root, 'plugin.json'), 'utf8'))
   releaseVersion(manifest.version)
   if (
-    manifest.id !== 'emqx.cloud' ||
     manifest.apiVersion !== 1 ||
     manifest.kind !== 'page' ||
     manifest.entry !== 'index.html' ||

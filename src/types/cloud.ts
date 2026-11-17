@@ -29,7 +29,6 @@ export interface CloudState extends ExtensionSnapshot {
   session: CloudSession
 }
 export interface CloudManifest {
-  id: string
   version: string
   apiVersion: number
   kind: string
