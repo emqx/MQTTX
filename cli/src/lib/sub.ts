@@ -370,7 +370,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
-      const opts = { ...connOpts }
+      // Track the initial subscription acknowledgements ourselves across reconnects.
+      const opts = { ...connOpts, resubscribe: false }
 
       opts.clientId = getBenchClientId(clientId, i, count)
 
@@ -378,53 +379,61 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       let hasConnected = false
       let isConnected = false
       let retryTimes = 0
+      let confirmedSubscriptions: { name: string; options: mqtt.IClientSubscribeOptions }[] | undefined
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
-      client.on('connect', async () => {
+      client.on('connect', async (packet: mqtt.IConnackPacket) => {
         connectedCount += 1
         isConnected = true
-        retryTimes = 0
         if (!hasConnected) {
           hasConnected = true
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
-          logConnections()
+        } else {
+          benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+        logConnections()
 
-          const subscribePromises = topic.map((t: string, index: number) => {
-            return new Promise<void>((resolve, reject) => {
-              const { username, clientId } = opts
-              let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
-              username && (topicName = topicName.replaceAll('%u', username))
-              const subOpts = subOptsArray[index]
-              client.subscribe(topicName, subOpts, (err, result) => {
-                if (err) {
-                  logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
-                  return reject(err)
-                }
-                result.forEach((sub) => {
-                  if (sub.qos > 2) {
-                    failedSubs.push({
-                      clientId: opts.clientId!,
-                      subItem: sub,
-                    })
-                  } else {
-                    allSuccessfulSubs.push(sub)
-                  }
-                  subscribedCount += 1
-                })
-                resolve()
+        if (confirmedSubscriptions) {
+          retryTimes = 0
+          const needsSubscriptions =
+            client.options.clean || (client.options.protocolVersion === 5 && !packet.sessionPresent)
+          if (!client.options.resubscribe && needsSubscriptions) {
+            // Restore confirmed topics once, then let MQTT.js handle later resubscriptions.
+            client.options.resubscribe = true
+            for (const { name, options } of confirmedSubscriptions) client.subscribe(name, options)
+            confirmedSubscriptions = []
+          }
+        } else {
+          const subscriptions = topic.map((filter, index) => {
+            let name = filter.replaceAll('%i', i.toString()).replaceAll('%c', opts.clientId!)
+            if (opts.username) name = name.replaceAll('%u', opts.username)
+            return { name, options: subOptsArray[index] }
+          })
+          const subscribePromises = subscriptions.map(({ name, options }) => {
+            return new Promise<mqtt.ISubscriptionGrant[]>((resolve, reject) => {
+              client.subscribe(name, options, (err, result) => {
+                if (err) return reject(err)
+                resolve(result)
               })
             })
           })
 
           try {
-            await Promise.all(subscribePromises)
+            const grants = await Promise.all(subscribePromises)
+            confirmedSubscriptions = subscriptions.filter((_, index) => grants[index].some((sub) => sub.qos <= 2))
+            for (const sub of grants.flat()) {
+              if (sub.qos > 2) failedSubs.push({ clientId: opts.clientId!, subItem: sub })
+              else allSuccessfulSubs.push(sub)
+              subscribedCount += 1
+            }
+            retryTimes = 0
           } catch (error) {
+            // MQTT.js fails pending SUBSCRIBE callbacks before its close handler schedules a retry.
+            if (error instanceof Error && error.message === 'Connection closed') return
+            logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${error}`)
             process.exit(1)
           }
-        } else {
-          benchLog.reconnected(connectedCount, count, opts.clientId!)
-          logConnections()
         }
 
         if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
