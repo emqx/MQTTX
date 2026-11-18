@@ -223,6 +223,9 @@ export default class Cloud extends Vue {
           query: { oper: 'create', cloudConnection: JSON.stringify(connection) },
         })
       },
+      onRemove: () => {
+        void this.remove()
+      },
     })
     this.unwatch = watchCloudState((state) => {
       this.applyState(state).catch((error) => {
