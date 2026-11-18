@@ -167,14 +167,6 @@ export default {
     hu: 'Cloud előkészítése…',
     ko: 'Cloud 준비 중…',
   },
-  prepareHint: {
-    zh: '准备期间可以继续使用 MQTT 连接，完成后再回来即可。',
-    en: 'You can keep using MQTT connections while Cloud is being prepared.',
-    ja: '準備中も MQTT 接続を利用できます。完了後に戻ってください。',
-    tr: 'Cloud hazırlanırken MQTT bağlantılarını kullanabilirsiniz.',
-    hu: 'Az előkészítés alatt tovább használhatja az MQTT-kapcsolatokat.',
-    ko: '준비하는 동안 MQTT 연결을 계속 사용할 수 있습니다.',
-  },
   retry: {
     zh: '重试',
     en: 'Retry',
