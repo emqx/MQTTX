@@ -53,17 +53,44 @@
       >
         <el-button type="text" :disabled="state.busy" @click="prepare('retry')">{{ $t('cloud.retry') }}</el-button>
       </el-alert>
-      <div v-if="state.removed" class="cloud-login">
-        <section class="cloud-login-card" aria-labelledby="cloud-removed-title">
-          <div class="cloud-login-mark" aria-hidden="true">
-            <i class="iconfont icon-cloud-logo"></i>
+      <div v-if="state.removed" class="cloud-login cloud-signin-layout">
+        <section class="cloud-intro">
+          <div class="cloud-intro-body">
+            <h2>{{ $t('cloud.introTitle') }}</h2>
+            <p>{{ $t('cloud.introSubtitle') }}</p>
+            <ul class="cloud-perks">
+              <li v-for="perk in perks" :key="perk.key">
+                <span class="cloud-perk-tile" aria-hidden="true"><CloudIcon :name="perk.icon" /></span>
+                <p>{{ $t(`cloud.${perk.key}`) }}</p>
+              </li>
+            </ul>
           </div>
-          <h2 id="cloud-removed-title">{{ $t('cloud.removed') }}</h2>
-          <p class="cloud-login-tagline">{{ $t('cloud.addHint') }}</p>
-          <div class="cloud-login-actions">
-            <el-button type="primary" icon="el-icon-plus" :disabled="removing" @click="prepare('add')">
-              {{ $t('cloud.add') }}
-            </el-button>
+        </section>
+        <section class="cloud-signin-panel" aria-labelledby="cloud-removed-title">
+          <div class="cloud-signin-wrap">
+            <div class="cloud-bridge" aria-hidden="true">
+              <span class="cloud-node">
+                <span class="cloud-node-tile"><img src="@/assets/images/app-logo.png" alt="" /></span>MQTTX
+              </span>
+              <CloudWire />
+              <span class="cloud-node">
+                <span class="cloud-node-tile"><i class="iconfont icon-cloud-logo"></i></span>
+                EMQX Cloud
+              </span>
+            </div>
+            <div class="cloud-signin">
+              <h2 id="cloud-removed-title" class="cloud-signin-title">{{ $t('cloud.removed') }}</h2>
+              <p>{{ $t('cloud.addHint') }}</p>
+              <el-button
+                type="primary"
+                class="cloud-signin-button"
+                icon="el-icon-plus"
+                :disabled="removing"
+                @click="prepare('add')"
+              >
+                {{ $t('cloud.add') }}
+              </el-button>
+            </div>
           </div>
         </section>
       </div>
