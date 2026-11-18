@@ -20,6 +20,8 @@ describe('benchmark reconnection after connection errors', () => {
   let output: string
   let connections: { clientId: string; socket: Socket }[]
   let publications: string[]
+  let subscribeRequests: number
+  let interruptSubscription: (request: number) => boolean
   let acknowledgePublications: boolean
   let closeAfterPuback: boolean
   let rejectConnections: boolean
@@ -47,6 +49,8 @@ describe('benchmark reconnection after connection errors', () => {
     output = ''
     connections = []
     publications = []
+    subscribeRequests = 0
+    interruptSubscription = () => false
     acknowledgePublications = true
     closeAfterPuback = false
     rejectConnections = false
@@ -71,6 +75,11 @@ describe('benchmark reconnection after connection errors', () => {
           }
           socket.write(generate({ cmd: 'connack', returnCode: rejectConnections ? 5 : 0, sessionPresent: false }))
         } else if (packet.cmd === 'subscribe') {
+          subscribeRequests += 1
+          if (interruptSubscription(subscribeRequests)) {
+            socket.end()
+            return
+          }
           socket.write(generate({ cmd: 'suback', messageId: packet.messageId, granted: [0] }))
         } else if (packet.cmd === 'publish') {
           publications.push(packet.payload.toString())
@@ -149,6 +158,34 @@ describe('benchmark reconnection after connection errors', () => {
     } else if (command === 'sub') {
       await waitFor(() => output.includes('All connections subscribed'))
     }
+  })
+
+  it('retries a subscription interrupted before SUBACK and becomes ready', async () => {
+    interruptSubscription = (request) => request === 1
+    await start('sub', [], 25, 1)
+    await waitFor(() => output.includes('All connections subscribed') || child!.exitCode !== null)
+    expect(child!.exitCode).toBeNull()
+    expect(output).toContain('All connections subscribed')
+    expect(connections).toHaveLength(2)
+    expect(subscribeRequests).toBe(2)
+
+    connections[1].socket.end()
+    await waitFor(() => subscribeRequests >= 3 || child!.exitCode !== null)
+    expect(child!.exitCode).toBeNull()
+    expect(connections).toHaveLength(3)
+    expect(subscribeRequests).toBe(3)
+  })
+
+  it.each([
+    { period: 0, attempts: 1 },
+    { period: 25, attempts: 2 },
+  ])('stops when SUBACK is always interrupted with reconnect period $period', async ({ period, attempts }) => {
+    interruptSubscription = () => true
+    await start('sub', [], period, 1)
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    expect(connections).toHaveLength(attempts)
+    expect(subscribeRequests).toBe(attempts)
   })
 
   it.each([0, 1])('resumes QoS %i split replay after a refused reconnect attempt', async (qos) => {
