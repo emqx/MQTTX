@@ -36,6 +36,8 @@ const signedIn: CloudState = {
 describe('Cloud navigation persistence', () => {
   const invoke = ipcRenderer.invoke
   const on = ipcRenderer.on
+  // jsdom has no canvas; navigation tests do not need the sign-in animation.
+  const contextReader = HTMLCanvasElement.prototype.getContext
   let wrapper: Wrapper<Vue>
   let router: VueRouter
   let listener: (event: unknown, state: CloudState) => void
@@ -44,6 +46,7 @@ describe('Cloud navigation persistence', () => {
   let bodyClass: string
 
   beforeEach(async () => {
+    HTMLCanvasElement.prototype.getContext = () => null
     originalAsync = Vue.config.async
     bodyClass = document.body.className
     calls = []
@@ -107,6 +110,7 @@ describe('Cloud navigation persistence', () => {
     wrapper?.destroy()
     ipcRenderer.invoke = invoke
     ipcRenderer.on = on
+    HTMLCanvasElement.prototype.getContext = contextReader
     Vue.config.async = originalAsync
     document.body.className = bodyClass
   })
