@@ -13,6 +13,7 @@ interface FrameManagerOptions {
   theme: () => CloudTheme
   onState: (state: CloudState) => Promise<void>
   onCreateConnection: (connection: CloudConnectionDraft) => void
+  onRemove: () => void
 }
 
 // Owns renderer-side extension frames and their message channels, independently of Vue.
@@ -130,6 +131,8 @@ export class CloudFrameManager {
           await invokeCloud('copyText', { id, text: msg.params?.text })
         } else if (frame.ready && msg.method === 'copyConnection') {
           await invokeCloud('copyConnection', { id, connection: msg.params })
+        } else if (frame.ready && msg.method === 'removeExtension') {
+          this.options.onRemove()
         } else throw new CloudError('OPERATION_DENIED')
         if (isCurrent()) port.postMessage({ seq: msg.seq, ok: true, data })
       } catch (error) {
