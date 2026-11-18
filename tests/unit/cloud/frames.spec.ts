@@ -29,6 +29,7 @@ describe('Cloud frame lifecycle and bridge', () => {
   let channels: Array<{ port1: TestPort; port2: TestPort }>
   let calls: string[]
   let opened: CloudConnectionDraft[]
+  let removed: number
   const theme: CloudTheme = { lang: 'en', messages: {}, tokens: { '--color-bg-normal': '#fff' } }
 
   function hello(element: HTMLIFrameElement, origin = 'null', source = element.contentWindow): void {
@@ -39,6 +40,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     channels = []
     calls = []
     opened = []
+    removed = 0
     Object.defineProperty(global, 'MessageChannel', {
       configurable: true,
       value: class {
@@ -72,6 +74,9 @@ describe('Cloud frame lifecycle and bridge', () => {
       onState: (next) => manager.sync(next),
       onCreateConnection: (connection) => {
         opened.push(connection)
+      },
+      onRemove: () => {
+        removed++
       },
     })
   })
@@ -170,6 +175,19 @@ describe('Cloud frame lifecycle and bridge', () => {
     await port.request({ seq: 4, method: 'copyText', params: { text } })
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
     assert.lengthOf(opened, 0)
+  })
+
+  it('requests extension removal only after frame readiness', async () => {
+    await manager.sync(state)
+    hello(container.querySelectorAll('iframe')[1])
+    const port = channels[0].port1
+    await port.request({ seq: 1, method: 'removeExtension' })
+    assert.strictEqual(port.messages[0].error.code, 'OPERATION_DENIED')
+    assert.strictEqual(removed, 0)
+    await port.request({ seq: 2, method: 'ready' })
+    await port.request({ seq: 3, method: 'removeExtension' })
+    assert.strictEqual(removed, 1)
+    assert.deepInclude(port.messages, { seq: 3, ok: true, data: undefined })
   })
 
   it('closes channels on disposal and discards a pending reply from a retired frame', async () => {
