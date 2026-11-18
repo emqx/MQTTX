@@ -728,6 +728,11 @@ export default class Cloud extends Vue {
   font-weight: 500;
   line-height: 1.4;
   white-space: normal;
+  ::v-deep > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
   &.el-button--primary {
     border: 0;
     background: var(--color-main-green);
