@@ -160,17 +160,27 @@
       </div>
       <div v-else-if="!state.active" class="cloud-login">
         <section class="cloud-login-card" role="status" aria-labelledby="cloud-preparing-title">
-          <div class="cloud-login-mark" aria-hidden="true">
-            <i v-if="state.error || failure" class="iconfont icon-cloud-logo"></i>
-            <i v-else class="el-icon-loading"></i>
-          </div>
-          <h2 id="cloud-preparing-title">{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
-          <p class="cloud-login-tagline">{{ $t('cloud.prepareHint') }}</p>
-          <div v-if="state.error || failure" class="cloud-login-actions">
-            <el-button type="primary" icon="el-icon-refresh" @click="prepare('retry')">
-              {{ $t('cloud.retry') }}
-            </el-button>
-          </div>
+          <template v-if="state.error || failure">
+            <div class="cloud-prepare-mark is-error" aria-hidden="true">
+              <span class="cloud-node-tile"><i class="el-icon-warning-outline"></i></span>
+            </div>
+            <h2 id="cloud-preparing-title">{{ $t('cloud.notReady') }}</h2>
+            <div class="cloud-login-actions">
+              <el-button type="primary" icon="el-icon-refresh" @click="prepare('retry')">
+                {{ $t('cloud.retry') }}
+              </el-button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="cloud-prepare-mark" aria-hidden="true">
+              <span class="cloud-node-tile">
+                <i class="iconfont icon-cloud-logo"></i>
+                <span class="cloud-node-busy"></span>
+              </span>
+            </div>
+            <h2 id="cloud-preparing-title">{{ $t('cloud.preparing') }}</h2>
+            <div class="cloud-prepare-bar" aria-hidden="true"><span></span></div>
+          </template>
         </section>
       </div>
       <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
@@ -507,30 +517,6 @@ export default class Cloud extends Vue {
     line-height: 1.4;
   }
 }
-.cloud-login-tagline {
-  margin: 0 auto;
-  max-width: 420px;
-  color: var(--color-text-light);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.cloud-login-mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto;
-  border-radius: 12px;
-  background: var(--color-bg-card-gradient);
-  color: var(--color-main-green);
-  font-size: 30px;
-  .icon-cloud-logo {
-    color: var(--color-emqx);
-    font-size: 40px;
-    line-height: 1;
-  }
-}
 .cloud-session-alert {
   margin-top: 24px;
   text-align: left;
@@ -561,6 +547,45 @@ export default class Cloud extends Vue {
     &:focus {
       background: var(--color-minor-green);
     }
+  }
+}
+.cloud-prepare-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  margin: 0 auto;
+}
+.cloud-prepare-mark.is-error .cloud-node-tile {
+  color: var(--color-minor-red);
+  font-size: 30px;
+}
+.cloud-prepare-bar {
+  position: relative;
+  width: 180px;
+  max-width: 100%;
+  height: 3px;
+  margin: 20px auto 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-bg-item);
+}
+.cloud-prepare-bar span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--color-main-green);
+  animation: cloud-prepare-slide 1.3s ease-in-out infinite;
+}
+@keyframes cloud-prepare-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
   }
 }
 .cloud-login-note {
@@ -760,6 +785,10 @@ export default class Cloud extends Vue {
 @media (prefers-reduced-motion: reduce) {
   .cloud-node-busy {
     animation: none;
+  }
+  .cloud-prepare-bar span {
+    animation: none;
+    width: 100%;
   }
 }
 @media (max-width: 960px) {
