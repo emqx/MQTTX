@@ -69,9 +69,8 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
   const packaged = app.isPackaged
   const services = packaged
     ? {
-        // Replace these placeholders with the production endpoints before release.
-        authURL: 'https://accounts.mqttce.com',
-        apiURL: 'https://cloud-intl.dev.en.consoleassets.mqttce.com',
+        authURL: 'https://accounts.emqx.com',
+        apiURL: 'https://cloud-intl.emqx.com',
         ...packagedDistribution,
       }
     : {
