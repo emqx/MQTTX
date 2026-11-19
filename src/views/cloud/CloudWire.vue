@@ -90,7 +90,7 @@ export default class CloudWire extends Vue {
     if (!ctx) return
     ctx.clearRect(0, 0, this.width, this.height)
     const style = getComputedStyle(document.body)
-    const grey = style.getPropertyValue('--color-text-light').trim()
+    const green = style.getPropertyValue('--color-main-green').trim()
     const accent = style.getPropertyValue('--color-emqx').trim()
     for (const dot of this.dots) {
       const k = dot.t / dot.life
@@ -100,7 +100,7 @@ export default class CloudWire extends Vue {
       ctx.beginPath()
       // Grow in and shrink out, so dots appear and leave without fading.
       ctx.arc(x, y, dot.r * Math.sin(Math.PI * k), 0, Math.PI * 2)
-      ctx.fillStyle = dot.r > 3 ? accent : grey
+      ctx.fillStyle = dot.r > 3 ? accent : green
       ctx.fill()
     }
   }
