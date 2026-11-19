@@ -8,8 +8,12 @@ import { expectError } from './assertions'
 describe('Cloud contracts and diagnostics', () => {
   it('checks untrusted method names and frame parameters before dispatch', () => {
     assert.deepEqual(parseCloudRequest('status'), { method: 'status', args: {} })
-    const args = { id: 'r-12345678-1234-1234-1234-123456789abc', method: 'deployments', params: { page: 1, limit: 20 } }
-    assert.deepEqual(parseCloudRequest('backend', args), { method: 'backend', args })
+    const args = {
+      id: 'r-12345678-1234-1234-1234-123456789abc',
+      method: 'GET' as const,
+      path: '/public_api/v1/mqttx/deployments?page=1',
+    }
+    assert.deepEqual(parseCloudRequest('request', args), { method: 'request', args })
     for (const [method, value] of [
       ['unknown', {}],
       ['ready', {}],
@@ -17,8 +21,15 @@ describe('Cloud contracts and diagnostics', () => {
       ['validate', { id: args.id, generation: '1' }],
       ['reject', { id: args.id, generation: NaN }],
       ['credential', {}],
-      ['backend', { id: args.id, method: '../outside' }],
-      ['backend', { id: args.id }],
+      ['request', { ...args, method: 'POST' }],
+      ...[
+        'https://example.com',
+        '//example.com',
+        '/other',
+        '/public_api/v1/mqttx/../outside',
+        '/public_api/v1/mqttx/%2e%2e/outside',
+      ].map((path) => ['request', { ...args, path }]),
+      ['request', { id: args.id }],
       ['rpc', { id: args.id, method: 'deployments' }],
       ['status', []],
     ]) {

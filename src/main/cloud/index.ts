@@ -3,9 +3,8 @@ import { cloudConnectionURL } from '../../utils/cloudConnection'
 import { app, BrowserWindow, clipboard, ipcMain, safeStorage, shell } from 'electron'
 import type { WebContents } from 'electron'
 import path from 'path'
-import fs from 'fs'
-import { CloudBackend } from './backend'
-import { CloudExtension, boundedFetch } from './extension'
+import { cloudGet } from './api'
+import { CloudExtension } from './extension'
 import { CredentialStore } from './storage'
 import { CloudAuth, origin } from './auth'
 import { CloudDeviceIdentity } from './device'
@@ -59,6 +58,7 @@ export function initializeCloud(
 
 function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   const authURL = origin(environment.MQTTX_CLOUD_AUTH_URL || 'https://accounts.mqttce.com')
+  const apiURL = 'https://cloud-intl.dev.en.consoleassets.mqttce.com'
   const developmentOrigin =
     !app.isPackaged && environment.WEBPACK_DEV_SERVER_URL && environment.MQTTX_CLOUD_DEV_URL
       ? origin(environment.MQTTX_CLOUD_DEV_URL)
@@ -70,7 +70,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   )
     throw new CloudError('INVALID_SERVICE_URL')
   const root = path.join(app.getPath('userData'), 'cloud')
-  const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, client: 'mqttx' }))
+  const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, apiURL, client: 'mqttx' }))
   const deviceIdentity = new CloudDeviceIdentity()
   const auth = new CloudAuth({
     authURL,
@@ -88,10 +88,10 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       ? Math.max(2000, Number(environment.MQTTX_CLOUD_UPDATE_INTERVAL_MS) || 3600000)
       : 3600000,
   })
-  const backends = new Map<string, { owner: WebContents; runtime?: CloudBackend }>()
-  const stopBackend = (id: string): void => {
-    backends.get(id)?.runtime?.dispose()
-    backends.delete(id)
+  const pages = new Map<string, { owner: WebContents; lifetime: AbortController; pending: number }>()
+  const releasePage = (id: string): void => {
+    pages.get(id)?.lifetime.abort()
+    pages.delete(id)
   }
   let removing = false,
     revision = 0,
@@ -107,8 +107,8 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   }
   const changed = (): void => {
     revision++
-    for (const id of backends.keys())
-      if (auth.state().status !== 'signed-in' || !extension.resolve(id) || extension.removed) stopBackend(id)
+    for (const id of pages.keys())
+      if (auth.state().status !== 'signed-in' || !extension.resolve(id) || extension.removed) releasePage(id)
     if (queued) return
     queued = true
     queueMicrotask(() => {
@@ -127,7 +127,7 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   }
   const releaseViewer = (sender: WebContents): void => {
     viewers.delete(sender)
-    for (const [id, backend] of backends) if (backend.owner === sender) stopBackend(id)
+    for (const [id, page] of pages) if (page.owner === sender) releasePage(id)
     schedule()
   }
   const watch = (sender: WebContents): void => {
@@ -205,98 +205,60 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
       extension.mounting(id)
       return snapshot()
     },
-    ready: async ({ id }, sender) => {
+    ready: ({ id }, sender) => {
       requireRelease(id)
-      stopBackend(id)
-      const startup: { owner: WebContents; runtime?: CloudBackend } = { owner: sender }
-      backends.set(id, startup)
+      if (!viewers.has(sender) || auth.state().status !== 'signed-in') throw new CloudError('EXTENSION_STOPPED')
+      releasePage(id)
       try {
-        let file = extension.backendFile(id)
-        if (developmentOrigin) {
-          const bytes = await boundedFetch(
-            `${developmentOrigin}/backend.cjs`,
-            8 * 1024 * 1024,
-            AbortSignal.timeout(15000),
-          )
-          const directory = path.join(root, 'development', id)
-          await fs.promises.mkdir(directory, { recursive: true })
-          file = path.join(directory, 'backend.cjs')
-          await fs.promises.writeFile(file, bytes)
-        }
-        requireRelease(id)
-        if (
-          backends.get(id) !== startup ||
-          sender.isDestroyed() ||
-          !viewers.has(sender) ||
-          auth.state().status !== 'signed-in'
-        )
-          throw new CloudError('EXTENSION_STOPPED')
-        const runtime = new CloudBackend(file, (method, params) => {
-          requireActive(id)
-          if (backends.get(id)?.runtime !== runtime) throw new CloudError('EXTENSION_STOPPED')
-          if (method === 'credential') return auth.credential()
-          if (method === 'validate' || method === 'reject') {
-            const generation = (params as { generation?: unknown } | null)?.generation
-            if (typeof generation !== 'number' || !Number.isSafeInteger(generation))
-              throw new CloudError('OPERATION_DENIED')
-            return method === 'validate' ? auth.validate(generation) : auth.reject(generation)
-          }
-          throw new CloudError('OPERATION_DENIED')
-        })
-        startup.runtime = runtime
-        await runtime.ready
-        requireRelease(id)
-        if (backends.get(id)?.runtime !== runtime) throw new CloudError('EXTENSION_STOPPED')
         extension.ready(id)
       } catch (error) {
-        if (backends.get(id) === startup) {
-          stopBackend(id)
-          extension.failed(id, cloudIssue(error))
-        }
+        extension.failed(id, cloudIssue(error))
         throw error
       }
+      pages.set(id, { owner: sender, lifetime: new AbortController(), pending: 0 })
       return snapshot()
     },
     unmount: ({ id }) => {
       requireRelease(id)
-      stopBackend(id)
+      releasePage(id)
       extension.unmount(id)
       return snapshot()
     },
     createConnection: ({ id, connection }, sender) => {
       requireActive(id)
-      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
       auth.credential()
       return connection
     },
     copyText: ({ id, text }, sender) => {
       requireActive(id)
-      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
       auth.credential()
       clipboard.writeText(text)
     },
     copyConnection: ({ id, connection }, sender) => {
       requireActive(id)
-      if (backends.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
       auth.credential()
       clipboard.writeText(cloudConnectionURL(connection))
     },
-    // MQTTX only routes business calls; API paths and response handling belong to the extension.
-    backend: async ({ id, method, params }, sender) => {
+    request: async ({ id, path }, sender) => {
       requireActive(id)
-      const backend = backends.get(id)
-      if (!backend?.runtime || backend.owner !== sender) throw new CloudError('EXTENSION_STOPPED')
-      const generation = auth.credential().generation
-      const result = await backend.runtime.call(method, params)
-      requireActive(id)
-      if (!auth.validate(generation) || backends.get(id) !== backend) throw new CloudError('SESSION_CHANGED')
-      return result
+      const page = pages.get(id)
+      if (!page || page.owner !== sender) throw new CloudError('OPERATION_DENIED')
+      if (page.pending >= 32) throw new CloudError('REQUEST_LIMIT')
+      page.pending++
+      try {
+        return await cloudGet(apiURL, path, auth, page.lifetime.signal)
+      } finally {
+        page.pending--
+      }
     },
   }
   app.once('will-quit', () => {
     if (timer) clearInterval(timer)
     viewers.clear()
-    for (const id of backends.keys()) stopBackend(id)
+    for (const id of pages.keys()) releasePage(id)
     auth.dispose()
     extension.dispose()
   })

@@ -121,8 +121,8 @@ export class CloudFrameManager {
           frame.ready = true
           this.syncTheme()
         } else if (msg.method === 'theme') data = this.options.theme()
-        else if (frame.ready && msg.method === 'backend') {
-          data = await invokeCloud('backend', { id, method: msg.params?.method, params: msg.params?.params })
+        else if (frame.ready && msg.method === 'request') {
+          data = await invokeCloud('request', { id, method: msg.params?.method, path: msg.params?.path })
         } else if (frame.ready && msg.method === 'createConnection') {
           const connection = await invokeCloud('createConnection', { id, connection: msg.params })
           if (!isCurrent()) return

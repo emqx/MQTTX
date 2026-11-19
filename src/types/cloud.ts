@@ -33,7 +33,6 @@ export interface CloudManifest {
   apiVersion: number
   kind: string
   entry: string
-  backend: string
 }
 export interface CloudTheme {
   lang: string
@@ -62,7 +61,7 @@ export interface CloudParams {
   mounting: { id: string }
   ready: { id: string }
   unmount: { id: string }
-  backend: { id: string; method: string; params?: unknown }
+  request: { id: string; method: 'GET'; path: string }
 }
 export interface CloudResults {
   copyText: void
@@ -80,7 +79,7 @@ export interface CloudResults {
   mounting: CloudState
   ready: CloudState
   unmount: CloudState
-  backend: unknown
+  request: unknown
 }
 export type CloudMethod = keyof CloudParams
 export type CloudRequest = { [M in CloudMethod]: { method: M; args: CloudParams[M] } }[CloudMethod]
