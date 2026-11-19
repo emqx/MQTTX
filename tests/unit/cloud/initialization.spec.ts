@@ -3,7 +3,6 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { generateKeyPairSync } from 'crypto'
 import { initializeCloud } from '../../../src/main/cloud'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import type { CloudSession } from '../../../src/types/cloud'
@@ -80,20 +79,23 @@ describe('Cloud initialization isolation', function () {
       initializeCloud(environment)
       assert.isTrue((await handler(event, 'status', {})).ok)
       Object.defineProperty(app, 'isPackaged', { configurable: true, value: true })
-      initializeCloud({ ...environment, WEBPACK_DEV_SERVER_URL: 'http://localhost:8080' })
-      assert.strictEqual((await handler(event, 'status', {})).error.code, 'INVALID_SERVICE_URL')
-      const catalog = { MQTTX_CLOUD_CATALOG_URL: 'https://extensions.example.com/catalog.json' }
-      initializeCloud({ ...environment, ...catalog })
-      assert.strictEqual((await handler(event, 'status', {})).error.code, 'SIGNATURE_INVALID')
-      initializeCloud({
+      const runtimeEnvironment = {
         ...environment,
-        ...catalog,
+        MQTTX_CLOUD_AUTH_URL: 'invalid-auth-url',
+        MQTTX_CLOUD_CATALOG_URL: 'http://127.0.0.1:43112/catalog.json',
         WEBPACK_DEV_SERVER_URL: 'http://localhost:8080',
-        MQTTX_CLOUD_PUBLIC_KEY: generateKeyPairSync('ed25519')
-          .publicKey.export({ type: 'spki', format: 'pem' })
-          .toString(),
-      })
-      assert.isTrue((await handler(event, 'status', {})).ok)
+      }
+      initializeCloud(runtimeEnvironment, {})
+      assert.strictEqual((await handler(event, 'status', {})).error.code, 'INVALID_SERVICE_URL')
+      const catalogURL = 'https://extensions.example.com/catalog.json'
+      initializeCloud(runtimeEnvironment, { catalogURL })
+      assert.strictEqual((await handler(event, 'status', {})).error.code, 'SIGNATURE_INVALID')
+      fs.mkdirSync(path.join(root, 'cloud'), { recursive: true })
+      fs.writeFileSync(path.join(root, 'cloud', 'extension.json'), JSON.stringify({ removed: true }))
+      initializeCloud(runtimeEnvironment)
+      const status = await handler(event, 'status', {})
+      assert.isTrue(status.ok)
+      assert.isFalse(status.data.removed)
       Object.defineProperty(app, 'isPackaged', { configurable: true, value: false })
       initializeCloud({
         ...environment,
