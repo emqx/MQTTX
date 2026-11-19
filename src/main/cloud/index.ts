@@ -2,6 +2,7 @@ import { CloudError, cloudIssue } from '../../utils/cloudErrors'
 import { cloudConnectionURL } from '../../utils/cloudConnection'
 import { app, BrowserWindow, clipboard, ipcMain, safeStorage, shell } from 'electron'
 import type { WebContents } from 'electron'
+import { createHash } from 'crypto'
 import path from 'path'
 import { cloudGet } from './api'
 import { CloudExtension } from './extension'
@@ -20,6 +21,7 @@ type CloudInvoke = <M extends CloudMethod>(
   args: CloudParams[M],
   sender: WebContents,
 ) => Promise<CloudResults[M]>
+type PackagedDistribution = { catalogURL?: string; publicKey?: string }
 
 export function initializeCloud(
   environment: NodeJS.ProcessEnv = {
@@ -27,11 +29,18 @@ export function initializeCloud(
     // Webpack injects the dev server URL only for a direct process.env reference.
     WEBPACK_DEV_SERVER_URL: process.env.WEBPACK_DEV_SERVER_URL,
   },
+  packagedDistribution: PackagedDistribution = {
+    catalogURL: 'https://mqttx-cloud-extension.emqx.com/catalog.json',
+    publicKey:
+      '-----BEGIN PUBLIC KEY-----\n' +
+      'MCowBQYDK2VwAyEAg39Myy7RhzFu9YaFlnv3pEgmpinPme+zXru82t4zVDU=\n' +
+      '-----END PUBLIC KEY-----\n',
+  },
 ): void {
   let invoke: CloudInvoke | undefined
   let failure: CloudIssue | undefined
   try {
-    invoke = createCloudRuntime(environment)
+    invoke = createCloudRuntime(environment, packagedDistribution)
   } catch (error) {
     logCloudFailure('initialization', error)
     failure = cloudIssue(error)
@@ -56,11 +65,26 @@ export function initializeCloud(
   })
 }
 
-function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
-  const authURL = origin(environment.MQTTX_CLOUD_AUTH_URL || 'https://accounts.mqttce.com')
-  const apiURL = 'https://cloud-intl.dev.en.consoleassets.mqttce.com'
+function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution: PackagedDistribution): CloudInvoke {
+  const packaged = app.isPackaged
+  const services = packaged
+    ? {
+        // Replace these placeholders with the production endpoints before release.
+        authURL: 'https://accounts.mqttce.com',
+        apiURL: 'https://cloud-intl.dev.en.consoleassets.mqttce.com',
+        ...packagedDistribution,
+      }
+    : {
+        authURL: environment.MQTTX_CLOUD_AUTH_URL || 'https://accounts.mqttce.com',
+        apiURL: 'https://cloud-intl.dev.en.consoleassets.mqttce.com',
+        catalogURL: environment.MQTTX_CLOUD_CATALOG_URL || 'http://127.0.0.1:43112/catalog.json',
+        publicKey: environment.MQTTX_CLOUD_PUBLIC_KEY,
+      }
+  const { apiURL, catalogURL, publicKey } = services
+  const authURL = origin(services.authURL)
+  if (!catalogURL) throw new CloudError('INVALID_SERVICE_URL')
   const developmentOrigin =
-    !app.isPackaged && environment.WEBPACK_DEV_SERVER_URL && environment.MQTTX_CLOUD_DEV_URL
+    !packaged && environment.WEBPACK_DEV_SERVER_URL && environment.MQTTX_CLOUD_DEV_URL
       ? origin(environment.MQTTX_CLOUD_DEV_URL)
       : undefined
   // Only allow a loopback development origin.
@@ -80,13 +104,23 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   })
   const extension = new CloudExtension({
     developmentURL: developmentOrigin ? `${developmentOrigin}/dev.html` : undefined,
-    root,
-    catalogURL: environment.MQTTX_CLOUD_CATALOG_URL || 'http://127.0.0.1:43112/catalog.json',
-    publicKey: environment.MQTTX_CLOUD_PUBLIC_KEY || '',
-    allowUnsignedLocal: !app.isPackaged,
-    checkInterval: environment.MQTTX_CLOUD_CATALOG_URL?.startsWith('http://127.0.0.1:')
-      ? Math.max(2000, Number(environment.MQTTX_CLOUD_UPDATE_INTERVAL_MS) || 3600000)
-      : 3600000,
+    // Cached extensions are loaded before an update check, so keep their trust roots separate.
+    root: packaged
+      ? path.join(
+          root,
+          'catalogs',
+          createHash('sha256')
+            .update(JSON.stringify([catalogURL, publicKey]))
+            .digest('hex'),
+        )
+      : root,
+    catalogURL,
+    publicKey,
+    allowUnsignedLocal: !packaged,
+    checkInterval:
+      !packaged && environment.MQTTX_CLOUD_CATALOG_URL?.startsWith('http://127.0.0.1:')
+        ? Math.max(2000, Number(environment.MQTTX_CLOUD_UPDATE_INTERVAL_MS) || 3600000)
+        : 3600000,
   })
   const pages = new Map<string, { owner: WebContents; lifetime: AbortController; pending: number }>()
   const releasePage = (id: string): void => {
