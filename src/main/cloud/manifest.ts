@@ -16,14 +16,8 @@ export function newer(a: string, b: string): boolean {
 export function inspect(root: string): CloudManifest {
   const manifest: CloudManifest = JSON.parse(fs.readFileSync(path.join(root, 'plugin.json'), 'utf8'))
   releaseVersion(manifest.version)
-  if (
-    manifest.apiVersion !== 1 ||
-    manifest.kind !== 'page' ||
-    manifest.entry !== 'index.html' ||
-    manifest.backend !== 'backend.cjs'
-  )
+  if (manifest.apiVersion !== 1 || manifest.kind !== 'page' || manifest.entry !== 'index.html')
     throw new CloudError('PACKAGE_INVALID')
-  if (![manifest.entry, manifest.backend].every((file) => fs.statSync(path.join(root, file)).isFile()))
-    throw new CloudError('PACKAGE_INVALID')
+  if (!fs.statSync(path.join(root, manifest.entry)).isFile()) throw new CloudError('PACKAGE_INVALID')
   return manifest
 }

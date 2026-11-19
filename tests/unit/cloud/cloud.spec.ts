@@ -54,14 +54,12 @@ const close = async (s: http.Server): Promise<void> => {
 function archive(version = '1.0.0', override = {}) {
   return Buffer.from(
     zipSync({
-      'backend.cjs': Buffer.from("require('node:worker_threads').parentPort.postMessage({ type: 'ready' })"),
       'plugin.json': Buffer.from(
         JSON.stringify({
           version,
           kind: 'page',
           apiVersion: 1,
           entry: 'index.html',
-          backend: 'backend.cjs',
           ...override,
         }),
       ),

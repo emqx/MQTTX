@@ -129,7 +129,7 @@ export class CloudExtension extends EventEmitter {
       this.saved = { removed: false, active: null, rejected: [] }
     }
     if (this.saved.active && !/^r-[a-f0-9-]{36}$/.test(this.saved.active.id)) this.saved.active = null
-    // Previous frames and Workers have exited; only the persisted release is still needed.
+    // Previous frames have exited; only the persisted release is still needed.
     try {
       if (!developmentURL && fs.existsSync(this.releases)) {
         for (const entry of fs.readdirSync(this.releases, { withFileTypes: true })) {
@@ -244,10 +244,6 @@ export class CloudExtension extends EventEmitter {
       this.server!.listen(0, '127.0.0.1', resolve)
     })
     this.origin = `http://127.0.0.1:${(this.server.address() as AddressInfo).port}`
-  }
-  backendFile(id: string): string {
-    if (!this.resolve(id)) throw new CloudError('EXTENSION_STOPPED')
-    return path.join(this.releases, id, 'backend.cjs')
   }
   resolve(id: string): CloudRelease | null {
     const release = [this.active, this.candidate].find((x) => x && x.id === id)

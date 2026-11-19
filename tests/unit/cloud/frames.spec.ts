@@ -88,7 +88,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     else Reflect.deleteProperty(global, 'MessageChannel')
   })
 
-  it('checks frame source and origin, denies premature backend calls and switches only after readiness', async () => {
+  it('checks frame source and origin, denies premature requests and switches only after readiness', async () => {
     await manager.sync(state)
     const frames = container.querySelectorAll('iframe')
     assert.strictEqual(frames[0].style.display, 'block')
@@ -101,23 +101,31 @@ describe('Cloud frame lifecycle and bridge', () => {
     hello(frames[1])
     assert.lengthOf(channels, 1)
     const port = channels[0].port1
-    await port.request({ seq: 1, method: 'backend', params: { method: 'deployments' } })
+    await port.request({
+      seq: 1,
+      method: 'request',
+      params: { method: 'GET', path: '/public_api/v1/mqttx/deployments' },
+    })
     assert.strictEqual(port.messages[0].error.code, 'OPERATION_DENIED')
-    assert.notInclude(calls, 'backend')
+    assert.notInclude(calls, 'request')
     await port.request({ seq: 2, method: 'ready' })
     assert.lengthOf(container.querySelectorAll('iframe'), 1)
     assert.strictEqual(container.querySelector('iframe')!.dataset.release, second.id)
     assert.strictEqual(container.querySelector('iframe')!.style.display, 'block')
     assert.deepInclude(port.messages, { seq: 2, ok: true, data: undefined })
-    await port.request({ seq: 3, method: 'deployments' })
+    await port.request({ seq: 3, method: 'GET', path: '/public_api/v1/mqttx/deployments' })
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
     await port.request({ seq: 4, method: 'validate', params: { generation: '1' } })
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
     await port.request({ seq: 5, method: 'credential' })
     assert.strictEqual(port.messages[port.messages.length - 1].error.code, 'OPERATION_DENIED')
     assert.notInclude(calls, 'credential')
-    await port.request({ seq: 6, method: 'backend', params: { method: 'deployments' } })
-    assert.include(calls, 'backend')
+    await port.request({
+      seq: 6,
+      method: 'request',
+      params: { method: 'GET', path: '/public_api/v1/mqttx/deployments' },
+    })
+    assert.include(calls, 'request')
     manager.syncTheme()
     assert.deepInclude(port.messages, { event: 'theme', data: theme })
   })
@@ -197,7 +205,11 @@ describe('Cloud frame lifecycle and bridge', () => {
     await port.request({ seq: 1, method: 'ready' })
     let finish!: (value: unknown) => void
     ipcRenderer.invoke = () => new Promise((resolve) => (finish = resolve))
-    const reply = port.request({ seq: 2, method: 'backend', params: { method: 'deployments' } })
+    const reply = port.request({
+      seq: 2,
+      method: 'request',
+      params: { method: 'GET', path: '/public_api/v1/mqttx/deployments' },
+    })
     const complete = finish
     const count = port.messages.length
     manager.dispose()
@@ -221,7 +233,11 @@ describe('Cloud frame lifecycle and bridge', () => {
       new Promise((resolve) => {
         finish = resolve
       })
-    const pending = firstPort.request({ seq: 2, method: 'backend', params: { method: 'deployments' } })
+    const pending = firstPort.request({
+      seq: 2,
+      method: 'request',
+      params: { method: 'GET', path: '/public_api/v1/mqttx/deployments' },
+    })
     const complete = finish
     element.dispatchEvent(new Event('load'))
     assert.isTrue(firstPort.closed)
