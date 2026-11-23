@@ -1,7 +1,7 @@
 import { assert } from 'chai'
 import { expectError, expectRejection } from './assertions'
 import messages from '../../../src/lang/cloud'
-import { cloudCallbackText, cloudErrorKey } from '../../../src/utils/cloudI18n'
+import { cloudCallbackHtml, cloudCallbackText, cloudErrorKey } from '../../../src/utils/cloudI18n'
 import { CloudError, cloudError, cloudIssue } from '../../../src/utils/cloudErrors'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 const languages = ['zh', 'en', 'ja', 'tr', 'hu', 'ko']
@@ -54,10 +54,28 @@ describe('Cloud i18n', () => {
       const state = await auth.login('ja')
       // openExternal reads the response asynchronously after the callback resolves login.
       for (let i = 0; callbackText === undefined && i < 100; i++) await new Promise((r) => setTimeout(r, 5))
-      assert.strictEqual(callbackText, messages.errors.AUTH_CANCELLED.ja)
+      assert.strictEqual(callbackText, cloudCallbackHtml('AUTH_CANCELLED', 'ja'))
+      assert.include(callbackText, '<html lang="ja">')
+      assert.include(callbackText, messages.callbackPage.cancelledTitle.ja)
+      assert.include(callbackText, messages.errors.AUTH_CANCELLED.ja)
       assert.strictEqual(state.message!.code, 'AUTH_CANCELLED')
     } finally {
       auth.dispose()
     }
+  })
+
+  it('renders the callback HTML page with MQTTX logo, semantic status and close hint', () => {
+    const successHtml = cloudCallbackHtml('AUTH_COMPLETE', 'en')
+    assert.include(successHtml, '<html lang="en">')
+    assert.include(successHtml, 'data:image/png;base64,')
+    assert.include(successHtml, 'class="status-badge is-success"')
+    assert.include(successHtml, messages.callbackPage.successTitle.en)
+    assert.include(successHtml, 'close this page')
+
+    const fallbackHtml = cloudCallbackHtml('UNKNOWN_CODE', 'unknown')
+    assert.include(fallbackHtml, '<html lang="en">')
+    assert.include(fallbackHtml, 'class="status-badge is-error"')
+    assert.include(fallbackHtml, messages.callbackPage.errorTitle.en)
+    assert.include(fallbackHtml, messages.errors.OPERATION_FAILED.en)
   })
 })

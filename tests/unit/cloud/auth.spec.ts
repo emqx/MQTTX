@@ -6,7 +6,7 @@ import version from '../../../src/version'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import { CloudDeviceIdentity } from '../../../src/main/cloud/device'
 import { CloudError } from '../../../src/utils/cloudErrors'
-import { cloudCallbackText } from '../../../src/utils/cloudI18n'
+import { cloudCallbackHtml, cloudCallbackText } from '../../../src/utils/cloudI18n'
 
 function displayToken(claims: unknown): string {
   return `${Buffer.from('{}').toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString(
@@ -94,6 +94,35 @@ describe('Cloud authorization contract', function () {
       auth.dispose()
       server.closeAllConnections()
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+    }
+  })
+
+  it('reopens the same browser authorization while it is pending', async () => {
+    let opened!: () => void
+    const browserOpened = new Promise<void>((resolve) => {
+      opened = resolve
+    })
+    const urls: string[] = []
+    const auth = new CloudAuth({
+      authURL: 'https://auth.example.com',
+      vault: { load: () => null, save() {}, clear() {} },
+      getDeviceId: async () => 'device-id',
+      async openExternal(url) {
+        urls.push(url)
+        opened()
+      },
+    })
+    const pending = auth.login()
+    try {
+      await browserOpened
+      const state = await auth.login()
+      assert.strictEqual(state.status, 'authorizing')
+      assert.lengthOf(urls, 2)
+      assert.strictEqual(urls[1], urls[0])
+    } finally {
+      auth.invalidate()
+      await pending
+      auth.dispose()
     }
   })
 
@@ -196,12 +225,14 @@ describe('Cloud authorization contract', function () {
         await tokenRequested
         await new Promise<void>((resolve) => setImmediate(resolve))
         assert.isFalse(responseReceived)
+        if (outcome === 'success') assert.strictEqual((await auth.login()).status, 'exchanging')
         if (outcome === 'cancel') auth.invalidate()
         if (outcome !== 'timeout') releaseToken()
         const state = await login
         const response = await callbackResponse
         assert.strictEqual(response.status, outcome === 'success' ? 200 : 500)
-        assert.strictEqual(await response.text(), cloudCallbackText(code, 'en'))
+        assert.include(response.headers.get('content-type') || '', 'text/html')
+        assert.strictEqual(await response.text(), cloudCallbackHtml(code, 'en'))
         assert.strictEqual(state.status, outcome === 'success' ? 'signed-in' : 'signed-out')
         assert.strictEqual(saved, outcome === 'success')
         if (outcome === 'invalid-json' || outcome === 'storage-json-failure') {

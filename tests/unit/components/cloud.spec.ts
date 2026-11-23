@@ -146,33 +146,37 @@ describe('Cloud host appearance and interaction', () => {
     await new Promise((resolve) => setTimeout(resolve, 650))
     expect(calls).to.equal(before)
   })
-  it('clears an overlapping login error when the pending login succeeds', async () => {
+  it('restores the cancel action when the renderer missed the authorization update', async () => {
     let complete!: (response: unknown) => void
     let requests = 0
-    vm.frameManager.sync = async () => {}
-    ipcRenderer.invoke = () => {
+    const authorizing: CloudState = {
+      ...removed,
+      removed: false,
+      revision: 2,
+      session: { status: 'authorizing', message: null, expiresAt: null, email: null },
+    }
+    const signedOut = { ...removed, removed: false, revision: 3 }
+    listener({}, { ...signedOut, revision: 1 })
+    await settle()
+    ipcRenderer.invoke = (_channel, method) => {
+      if (method === 'cancel') return Promise.resolve({ ok: true, data: signedOut })
       if (++requests === 1)
         return new Promise((resolve) => {
           complete = resolve
         })
-      return Promise.resolve({ ok: false, error: { code: 'AUTH_PENDING', params: {} } })
+      return Promise.resolve({ ok: true, data: authorizing })
     }
+
     const pending = vm.authenticate('login')
     await vm.authenticate('login')
-    expect(vm.failure.code).to.equal('AUTH_PENDING')
-    expect(wrapper.find('el-alert-stub[type="error"]').exists()).to.equal(true)
-    const success = {
-      ...removed,
-      removed: false,
-      revision: 1,
-      session: { status: 'signed-in' as const, message: null, expiresAt: Date.now() + 60000, email: null },
-    }
-    listener({}, success)
-    await settle()
-    expect(vm.failure).to.equal(null)
+    expect(wrapper.find('#cloud-login-title').text()).to.equal('Complete browser authorization')
+    expect(wrapper.find('.cloud-signin-cancel').exists()).to.equal(true)
     expect(wrapper.find('el-alert-stub[type="error"]').exists()).to.equal(false)
-    complete({ ok: true, data: success })
+
+    await vm.authenticate('cancel')
+    complete({ ok: true, data: signedOut })
     await pending
+    expect(wrapper.find('#cloud-login-title').text()).to.equal('Sign in to EMQX Cloud')
   })
   it('preserves current errors on stale snapshots and clears them on successful state recovery', async () => {
     ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_FAILED', params: {} } })
@@ -293,6 +297,14 @@ describe('Cloud host appearance and interaction', () => {
     await settle()
     expect(wrapper.find('.cloud-login').exists()).to.equal(true)
     expect(wrapper.find('iframe').exists()).to.equal(false)
+    ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_FAILED', params: {} } })
+    await vm.authenticate('login')
+    await settle()
+    const alert = wrapper.find('.cloud-signin .cloud-session-alert[type="error"]')
+    expect(alert.attributes('title')).to.equal(i18n.t('cloud.errors.OPERATION_FAILED'))
+    expect(alert.element.nextElementSibling?.classList.contains('cloud-signin-button')).to.equal(true)
+    expect(wrapper.find('.cloud-body > el-alert-stub[type="error"]').exists()).to.equal(false)
+
     const operations: Array<{ method: string; args: unknown }> = []
     ipcRenderer.invoke = async (_channel, method, args) => {
       operations.push({ method, args })
