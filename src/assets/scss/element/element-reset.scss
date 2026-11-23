@@ -162,6 +162,8 @@
   font-size: 14px;
   .el-button--small {
     font-size: 14px;
+  }
+  .el-button--small:not(.el-button--primary) {
     border: none;
     color: var(--color-text-light);
     background: transparent;
@@ -170,16 +172,8 @@
       background: transparent;
     }
   }
-  .el-button--primary {
-    background: transparent;
-    &:hover {
-      background: transparent;
-      color: var(--color-minor-green);
-    }
-  }
-  button:nth-child(2) {
-    color: var(--color-main-green);
-    margin-left: 0px;
+  .el-button + .el-button {
+    margin-left: 0;
   }
 }
 .el-message {
