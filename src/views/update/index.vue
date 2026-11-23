@@ -2,7 +2,7 @@
   <div class="update">
     <el-dialog
       custom-class="update-dialog"
-      :title="$t('update.updateTitle')"
+      :title="`${$t('update.updateTitle')} ${version}`"
       :visible.sync="showDialog"
       :width="dialogWidth"
       :close-on-click-modal="false"
