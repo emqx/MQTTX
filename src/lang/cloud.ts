@@ -175,14 +175,6 @@ export default {
     hu: 'Újra',
     ko: '다시 시도',
   },
-  checking: {
-    zh: '正在后台检查 Cloud 更新',
-    en: 'Checking Cloud updates',
-    ja: 'Cloud の更新を確認中',
-    tr: 'Cloud güncellemeleri kontrol ediliyor',
-    hu: 'Cloud-frissítések keresése',
-    ko: 'Cloud 업데이트 확인 중',
-  },
   removeConfirm: {
     zh: '移除 Cloud 扩展并清理本机 Cloud 会话？已有 MQTT 数据会保留。',
     en: 'Remove Cloud and its local session? MQTT data will be kept.',

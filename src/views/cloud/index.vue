@@ -183,7 +183,6 @@
           </template>
         </section>
       </div>
-      <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
       <div ref="frames" v-show="signedIn && state.active" class="cloud-frames"></div>
     </main>
   </div>
@@ -486,9 +485,6 @@ export default class Cloud extends Vue {
     border-radius: 0;
   }
 }
-.cloud-updating {
-  color: var(--color-text-light);
-}
 .cloud-login {
   flex: 1;
   min-height: 0;
@@ -777,10 +773,6 @@ export default class Cloud extends Vue {
   &:focus {
     color: var(--color-main-green);
   }
-}
-.cloud-updating {
-  flex-shrink: 0;
-  margin: 10px 16px;
 }
 @media (prefers-reduced-motion: reduce) {
   .cloud-node-busy {
