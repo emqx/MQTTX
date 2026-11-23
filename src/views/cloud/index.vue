@@ -40,7 +40,7 @@
     </header>
     <main class="cloud-body">
       <el-alert
-        v-if="failure || state.error"
+        v-if="(signedIn || state.removed) && (failure || state.error)"
         :title="issueText(failure || state.error)"
         type="error"
         :closable="false"
@@ -128,10 +128,10 @@
               </h2>
               <p>{{ $t(waiting ? 'cloud.authorizeHint' : 'cloud.tagline') }}</p>
               <el-alert
-                v-if="state.session.message"
+                v-if="failure || state.error || state.session.message"
                 class="cloud-session-alert"
-                :title="issueText(state.session.message)"
-                :type="waiting ? 'info' : 'warning'"
+                :title="issueText(failure || state.error || state.session.message)"
+                :type="failure || state.error ? 'error' : waiting ? 'info' : 'warning'"
                 :closable="false"
                 show-icon
               />

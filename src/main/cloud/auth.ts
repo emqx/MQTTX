@@ -4,7 +4,7 @@ import http from 'http'
 import version from '../../version'
 import { randomBytes, createHash, timingSafeEqual } from 'crypto'
 import { AddressInfo } from 'net'
-import { cloudCallbackText } from '../../utils/cloudI18n'
+import { cloudCallbackHtml } from '../../utils/cloudI18n'
 import { CloudToken, CredentialVault } from './storage'
 
 import type { CloudSession, CloudSessionStatus, CloudIssue } from '../../types/cloud'
@@ -59,7 +59,7 @@ export class CloudAuth {
   private readonly timeout: number
   private expiryTimer: ReturnType<typeof setTimeout> | undefined
   private token: CloudToken | null
-  private pending: { cancel: () => void } | null
+  private pending: { cancel: () => void; authorizationURL: string } | null
   generation: number
   private loaded: boolean
   private status: CloudSessionStatus
@@ -133,7 +133,17 @@ export class CloudAuth {
     }
   }
   async login(locale = 'en'): Promise<CloudSession> {
-    if (this.pending) throw new CloudError('AUTH_PENDING')
+    if (this.pending) {
+      const { authorizationURL } = this.pending
+      if (this.status === 'authorizing' && authorizationURL) {
+        try {
+          await this.openExternal(authorizationURL)
+        } catch {
+          throw new CloudError('BROWSER_OPEN_FAILED')
+        }
+      }
+      return this.state()
+    }
     this.invalidate()
     this.status = 'authorizing'
     this.message = cloudIssue(new CloudError('AUTH_BROWSER_REQUIRED'))
@@ -159,12 +169,13 @@ export class CloudAuth {
       const url = new URL(req.url || '/', 'http://127.0.0.1')
       const reply = (status: number, code: string) => {
         res.writeHead(status, {
-          'Content-Type': 'text/plain; charset=utf-8',
+          'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'no-store',
           'Referrer-Policy': 'no-referrer',
-          'Content-Security-Policy': "default-src 'none'",
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src data:",
         })
-        res.end(cloudCallbackText(code, locale))
+        res.end(cloudCallbackHtml(code, locale))
       }
       if (req.method !== 'GET' || url.pathname !== '/mqttx/callback') return reply(404, 'OPERATION_DENIED')
       const received = url.searchParams.get('state') || ''
@@ -249,12 +260,14 @@ export class CloudAuth {
         settle(e as Error)
       }
     })
-    this.pending = {
+    const pending = {
+      authorizationURL: '',
       cancel: () => {
         abort.abort()
         settle(new CloudError('AUTH_CANCELLED'))
       },
     }
+    this.pending = pending
     try {
       timer = setTimeout(() => settle(new CloudError('AUTH_TIMEOUT')), this.timeout)
       const deviceID = await Promise.race([
@@ -281,6 +294,7 @@ export class CloudAuth {
         code_challenge: createHash('sha256').update(verifier).digest('base64url'),
         code_challenge_method: 'S256',
       }).toString()
+      pending.authorizationURL = url.href
       Promise.resolve()
         .then(() => this.openExternal(url.href))
         .catch(() => settle(new CloudError('BROWSER_OPEN_FAILED')))
