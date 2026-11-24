@@ -71,11 +71,17 @@ describe('Cloud i18n', () => {
     assert.include(successHtml, 'class="status-badge is-success"')
     assert.include(successHtml, messages.callbackPage.successTitle.en)
     assert.include(successHtml, 'close this page')
+    assert.notInclude(successHtml, 'mailto:cloud-support@emqx.io')
 
     const fallbackHtml = cloudCallbackHtml('UNKNOWN_CODE', 'unknown')
     assert.include(fallbackHtml, '<html lang="en">')
     assert.include(fallbackHtml, 'class="status-badge is-error"')
     assert.include(fallbackHtml, messages.callbackPage.errorTitle.en)
     assert.include(fallbackHtml, messages.errors.OPERATION_FAILED.en)
+    assert.include(fallbackHtml, 'href="mailto:cloud-support@emqx.io"')
+    assert.include(fallbackHtml, messages.callbackPage.contactSupport.en)
+
+    const cancelledHtml = cloudCallbackHtml('AUTH_CANCELLED', 'en')
+    assert.notInclude(cancelledHtml, 'mailto:cloud-support@emqx.io')
   })
 })
