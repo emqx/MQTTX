@@ -482,5 +482,13 @@ export default {
       hu: 'Sikertelen engedélyezés',
       ko: '인증에 실패했습니다',
     },
+    contactSupport: {
+      zh: '联系 EMQX Cloud 支持',
+      en: 'Contact EMQX Cloud support',
+      ja: 'EMQX Cloud サポートに問い合わせる',
+      tr: 'EMQX Cloud desteğiyle iletişime geçin',
+      hu: 'Kapcsolatfelvétel az EMQX Cloud ügyfélszolgálatával',
+      ko: 'EMQX Cloud 지원팀에 문의',
+    },
   },
 }

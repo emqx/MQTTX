@@ -65,6 +65,12 @@ export function cloudCallbackHtml(code: string, locale: string): string {
   const { kind, titleKey, iconSvg } = callbackStatus(code)
   const title = escapeHtml(messages.callbackPage[titleKey][lang])
   const detail = escapeHtml(cloudCallbackText(code, lang))
+  const supportLink =
+    kind === 'error'
+      ? `<a class="support-link" href="mailto:cloud-support@emqx.io">${escapeHtml(
+          messages.callbackPage.contactSupport[lang],
+        )}</a>`
+      : ''
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -86,6 +92,7 @@ export function cloudCallbackHtml(code: string, locale: string): string {
       --text-title: #181c24;
       --text-body: #5b6575;
       --text-muted: #8c96a6;
+      --link: #006b56;
       --success-bg: #18866a;
       --warning-bg: #d97706;
       --error-bg: #dc2626;
@@ -104,6 +111,7 @@ export function cloudCallbackHtml(code: string, locale: string): string {
         --text-title: #f1f5f9;
         --text-body: #a6b0c0;
         --text-muted: #6e788a;
+        --link: #73d9ba;
         --success-bg: #22a07e;
         --warning-bg: #d97706;
         --error-bg: #ef4444;
@@ -204,6 +212,14 @@ export function cloudCallbackHtml(code: string, locale: string): string {
       color: var(--text-body);
       text-wrap: balance;
     }
+    .support-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: var(--link);
+      font-size: 14px;
+      line-height: 1.5;
+      text-underline-offset: 3px;
+    }
     .footer {
       margin-top: 20px;
       font-size: 12px;
@@ -220,6 +236,7 @@ export function cloudCallbackHtml(code: string, locale: string): string {
     </div>
     <h1>${title}</h1>
     <p class="detail">${detail}</p>
+    ${supportLink}
   </main>
   <footer class="footer">MQTTX &middot; EMQX Cloud</footer>
 </body>

@@ -13,6 +13,7 @@ interface AuthOptions {
   vault: CredentialVault
   getDeviceId: () => Promise<string>
   openExternal: (url: string) => Promise<void>
+  simulateFailure?: boolean
   now?: () => number
   timeout?: number
 }
@@ -55,6 +56,7 @@ export class CloudAuth {
   private readonly vault: CredentialVault
   private readonly getDeviceId: () => Promise<string>
   private readonly openExternal: (url: string) => Promise<void>
+  private readonly simulateFailure: boolean
   private readonly now: () => number
   private readonly timeout: number
   private expiryTimer: ReturnType<typeof setTimeout> | undefined
@@ -65,11 +67,20 @@ export class CloudAuth {
   private status: CloudSessionStatus
   private message: CloudIssue | null
   private stateListeners = new Set<() => void>()
-  constructor({ authURL, vault, openExternal, getDeviceId, now = Date.now, timeout = 300000 }: AuthOptions) {
+  constructor({
+    authURL,
+    vault,
+    openExternal,
+    getDeviceId,
+    simulateFailure = false,
+    now = Date.now,
+    timeout = 300000,
+  }: AuthOptions) {
     this.authURL = origin(authURL)
     this.vault = vault
     this.getDeviceId = getDeviceId
     this.openExternal = openExternal
+    this.simulateFailure = simulateFailure
     this.now = now
     this.timeout = timeout
     this.token = null
@@ -200,6 +211,7 @@ export class CloudAuth {
       this.notify()
       callbackReply = reply
       server.close()
+      if (this.simulateFailure) return settle(new CloudError('AUTH_RESULT_INVALID'))
       let phase = 'token request'
       let responseStatus: number | undefined
       let jsonResponse: boolean | undefined

@@ -100,6 +100,8 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
     vault,
     getDeviceId: () => deviceIdentity.get(),
     openExternal: (url) => shell.openExternal(url),
+    simulateFailure:
+      !packaged && process.env.NODE_ENV === 'development' && environment.MQTTX_CLOUD_SIMULATE_AUTH_FAILURE === '1',
   })
   const extension = new CloudExtension({
     developmentURL: developmentOrigin ? `${developmentOrigin}/dev.html` : undefined,

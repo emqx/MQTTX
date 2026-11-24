@@ -156,6 +156,7 @@ describe('Cloud authorization contract', function () {
   for (const [outcome, code] of [
     ['success', 'AUTH_COMPLETE'],
     ['exchange-failure', 'AUTH_RESULT_INVALID'],
+    ['simulated-failure', 'AUTH_RESULT_INVALID'],
     ['invalid-json', 'OPERATION_FAILED'],
     ['storage-json-failure', 'OPERATION_FAILED'],
     ['storage-failure', 'STORAGE_UNAVAILABLE'],
@@ -163,6 +164,8 @@ describe('Cloud authorization contract', function () {
     ['timeout', 'AUTH_TIMEOUT'],
   ]) {
     it(`finishes the browser callback with the actual login result after ${outcome}`, async () => {
+      const simulateFailure = outcome === 'simulated-failure'
+      let tokenRequests = 0
       let releaseToken!: () => void
       const tokenGate = new Promise<void>((resolve) => {
         releaseToken = resolve
@@ -172,6 +175,7 @@ describe('Cloud authorization contract', function () {
         exchanging = resolve
       })
       const server = http.createServer(async (_request, response) => {
+        tokenRequests++
         exchanging()
         await tokenGate
         if (outcome === 'invalid-json') {
@@ -190,6 +194,7 @@ describe('Cloud authorization contract', function () {
       let saved = false
       const auth = new CloudAuth({
         authURL: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+        simulateFailure,
         timeout: outcome === 'timeout' ? 300 : 2000,
         getDeviceId: async () => 'device-id',
         vault: {
@@ -222,12 +227,14 @@ describe('Cloud authorization contract', function () {
         if (outcome === 'invalid-json' || outcome === 'storage-json-failure')
           console.error = (...values: unknown[]) => records.push(values)
         const login = auth.login('en')
-        await tokenRequested
-        await new Promise<void>((resolve) => setImmediate(resolve))
-        assert.isFalse(responseReceived)
-        if (outcome === 'success') assert.strictEqual((await auth.login()).status, 'exchanging')
-        if (outcome === 'cancel') auth.invalidate()
-        if (outcome !== 'timeout') releaseToken()
+        if (!simulateFailure) {
+          await tokenRequested
+          await new Promise<void>((resolve) => setImmediate(resolve))
+          assert.isFalse(responseReceived)
+          if (outcome === 'success') assert.strictEqual((await auth.login()).status, 'exchanging')
+          if (outcome === 'cancel') auth.invalidate()
+          if (outcome !== 'timeout') releaseToken()
+        }
         const state = await login
         const response = await callbackResponse
         assert.strictEqual(response.status, outcome === 'success' ? 200 : 500)
@@ -235,6 +242,7 @@ describe('Cloud authorization contract', function () {
         assert.strictEqual(await response.text(), cloudCallbackHtml(code, 'en'))
         assert.strictEqual(state.status, outcome === 'success' ? 'signed-in' : 'signed-out')
         assert.strictEqual(saved, outcome === 'success')
+        assert.strictEqual(tokenRequests, simulateFailure ? 0 : 1)
         if (outcome === 'invalid-json' || outcome === 'storage-json-failure') {
           const diagnostic = JSON.stringify(records)
           assert.include(
