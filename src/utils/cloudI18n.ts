@@ -1,5 +1,6 @@
 import messages from '../lang/cloud'
 import type { CloudIssue } from '../types/cloud'
+import { escapeXmlForHtml } from './xmlUtils'
 
 // Inline the shared logo so the callback page does not need a separate asset request.
 const MQTTX_LOGO_DATA_URI = require('!!url-loader?limit=true!../assets/images/app-logo.png') as string
@@ -11,15 +12,6 @@ function resolveLocale(locale: string): CallbackLocale {
   return Object.prototype.hasOwnProperty.call(messages.errors.OPERATION_FAILED, locale)
     ? (locale as CallbackLocale)
     : 'en'
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 }
 
 function callbackStatus(code: string): {
@@ -63,11 +55,11 @@ export function cloudCallbackText(code: string, locale: string): string {
 export function cloudCallbackHtml(code: string, locale: string): string {
   const lang = resolveLocale(locale)
   const { kind, titleKey, iconSvg } = callbackStatus(code)
-  const title = escapeHtml(messages.callbackPage[titleKey][lang])
-  const detail = escapeHtml(cloudCallbackText(code, lang))
+  const title = escapeXmlForHtml(messages.callbackPage[titleKey][lang])
+  const detail = escapeXmlForHtml(cloudCallbackText(code, lang))
   const supportLink =
     kind === 'error'
-      ? `<a class="support-link" href="mailto:cloud-support@emqx.io">${escapeHtml(
+      ? `<a class="support-link" href="mailto:cloud-support@emqx.io">${escapeXmlForHtml(
           messages.callbackPage.contactSupport[lang],
         )}</a>`
       : ''
