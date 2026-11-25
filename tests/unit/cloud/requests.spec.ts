@@ -10,6 +10,7 @@ describe('Cloud contracts and diagnostics', () => {
     assert.deepEqual(parseCloudRequest('status'), { method: 'status', args: {} })
     const args = {
       id: 'r-12345678-1234-1234-1234-123456789abc',
+      document: '12345678-1234-1234-1234-123456789abc',
       method: 'GET' as const,
       path: '/public_api/v1/mqttx/deployments?page=1',
     }
@@ -17,7 +18,9 @@ describe('Cloud contracts and diagnostics', () => {
     for (const [method, value] of [
       ['unknown', {}],
       ['ready', {}],
-      ['ready', { id: '../outside' }],
+      ['ready', { ...args, id: '../outside' }],
+      ['ready', { id: args.id }],
+      ['request', { ...args, document: 'unknown' }],
       ['validate', { id: args.id, generation: '1' }],
       ['reject', { id: args.id, generation: NaN }],
       ['credential', {}],
@@ -39,11 +42,15 @@ describe('Cloud contracts and diagnostics', () => {
   it('accepts only a bounded connection preset and drops unrelated fields', () => {
     const connection = { name: 'Cloud', host: 'broker.example.com', port: 8883, protocol: 'mqtts' as const }
     const id = 'r-12345678-1234-1234-1234-123456789abc'
+    const document = '12345678-1234-1234-1234-123456789abc'
     for (const method of ['createConnection', 'copyConnection'] as const) {
-      assert.deepEqual(parseCloudRequest(method, { id, connection: { ...connection, password: 'ignored' } }), {
-        method,
-        args: { id, connection },
-      })
+      assert.deepEqual(
+        parseCloudRequest(method, { id, document, connection: { ...connection, password: 'ignored' } }),
+        {
+          method,
+          args: { id, document, connection },
+        },
+      )
       for (const invalid of [
         null,
         { ...connection, host: 'broker.example.com/path' },
@@ -54,19 +61,22 @@ describe('Cloud contracts and diagnostics', () => {
         { ...connection, port: '8883' },
         { ...connection, name: '' },
       ])
-        expectError(() => parseCloudRequest(method, { id, connection: invalid }), { code: 'OPERATION_DENIED' })
+        expectError(() => parseCloudRequest(method, { id, document, connection: invalid }), {
+          code: 'OPERATION_DENIED',
+        })
       expectError(() => parseCloudRequest(method, { connection }), { code: 'OPERATION_DENIED' })
     }
   })
   it('accepts bounded clipboard text only from a release-scoped request', () => {
     const id = 'r-12345678-1234-1234-1234-123456789abc'
+    const document = '12345678-1234-1234-1234-123456789abc'
     const text = 'broker.example.com'
-    assert.deepEqual(parseCloudRequest('copyText', { id, text, extra: 'ignored' }), {
+    assert.deepEqual(parseCloudRequest('copyText', { id, document, text, extra: 'ignored' }), {
       method: 'copyText',
-      args: { id, text },
+      args: { id, document, text },
     })
     for (const invalid of [undefined, null, 42, '', 'x'.repeat(4097)])
-      expectError(() => parseCloudRequest('copyText', { id, text: invalid }), { code: 'OPERATION_DENIED' })
+      expectError(() => parseCloudRequest('copyText', { id, document, text: invalid }), { code: 'OPERATION_DENIED' })
     expectError(() => parseCloudRequest('copyText', { text }), { code: 'OPERATION_DENIED' })
   })
   it('copies WebSocket URLs with the Cloud MQTT path and keeps TCP URLs unchanged', () => {

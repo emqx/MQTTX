@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 import { cloudError } from './cloudErrors'
-import type { CloudMethod, CloudParams, CloudResponse, CloudResults, CloudState } from '../types/cloud'
+import type { CloudDocument, CloudMethod, CloudParams, CloudResponse, CloudResults, CloudState } from '../types/cloud'
 
 type Arguments<M extends CloudMethod> = Record<string, never> extends CloudParams[M]
   ? [args?: CloudParams[M]]
@@ -18,4 +18,10 @@ export function watchCloudState(listener: (state: CloudState) => void): () => vo
   return () => {
     ipcRenderer.removeListener('cloud:state', onState)
   }
+}
+
+export function watchCloudDocument(listener: (page: CloudDocument) => void): () => void {
+  const onRevoke = (_event: Electron.IpcRendererEvent, page: CloudDocument) => listener(page)
+  ipcRenderer.on('cloud:document-revoked', onRevoke)
+  return () => ipcRenderer.removeListener('cloud:document-revoked', onRevoke)
 }

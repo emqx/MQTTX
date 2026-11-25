@@ -20,6 +20,9 @@ class TestPort {
 
 describe('Cloud frame lifecycle and bridge', () => {
   const invoke = ipcRenderer.invoke
+  const on = ipcRenderer.on
+  const documentId = '12345678-1234-1234-1234-123456789abc'
+  let revoke: (event: unknown, page: { id: string; document: string }) => void
   const channelDescriptor = Object.getOwnPropertyDescriptor(global, 'MessageChannel')
   const first = { id: 'r-12345678-1234-1234-1234-123456789abc', version: '1.0.0', url: 'https://example.com/first' }
   const second = { id: 'r-22345678-1234-1234-1234-123456789abc', version: '1.0.1', url: 'https://example.com/second' }
@@ -32,9 +35,10 @@ describe('Cloud frame lifecycle and bridge', () => {
   let removed: number
   const theme: CloudTheme = { lang: 'en', messages: {}, tokens: { '--color-bg-normal': '#fff' } }
 
-  function hello(element: HTMLIFrameElement, origin = 'null', source = element.contentWindow): void {
+  async function hello(element: HTMLIFrameElement, origin = 'null', source = element.contentWindow): Promise<void> {
     element.contentWindow!.postMessage = () => {}
     window.dispatchEvent(new window.MessageEvent('message', { origin, source, data: { type: 'mqttx-cloud:hello' } }))
+    await new Promise<void>((resolve) => setImmediate(resolve))
   }
   beforeEach(() => {
     channels = []
@@ -66,7 +70,11 @@ describe('Cloud frame lifecycle and bridge', () => {
     ipcRenderer.invoke = async (_channel, method) => {
       calls.push(method)
       if (method === 'ready') state = { ...state, revision: 2, active: second, candidate: null }
-      return { ok: true, data: state }
+      return { ok: true, data: method === 'connect' ? documentId : state }
+    }
+    ipcRenderer.on = (_channel, listener) => {
+      revoke = listener
+      return ipcRenderer
     }
     manager = new CloudFrameManager({
       container,
@@ -84,6 +92,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     manager.dispose()
     container.remove()
     ipcRenderer.invoke = invoke
+    ipcRenderer.on = on
     if (channelDescriptor) Object.defineProperty(global, 'MessageChannel', channelDescriptor)
     else Reflect.deleteProperty(global, 'MessageChannel')
   })
@@ -94,11 +103,11 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.strictEqual(frames[0].style.display, 'block')
     assert.strictEqual(frames[1].style.display, 'none')
     assert.strictEqual(frames[1].getAttribute('sandbox'), 'allow-scripts')
-    hello(frames[1], 'https://example.com')
-    hello(frames[1], 'null', window)
+    await hello(frames[1], 'https://example.com')
+    await hello(frames[1], 'null', window)
     assert.lengthOf(channels, 0)
-    hello(frames[1])
-    hello(frames[1])
+    await hello(frames[1])
+    await hello(frames[1])
     assert.lengthOf(channels, 1)
     const port = channels[0].port1
     await port.request({
@@ -132,7 +141,7 @@ describe('Cloud frame lifecycle and bridge', () => {
 
   it('opens a connection form only after host validation and frame readiness', async () => {
     await manager.sync(state)
-    hello(container.querySelectorAll('iframe')[1])
+    await hello(container.querySelectorAll('iframe')[1])
     const port = channels[0].port1
     const connection: CloudConnectionDraft = {
       name: 'Cloud',
@@ -147,6 +156,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     ipcRenderer.invoke = async (_channel, method, args) => {
       calls.push(method)
       assert.strictEqual(args.id, second.id)
+      assert.strictEqual(args.document, documentId)
       assert.deepEqual(args.connection, connection)
       return { ok: true, data: method === 'createConnection' ? connection : undefined }
     }
@@ -163,7 +173,7 @@ describe('Cloud frame lifecycle and bridge', () => {
 
   it('forwards clipboard text only after frame readiness and preserves host errors', async () => {
     await manager.sync(state)
-    hello(container.querySelectorAll('iframe')[1])
+    await hello(container.querySelectorAll('iframe')[1])
     const port = channels[0].port1
     const text = 'broker.example.com'
     await port.request({ seq: 1, method: 'copyText', params: { text } })
@@ -172,7 +182,7 @@ describe('Cloud frame lifecycle and bridge', () => {
     await port.request({ seq: 2, method: 'ready' })
     ipcRenderer.invoke = async (_channel, method, args) => {
       assert.strictEqual(method, 'copyText')
-      assert.deepEqual(args, { id: second.id, text })
+      assert.deepEqual(args, { id: second.id, document: documentId, text })
       calls.push(method)
       return { ok: true, data: undefined }
     }
@@ -187,7 +197,7 @@ describe('Cloud frame lifecycle and bridge', () => {
 
   it('requests extension removal only after frame readiness', async () => {
     await manager.sync(state)
-    hello(container.querySelectorAll('iframe')[1])
+    await hello(container.querySelectorAll('iframe')[1])
     const port = channels[0].port1
     await port.request({ seq: 1, method: 'removeExtension' })
     assert.strictEqual(port.messages[0].error.code, 'OPERATION_DENIED')
@@ -200,7 +210,7 @@ describe('Cloud frame lifecycle and bridge', () => {
 
   it('closes channels on disposal and discards a pending reply from a retired frame', async () => {
     await manager.sync(state)
-    hello(container.querySelectorAll('iframe')[1])
+    await hello(container.querySelectorAll('iframe')[1])
     const port = channels[0].port1
     await port.request({ seq: 1, method: 'ready' })
     let finish!: (value: unknown) => void
@@ -220,12 +230,17 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.lengthOf(port.messages, count)
   })
 
-  it('reconnects a development frame after a full reload and discards replies from the old connection', async () => {
-    state = { ...state, active: { ...first, version: 'development' }, candidate: null }
-    ipcRenderer.invoke = async () => ({ ok: true, data: state })
+  it('closes the old port on document revocation and allows a freshly authorized document', async () => {
+    state = { ...state, active: first, candidate: null }
+    const nextDocumentId = '22345678-1234-1234-1234-123456789abc'
+    const reply = (document: string) => async (_channel: string, method: string) => ({
+      ok: true,
+      data: method === 'connect' ? document : state,
+    })
+    ipcRenderer.invoke = reply(documentId)
     await manager.sync(state)
     const element = container.querySelector('iframe')!
-    hello(element)
+    await hello(element)
     const firstPort = channels[0].port1
     await firstPort.request({ seq: 1, method: 'ready' })
     let finish!: (value: unknown) => void
@@ -239,15 +254,24 @@ describe('Cloud frame lifecycle and bridge', () => {
       params: { method: 'GET', path: '/public_api/v1/mqttx/deployments' },
     })
     const complete = finish
-    element.dispatchEvent(new Event('load'))
+    revoke({}, { id: first.id, document: documentId })
     assert.isTrue(firstPort.closed)
-    hello(element)
+    ipcRenderer.invoke = reply(nextDocumentId)
+    await hello(element)
+    revoke({}, { id: first.id, document: documentId })
     assert.lengthOf(channels, 2)
     await channels[1].port1.request({ seq: 2, method: 'theme' })
     complete({ ok: true, data: { value: 'old-connection' } })
     await pending
     assert.deepEqual(channels[1].port1.messages, [{ seq: 2, ok: true, data: theme }])
   })
+  it('does not transfer a port before the main process authorizes the committed document', async () => {
+    await manager.sync(state)
+    ipcRenderer.invoke = async () => ({ ok: false, error: { code: 'OPERATION_DENIED', params: {} } })
+    await hello(container.querySelectorAll('iframe')[1])
+    assert.lengthOf(channels, 0)
+  })
+
   it('does not recreate frames when cleared during an unfinished mounting request', async () => {
     let finish!: (value: unknown) => void
     ipcRenderer.invoke = () => new Promise((resolve) => (finish = resolve))

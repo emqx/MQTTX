@@ -1,8 +1,8 @@
 import { CloudError, cloudIssue } from '../../utils/cloudErrors'
 import { cloudConnectionURL } from '../../utils/cloudConnection'
-import { app, BrowserWindow, clipboard, ipcMain, safeStorage, shell } from 'electron'
-import type { WebContents } from 'electron'
-import { createHash } from 'crypto'
+import { app, BrowserWindow, clipboard, ipcMain, safeStorage, shell, webFrameMain } from 'electron'
+import type { WebContents, WebFrameMain } from 'electron'
+import { createHash, randomUUID } from 'crypto'
 import path from 'path'
 import { cloudGet } from './api'
 import { CloudExtension } from './extension'
@@ -11,7 +11,15 @@ import { CloudAuth, origin } from './auth'
 import { CloudDeviceIdentity } from './device'
 import { parseCloudRequest } from './requests'
 import { logCloudFailure } from './diagnostics'
-import type { CloudMethod, CloudParams, CloudResults, CloudState, CloudIssue, CloudSession } from '../../types/cloud'
+import type {
+  CloudDocument,
+  CloudMethod,
+  CloudParams,
+  CloudResults,
+  CloudState,
+  CloudIssue,
+  CloudSession,
+} from '../../types/cloud'
 
 type Handlers = {
   [M in CloudMethod]: (args: CloudParams[M], sender: WebContents) => CloudResults[M] | Promise<CloudResults[M]>
@@ -22,6 +30,14 @@ type CloudInvoke = <M extends CloudMethod>(
   sender: WebContents,
 ) => Promise<CloudResults[M]>
 type PackagedDistribution = { catalogURL?: string; publicKey?: string }
+interface CloudPage {
+  owner: WebContents
+  frameId: number
+  document: string
+  ready: boolean
+  lifetime: AbortController
+  pending: number
+}
 
 export function initializeCloud(
   environment: NodeJS.ProcessEnv = {
@@ -121,10 +137,13 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
         ? Math.max(2000, Number(environment.MQTTX_CLOUD_UPDATE_INTERVAL_MS) || 3600000)
         : 3600000,
   })
-  const pages = new Map<string, { owner: WebContents; lifetime: AbortController; pending: number }>()
+  const pages = new Map<string, CloudPage>()
   const releasePage = (id: string): void => {
-    pages.get(id)?.lifetime.abort()
+    const page = pages.get(id)
+    if (!page) return
     pages.delete(id)
+    page.lifetime.abort()
+    if (!page.owner.isDestroyed()) page.owner.send('cloud:document-revoked', { id, document: page.document })
   }
   let removing = false,
     revision = 0,
@@ -163,11 +182,50 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
     for (const [id, page] of pages) if (page.owner === sender) releasePage(id)
     schedule()
   }
+  const entryFor = (sender: WebContents, frame: WebFrameMain | null | undefined, url: string) => {
+    if (!frame || frame.parent !== sender.mainFrame) return
+    const { active, candidate } = extension.snapshot()
+    return [active, candidate].find((release) => release?.id === frame.name && release.url === url.split('#')[0])
+  }
+  const releaseFrame = (sender: WebContents, frame: WebFrameMain | null | undefined): void => {
+    for (const [id, page] of pages)
+      if (page.owner === sender && page.frameId === frame?.frameTreeNodeId) releasePage(id)
+  }
   const watch = (sender: WebContents): void => {
     viewers.add(sender)
     if (!tracked.has(sender)) {
       tracked.add(sender)
       sender.once('destroyed', () => releaseViewer(sender))
+      sender.on('render-process-gone', () => releaseViewer(sender))
+      sender.on('did-navigate', () => releaseViewer(sender))
+      sender.on('will-frame-navigate', (event) => {
+        if (event.isMainFrame || !viewers.has(sender)) return
+        // Cloud is the only child-document surface in the MQTTX window.
+        if (!entryFor(sender, event.frame, event.url)) {
+          event.preventDefault()
+          return
+        }
+        releaseFrame(sender, event.frame)
+      })
+      sender.on('will-redirect', (event) => {
+        if (!event.isMainFrame && viewers.has(sender)) event.preventDefault()
+      })
+      sender.on('did-frame-navigate', (_event, url, code, _status, isMainFrame, processId, routingId) => {
+        if (isMainFrame || !viewers.has(sender)) return
+        const frame = webFrameMain.fromId(processId, routingId)
+        releaseFrame(sender, frame)
+        const entry = entryFor(sender, frame, url)
+        if (!frame || !entry || code !== 200 || auth.state().status !== 'signed-in') return
+        releasePage(entry.id)
+        pages.set(entry.id, {
+          owner: sender,
+          frameId: frame.frameTreeNodeId,
+          document: randomUUID(),
+          ready: false,
+          lifetime: new AbortController(),
+          pending: 0,
+        })
+      })
     }
     schedule()
   }
@@ -179,6 +237,23 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
   const requireActive = (id: string): void => {
     requireRelease(id)
     if (!extension.isActive(id)) throw new CloudError('NOT_READY')
+  }
+  const requireDocument = (sender: WebContents, id: string, document?: string): CloudPage => {
+    const page = pages.get(id)
+    if (!page || page.owner !== sender || (document !== undefined && page.document !== document))
+      throw new CloudError('OPERATION_DENIED')
+    const frame = sender.mainFrame.frames.find((frame) => frame.frameTreeNodeId === page.frameId)
+    if (!frame || entryFor(sender, frame, frame.url)?.id !== id) {
+      releasePage(id)
+      throw new CloudError('OPERATION_DENIED')
+    }
+    return page
+  }
+  const requireReadyDocument = ({ id, document }: CloudDocument, sender: WebContents): CloudPage => {
+    requireActive(id)
+    const page = requireDocument(sender, id, document)
+    if (!page.ready) throw new CloudError('NOT_READY')
+    return page
   }
   const prepare = async (sender: WebContents, explicit = false): Promise<CloudState> => {
     watch(sender)
@@ -238,51 +313,51 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
       extension.mounting(id)
       return snapshot()
     },
-    ready: ({ id }, sender) => {
+    connect: ({ id }, sender) => requireDocument(sender, id).document,
+    ready: ({ id, document }, sender) => {
       requireRelease(id)
       if (!viewers.has(sender) || auth.state().status !== 'signed-in') throw new CloudError('EXTENSION_STOPPED')
-      releasePage(id)
+      const page = requireDocument(sender, id, document)
       try {
         extension.ready(id)
       } catch (error) {
         extension.failed(id, cloudIssue(error))
         throw error
       }
-      pages.set(id, { owner: sender, lifetime: new AbortController(), pending: 0 })
+      page.ready = true
       return snapshot()
     },
-    unmount: ({ id }) => {
+    unmount: ({ id }, sender) => {
       requireRelease(id)
-      releasePage(id)
+      if (pages.get(id)?.owner === sender) releasePage(id)
       extension.unmount(id)
       return snapshot()
     },
-    createConnection: ({ id, connection }, sender) => {
-      requireActive(id)
-      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+    createConnection: (args, sender) => {
+      requireReadyDocument(args, sender)
       auth.credential()
-      return connection
+      return args.connection
     },
-    copyText: ({ id, text }, sender) => {
-      requireActive(id)
-      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+    copyText: (args, sender) => {
+      requireReadyDocument(args, sender)
       auth.credential()
-      clipboard.writeText(text)
+      clipboard.writeText(args.text)
     },
-    copyConnection: ({ id, connection }, sender) => {
-      requireActive(id)
-      if (pages.get(id)?.owner !== sender) throw new CloudError('OPERATION_DENIED')
+    copyConnection: (args, sender) => {
+      requireReadyDocument(args, sender)
       auth.credential()
-      clipboard.writeText(cloudConnectionURL(connection))
+      clipboard.writeText(cloudConnectionURL(args.connection))
     },
-    request: async ({ id, path }, sender) => {
-      requireActive(id)
-      const page = pages.get(id)
-      if (!page || page.owner !== sender) throw new CloudError('OPERATION_DENIED')
+    requestRemove: (args, sender) => {
+      requireReadyDocument(args, sender)
+      auth.credential()
+    },
+    request: async (args, sender) => {
+      const page = requireReadyDocument(args, sender)
       if (page.pending >= 32) throw new CloudError('REQUEST_LIMIT')
       page.pending++
       try {
-        return await cloudGet(apiURL, path, auth, page.lifetime.signal)
+        return await cloudGet(apiURL, args.path, auth, page.lifetime.signal)
       } finally {
         page.pending--
       }

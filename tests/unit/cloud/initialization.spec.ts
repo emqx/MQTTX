@@ -67,7 +67,7 @@ describe('Cloud initialization isolation', function () {
       const frame = { url: 'app://./index.html' }
       const event = {
         senderFrame: frame,
-        sender: { mainFrame: frame, once: () => {}, isDestroyed: () => false, send: () => {} },
+        sender: { mainFrame: frame, on: () => {}, once: () => {}, isDestroyed: () => false, send: () => {} },
       } as unknown as Electron.IpcMainInvokeEvent
       const environment = {
         MQTTX_CLOUD_AUTH_URL: 'https://auth.example.com',
