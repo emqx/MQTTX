@@ -152,9 +152,12 @@
                 >
                   {{ $t('cloud.login') }}<CloudIcon name="external" :size="15" />
                 </el-button>
-                <p class="cloud-login-note"><CloudIcon name="info" :size="14" />{{ $t('cloud.intlOnly') }}</p>
               </template>
             </div>
+            <p v-if="!waiting" class="cloud-login-note">
+              <CloudIcon name="info" :size="14" />
+              <span :title="$t('cloud.intlOnly')">{{ $t('cloud.intlOnly') }}</span>
+            </p>
           </div>
         </section>
       </div>
@@ -589,10 +592,19 @@ export default class Cloud extends Vue {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 20px auto 0;
-  color: var(--color-text-light);
-  font-size: 12px;
-  line-height: 1.5;
+  margin: 8px 0 0;
+  color: var(--color-text-default);
+  font-size: 13px;
+  line-height: 1.62;
+  > i {
+    flex-shrink: 0;
+  }
+  > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 /* Sign-in: the pitch on the left, the actual sign-in on the right */
@@ -667,8 +679,12 @@ export default class Cloud extends Vue {
   background-position: center;
 }
 .cloud-signin-wrap {
-  width: 360px;
-  max-width: 100%;
+  width: 100%;
+  > .cloud-bridge,
+  > .cloud-signin {
+    max-width: 360px;
+    margin-inline: auto;
+  }
 }
 .cloud-bridge {
   display: flex;

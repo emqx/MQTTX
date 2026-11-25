@@ -45,10 +45,15 @@ export interface CloudConnectionDraft {
   port: number
   protocol: 'mqtt' | 'mqtts' | 'ws' | 'wss'
 }
+export interface CloudDocument {
+  id: string
+  document: string
+}
 export interface CloudParams {
-  copyText: { id: string; text: string }
-  createConnection: { id: string; connection: CloudConnectionDraft }
-  copyConnection: { id: string; connection: CloudConnectionDraft }
+  copyText: CloudDocument & { text: string }
+  createConnection: CloudDocument & { connection: CloudConnectionDraft }
+  copyConnection: CloudDocument & { connection: CloudConnectionDraft }
+  requestRemove: CloudDocument
   login: { locale: string }
   logout: Record<string, never>
   cancel: Record<string, never>
@@ -59,14 +64,16 @@ export interface CloudParams {
   remove: Record<string, never>
   leave: Record<string, never>
   mounting: { id: string }
-  ready: { id: string }
+  connect: { id: string }
+  ready: CloudDocument
   unmount: { id: string }
-  request: { id: string; method: 'GET'; path: string }
+  request: CloudDocument & { method: 'GET'; path: string }
 }
 export interface CloudResults {
   copyText: void
   createConnection: CloudConnectionDraft
   copyConnection: void
+  requestRemove: void
   login: CloudState
   logout: CloudState
   cancel: CloudState
@@ -77,6 +84,7 @@ export interface CloudResults {
   remove: CloudState
   leave: void
   mounting: CloudState
+  connect: string
   ready: CloudState
   unmount: CloudState
   request: unknown
