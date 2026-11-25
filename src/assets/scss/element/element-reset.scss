@@ -172,6 +172,11 @@
       background: transparent;
     }
   }
+  // MessageBox focuses its confirm button on open. Keep the hover color for pointer interaction.
+  .el-button--primary:not(.is-plain):focus:not(:hover, :active) {
+    background-color: var(--color-action-green);
+    border-color: var(--color-action-green);
+  }
   .el-button + .el-button {
     margin-left: 0;
   }
