@@ -6,7 +6,7 @@ import version from '../../../src/version'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 import { CloudDeviceIdentity } from '../../../src/main/cloud/device'
 import { CloudError } from '../../../src/utils/cloudErrors'
-import { cloudCallbackHtml, cloudCallbackText } from '../../../src/utils/cloudI18n'
+import { cloudCallbackHtml } from '../../../src/main/cloud/callbackPage'
 
 function displayToken(claims: unknown): string {
   return `${Buffer.from('{}').toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString(
