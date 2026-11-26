@@ -168,6 +168,7 @@ describe('Cloud cloud', function () {
       const candidate = extension.snapshot().candidate!
       assert.strictEqual(candidate.url, 'http://127.0.0.1:5173/dev.html')
       assert.strictEqual(candidate.version, 'development')
+      assert.deepEqual(extension.resolve(candidate.id), candidate)
       extension.mounting(candidate.id)
       extension.ready(candidate.id)
       assert.isTrue(extension.isActive(candidate.id))
@@ -196,10 +197,12 @@ describe('Cloud cloud', function () {
       assert.isOk(d.e.snapshot().candidate)
       assert.strictEqual(d.e.snapshot().active, null)
       const id = d.e.snapshot().candidate!.id
+      assert.deepEqual(d.e.resolve(id), d.e.snapshot().candidate)
       d.e.mounting(id)
       d.e.ready(id)
       await settled(d.e)
       assert.strictEqual(d.e.snapshot().active!.version, '1.0.0')
+      assert.deepEqual(d.e.resolve(id), d.e.snapshot().active)
       const other = new CloudExtension({
         installWorkerPath: workers.installer,
         root: d.e.root,

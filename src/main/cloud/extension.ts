@@ -172,20 +172,20 @@ export class CloudExtension extends EventEmitter {
       this.check()
     }
   }
+  private releaseInfo(release: CloudRelease | null): CloudReleaseInfo | null {
+    if (!release) return null
+    return {
+      id: release.id,
+      version: release.version,
+      url: this.developmentURL || `${this.origin}/${this.secret}/${release.id}/index.html`,
+    }
+  }
   snapshot(): ExtensionSnapshot {
-    const info = (item: CloudRelease | null): CloudReleaseInfo | null =>
-      item
-        ? {
-            id: item.id,
-            version: item.version,
-            url: this.developmentURL || `${this.origin}/${this.secret}/${item.id}/index.html`,
-          }
-        : null
     return {
       removed: this.saved.removed,
       busy: this.busy,
-      active: info(this.active),
-      candidate: info(this.candidate),
+      active: this.releaseInfo(this.active),
+      candidate: this.releaseInfo(this.candidate),
       error: this.error,
       updateError: this.updateError,
     }
@@ -245,9 +245,9 @@ export class CloudExtension extends EventEmitter {
     })
     this.origin = `http://127.0.0.1:${(this.server.address() as AddressInfo).port}`
   }
-  resolve(id: string): CloudRelease | null {
+  resolve(id: string): CloudReleaseInfo | null {
     const release = [this.active, this.candidate].find((x) => x && x.id === id)
-    return release ? { ...release } : null
+    return this.releaseInfo(release ?? null)
   }
   async enter(explicit = false): Promise<void> {
     if (this.saved.removed && !explicit) return
