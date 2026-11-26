@@ -184,8 +184,8 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv, packagedDistribution
   }
   const entryFor = (sender: WebContents, frame: WebFrameMain | null | undefined, url: string) => {
     if (!frame || frame.parent !== sender.mainFrame) return
-    const { active, candidate } = extension.snapshot()
-    return [active, candidate].find((release) => release?.id === frame.name && release.url === url.split('#')[0])
+    const release = extension.resolve(frame.name)
+    return release?.url === url.split('#')[0] ? release : undefined
   }
   const releaseFrame = (sender: WebContents, frame: WebFrameMain | null | undefined): void => {
     for (const [id, page] of pages)
