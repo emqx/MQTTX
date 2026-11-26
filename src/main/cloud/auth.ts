@@ -4,7 +4,7 @@ import http from 'http'
 import version from '../../version'
 import { randomBytes, createHash, timingSafeEqual } from 'crypto'
 import { AddressInfo } from 'net'
-import { cloudCallbackHtml } from '../../utils/cloudI18n'
+import { cloudCallbackHtml } from './callbackPage'
 import { CloudToken, CredentialVault } from './storage'
 
 import type { CloudSession, CloudSessionStatus, CloudIssue } from '../../types/cloud'

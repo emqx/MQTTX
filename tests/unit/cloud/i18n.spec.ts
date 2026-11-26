@@ -1,7 +1,8 @@
 import { assert } from 'chai'
 import { expectError, expectRejection } from './assertions'
 import messages from '../../../src/lang/cloud'
-import { cloudCallbackHtml, cloudCallbackText, cloudErrorKey } from '../../../src/utils/cloudI18n'
+import { cloudCallbackHtml } from '../../../src/main/cloud/callbackPage'
+import { cloudCallbackText, cloudErrorKey } from '../../../src/utils/cloudI18n'
 import { CloudError, cloudError, cloudIssue } from '../../../src/utils/cloudErrors'
 import { CloudAuth } from '../../../src/main/cloud/auth'
 const languages = ['zh', 'en', 'ja', 'tr', 'hu', 'ko']
